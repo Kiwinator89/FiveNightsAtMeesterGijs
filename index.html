@@ -353,7 +353,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
       <div class="quote">"You will stay here until sunrise. If you cannot master the English language,
         perhaps you will master the art of survival instead."</div>
       <p>Er is ook een <strong>muziekkamer</strong>. Daar speelt altijd muziek.
-        Het <em>moet</em> blijven spelen. Als het stopt…</p>
+        Het <em>moet</em> blijven spelen. Je wilt er niet achter komen wat er gebeurt als hij stopt met spelen...</p>
       <p class="warn">⚠ Zuurstof is schaars. Gesloten deuren verbruiken O₂.<br>
         ⚠ Hou de muziekdoos op CAM 6 opgewonden. Wacht niet te lang.</p>
     </div>
@@ -408,7 +408,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
       <div class="hud-status-bar">
         <div class="hud-status-dot on" id="dotSec"></div><span>BEVEILIGINGSSYS</span>
         <div class="hud-status-dot" id="dotMon"></div><span>GIJS</span>
-        <div class="hud-status-dot" id="dotHobo"></div><span>ENTITEIT-2</span>
+        <div class="hud-status-dot" id="dotHobo"></div><span>HOBO GIJS-2</span>
         <div class="hud-status-dot on" id="dotTom"></div><span>MUZIEKDOOS</span>
       </div>
     </div>
@@ -529,8 +529,8 @@ const DOOR_RETREAT_MAX  = 25000;
 const MOVE_IVAL         = [32000, 24000, 16000, 11000, 7500, 5000];
 const HOBO_MIN_MS       = 5000;
 const HOBO_MAX_MS       = 20000;
-const MB_DRAIN_BASE     = 0.55;  // % per tick at hour 0
-const MB_DRAIN_SCALE    = 0.08;  // extra % per hour
+const MB_DRAIN_BASE     = 3;  // % per tick at hour 0
+const MB_DRAIN_SCALE    = 0.5;  // extra % per hour
 const MB_WIND_RATE      = 5.5;   // % per tick while winding
 const MUSIC_CAM_ID      = 5;     // index in CAMS
 
