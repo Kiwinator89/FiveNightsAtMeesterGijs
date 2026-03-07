@@ -5,18 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>One Night at Meester Gijs</title>
 <style>
-/*
-  ─────────────────────────────────────────────────────────────
-  ONE NIGHT AT MEESTER GIJS
-  ─────────────────────────────────────────────────────────────
-  Expected file paths in your repository root:
-    Audio/Ambience.mp3      Audio/DoorClose.mp3
-    Audio/Jumpscare.mp3     Audio/Lure.mp3
-    Audio/OxygenOutage.mp3  Audio/Win.mp3
-    Images/GijsCamera.png   Images/GijsJumpscare.png
-    Images/PatrickJumpscare.png
-  ─────────────────────────────────────────────────────────────
-*/
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Creepster&family=VT323&display=swap');
 
 *{margin:0;padding:0;box-sizing:border-box;user-select:none}
@@ -32,19 +20,10 @@
 }
 html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Share Tech Mono',monospace}
 
-/* ══════════════════════════════════════════════════
-   SHARED UTILS
-══════════════════════════════════════════════════ */
 .screen{position:absolute;inset:0;display:none}
 
-/* ══════════════════════════════════════════════════
-   BLOOD DRIPS (start screen)
-══════════════════════════════════════════════════ */
 #drips{position:absolute;top:0;left:0;right:0;height:120px;pointer-events:none;z-index:1;overflow:hidden}
 
-/* ══════════════════════════════════════════════════
-   START SCREEN
-══════════════════════════════════════════════════ */
 #startScreen{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   background:radial-gradient(ellipse 90% 70% at 50% 110%,#1c0004 0%,#000 65%);
@@ -84,21 +63,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 @keyframes btnAnim{0%,100%{box-shadow:0 0 6px #88000033}50%{box-shadow:0 0 20px #88000066}}
 .start-hint{margin-top:16px;font-size:.55rem;color:#222;letter-spacing:4px}
 
-/* ══════════════════════════════════════════════════
-   GAME SCREEN
-══════════════════════════════════════════════════ */
 #gameScreen{display:none;position:absolute;inset:0;overflow:hidden}
-
-/* ── OFFICE CANVAS ── */
 #officeCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-
-/* ── VIGNETTE ── */
 .vignette{
   position:absolute;inset:0;pointer-events:none;z-index:9;
   background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.8) 100%)
 }
 
-/* ── DOOR ZONES ── */
 .door-zone{position:absolute;top:0;bottom:0;width:min(170px,17vw);z-index:12}
 .dz-l{left:0}.dz-r{right:0}
 .door-frame{
@@ -128,7 +99,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 }
 .dz-l .door-handle{right:4px}
 .dz-r .door-handle{left:4px}
-/* door light */
+/* door light – only shows closed (safe) state, no Gijs warning */
 .d-light{
   position:absolute;top:10%;width:14px;height:14px;border-radius:50%;
   border:2px solid #1a1a1a;background:#111;box-shadow:inset 0 1px 2px rgba(0,0,0,.9);
@@ -137,9 +108,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .dz-l .d-light{left:10px}
 .dz-r .d-light{right:10px}
 .dl-safe{background:#00e050!important;box-shadow:0 0 14px #00e050,0 0 3px #00e050!important}
-.dl-warn{background:#ff2200!important;box-shadow:0 0 14px #ff2200,0 0 3px #ff2200!important;animation:warnBlink .45s infinite}
-@keyframes warnBlink{0%,100%{opacity:1}50%{opacity:.25}}
-/* door button */
 .door-btn{
   position:absolute;bottom:12%;
   width:min(65px,7.5vw);height:min(30px,3.5vw);
@@ -153,16 +121,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .door-btn:hover{background:#14142a;border-color:#3a3a55;color:#8888aa}
 .door-btn.on{background:#400000;border-color:#cc1111;color:#ff6666;box-shadow:0 0 10px #cc111133}
 
-/* ══════════════════════════════════════════════════
-   HUD
-══════════════════════════════════════════════════ */
 #hud{
   position:absolute;inset:0;pointer-events:none;z-index:20;
   display:grid;grid-template-columns:1fr auto 1fr;grid-template-rows:auto 1fr auto;
   padding:10px 14px 14px
 }
-
-/* top-left panel */
 .hud-tl{grid-column:1;grid-row:1;display:flex;flex-direction:column;gap:10px}
 .hud-time-wrap{
   background:rgba(6,6,10,.85);border:1px solid #1a1a28;border-top:1px solid #2a2a3c;
@@ -173,8 +136,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   color:var(--amber);text-shadow:0 0 20px rgba(232,146,10,.5);letter-spacing:3px;line-height:1
 }
 .hud-night-lbl{font-size:clamp(.45rem,.8vw,.6rem);color:#2a2a3a;letter-spacing:5px;text-transform:uppercase}
-
-/* O2 panel */
 .hud-o2-panel{
   background:rgba(6,6,10,.85);border:1px solid #0a1a2a;border-top:1px solid #1a2a3a;
   padding:10px 14px;backdrop-filter:blur(4px);min-width:min(180px,22vw)
@@ -190,8 +151,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .o2-fill.crit{background:linear-gradient(90deg,#cc0000,#ff3300);animation:o2Crit .35s infinite}
 @keyframes o2Crit{0%,100%{opacity:1}50%{opacity:.3}}
 .o2-status{margin-top:5px;font-size:clamp(.4rem,.7vw,.55rem);color:#111122;letter-spacing:2px}
-
-/* top-right panel */
 .hud-tr{grid-column:3;grid-row:1;display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:all}
 .cam-toggle-btn{
   background:rgba(6,6,10,.85);border:1px solid #1c1c28;border-top:1px solid #2a2a3a;
@@ -218,8 +177,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 @keyframes lureGlow{0%,100%{box-shadow:0 0 4px rgba(51,170,51,.2)}50%{box-shadow:0 0 12px rgba(51,170,51,.4)}}
 .lure-cd{font-size:clamp(.42rem,.7vw,.55rem);color:#0d1a0d;letter-spacing:2px;text-align:right}
 .lure-cd.hot{color:#aacc22;animation:lureGlow .8s infinite}
-
-/* ── bottom center: cam button indicator ── */
 .hud-bc{grid-column:2;grid-row:3;display:flex;justify-content:center;align-items:flex-end;pointer-events:all}
 .hud-status-bar{
   background:rgba(6,6,10,.9);border:1px solid #181820;padding:6px 20px;
@@ -229,16 +186,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .hud-status-dot.on{background:#1db954;box-shadow:0 0 5px #1db954;animation:dotPulse 2s infinite}
 @keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* ══════════════════════════════════════════════════
-   CAMERA OVERLAY
-══════════════════════════════════════════════════ */
 #camOverlay{
   position:absolute;inset:0;z-index:30;
   background:rgba(2,3,2,.96);
   display:none;flex-direction:column;padding:12px;gap:10px
 }
-
-/* header */
 .cam-hdr{
   display:flex;justify-content:space-between;align-items:center;
   border-bottom:1px solid #0c140c;padding-bottom:10px
@@ -252,8 +204,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   font-family:'Share Tech Mono',monospace;font-size:clamp(.5rem,.8vw,.6rem);letter-spacing:3px;cursor:pointer;transition:all .15s
 }
 .cam-close-btn:hover{border-color:#666;color:#888}
-
-/* main feed */
 .cam-main{flex:1;position:relative;background:#020602;border:1px solid #0a140a;overflow:hidden;min-height:0}
 .cam-scanlines{position:absolute;inset:0;background:var(--scan);pointer-events:none;z-index:5;opacity:.7}
 .cam-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,.7) 100%);pointer-events:none;z-index:5}
@@ -270,11 +220,17 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   filter:brightness(.6) contrast(1.4) saturate(.6) sepia(.3);
   animation:mBreath 2.5s ease-in-out infinite
 }
+/* HoboGijs on cam – slightly offset to look distinct */
+.hobo-on-cam{
+  position:absolute;bottom:0;right:8%;z-index:3;
+  max-height:80%;max-width:45%;object-fit:contain;
+  filter:brightness(.5) contrast(1.5) saturate(.4) hue-rotate(30deg);
+  animation:hoboBreath 1.8s ease-in-out infinite
+}
 @keyframes mBreath{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.02) translateY(-4px)}}
+@keyframes hoboBreath{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.03) translateY(-6px)}}
 .cam-lure-in-feed{position:absolute;bottom:12px;right:12px;z-index:7}
 .cam-lure-in-feed .lure-btn{margin-bottom:0;font-size:clamp(.45rem,.8vw,.6rem)}
-
-/* thumbnail strip */
 .cam-strip{display:flex;gap:8px;height:min(80px,12vh)}
 .cam-thumb{
   flex:1;background:#010601;border:1px solid #0a140a;cursor:pointer;
@@ -292,24 +248,21 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   border-radius:50%;background:#ff2200;box-shadow:0 0 6px #ff2200;z-index:3;animation:mdBlink .6s infinite
 }
 .ct-mdot.on{display:block}
+/* HoboGijs dot – orange/yellow to distinguish */
+.ct-hobodot{
+  display:none;position:absolute;top:5px;left:5px;width:7px;height:7px;
+  border-radius:50%;background:#ff9900;box-shadow:0 0 6px #ff9900;z-index:3;animation:mdBlink .5s infinite
+}
+.ct-hobodot.on{display:block}
 @keyframes mdBlink{0%,100%{opacity:1}50%{opacity:0}}
 
-/* ══════════════════════════════════════════════════
-   FLASH / FIRE / OVERLAYS
-══════════════════════════════════════════════════ */
 #flashEl{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:70;transition:opacity .06s}
 #fireCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:15;display:none}
 
-/* ══════════════════════════════════════════════════
-   JUMPSCARE
-══════════════════════════════════════════════════ */
 #jsScreen{position:absolute;inset:0;background:#000;z-index:150;display:none;align-items:center;justify-content:center}
 #jsImg{width:100%;height:100%;object-fit:cover;animation:jsIn .08s ease-out}
 @keyframes jsIn{from{transform:scale(1.2)}to{transform:scale(1)}}
 
-/* ══════════════════════════════════════════════════
-   DEATH SCREEN
-══════════════════════════════════════════════════ */
 #deathScreen{
   display:none;position:absolute;inset:0;z-index:140;
   background:radial-gradient(ellipse at center,#0c0000,#000);
@@ -330,9 +283,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 }
 .retry-btn:hover{background:rgba(88,0,0,.3);border-color:#aa0000;color:#aa0000;box-shadow:0 0 20px rgba(88,0,0,.4)}
 
-/* ══════════════════════════════════════════════════
-   WIN SCREEN
-══════════════════════════════════════════════════ */
 #winScreen{
   display:none;position:absolute;inset:0;z-index:130;
   background:radial-gradient(ellipse at center,#001a05,#000);
@@ -355,7 +305,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .win-card strong{color:#44ff66}
 .win-card em{color:#3a6a3a;font-style:italic}
 .win-grade{font-size:clamp(1.4rem,3vw,2.2rem);color:#ffcc22;text-shadow:0 0 20px #ffaa00;margin:10px 0}
-
 </style>
 </head>
 <body>
@@ -385,7 +334,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
       </p>
       <p class="warn">
         ⚠ Zuurstof is schaars in de kelder. Gesloten deuren verbruiken O₂.
-        Als de O₂ op raakt, neemt <em>iets anders</em> het over.
+        Als de O₂ op raakt, neemt <em>iets anders</em> het over.<br>
+        ⚠ Je bent niet alleen in de kelder. Vertrouw de camera's.
       </p>
     </div>
     <button class="start-btn" id="startBtn">▶ &nbsp; NACHT BEGINNEN</button>
@@ -395,11 +345,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 
 <!-- ════════════════════ GAME ════════════════════ -->
 <div id="gameScreen">
-
-  <!-- Office rendered on canvas -->
   <canvas id="officeCanvas"></canvas>
-
-  <!-- Vignette -->
   <div class="vignette"></div>
 
   <!-- LEFT DOOR -->
@@ -422,7 +368,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 
   <!-- HUD -->
   <div id="hud">
-    <!-- top left -->
     <div class="hud-tl">
       <div class="hud-time-wrap">
         <div class="hud-time" id="hudTime">12:00 AM</div>
@@ -438,7 +383,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
       </div>
     </div>
 
-    <!-- top right -->
     <div class="hud-tr">
       <button class="cam-toggle-btn" id="camToggleBtn" onclick="toggleCam()">📷 CAMERA'S &nbsp;[C]</button>
       <div class="lure-panel">
@@ -447,11 +391,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
       </div>
     </div>
 
-    <!-- bottom center status -->
     <div class="hud-bc">
       <div class="hud-status-bar">
         <div class="hud-status-dot on" id="dotSec"></div><span id="secSys">BEVEILIGINGSSYS</span>
-        <div class="hud-status-dot" id="dotMon"></div><span>MONSTER</span>
+        <div class="hud-status-dot" id="dotMon"></div><span>GIJS</span>
+        <div class="hud-status-dot" id="dotHobo"></div><span>ENTITEIT-2</span>
       </div>
     </div>
   </div>
@@ -471,7 +415,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 
     <div class="cam-main" id="camMain">
       <canvas class="cam-canvas" id="camCanvas"></canvas>
+      <!-- Gijs on cam -->
       <img class="monster-on-cam" id="monsterCamImg" src="" alt="" style="display:none">
+      <!-- HoboGijs on cam -->
+      <img class="hobo-on-cam" id="hoboCamImg" src="" alt="" style="display:none">
       <div class="cam-scanlines"></div>
       <div class="cam-noise"></div>
       <div class="cam-vignette"></div>
@@ -485,9 +432,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
     <div class="cam-strip" id="camStrip"></div>
   </div>
 
-  <!-- Fire canvas -->
   <canvas id="fireCanvas"></canvas>
-
   <div id="flashEl"></div>
 </div>
 
@@ -522,36 +467,45 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 
 <script>
 /* ================================================================
-   ONE NIGHT AT MEESTER GIJS  –  GAME ENGINE
+   ONE NIGHT AT MEESTER GIJS  –  GAME ENGINE  (v2)
    ================================================================ */
 
 const FILES = {
-  ambience:   'Audio/Ambience.mp3',
-  doorClose:  'Audio/DoorClose.mp3',
-  jumpscare:  'Audio/Jumpscare.mp3',
-  lure:       'Audio/Lure.mp3',
-  oxygenOut:  'Audio/OxygenOutage.mp3',
-  win:        'Audio/Win.mp3',
-  gijsCam:    'Images/GijsCamera.png',
-  gijsJS:     'Images/GijsJumpscare.png',
-  patrickJS:  'Images/PatrickJumpscare.png',
+  ambience:        'Audio/Ambience.mp3',
+  doorClose:       'Audio/DoorClose.mp3',
+  jumpscare:       'Audio/Jumpscare.mp3',
+  lure:            'Audio/Lure.mp3',
+  oxygenOut:       'Audio/OxygenOutage.mp3',
+  win:             'Audio/Win.mp3',
+  laugh:           'Audio/Laugh.mp3',
+  cameraSwitch:    'Audio/CameraSwitch.mp3',
+  footsteps:       'Audio/Footsteps.mp3',
+  gijsCam:         'Images/GijsCamera.png',
+  gijsJS:          'Images/GijsJumpscare.png',
+  patrickJS:       'Images/PatrickJumpscare.png',
+  hoboGijsCam:     'Images/HoboGijsCamera.png',
+  hoboGijsJS:      'Images/HoboGijsJumpscare.png',
 };
 
 /* ── BALANCE ── */
-const NIGHT_MS   = 6 * 60 * 1000;
-const TICK_MS    = 400;
-const O2_DRAIN   = 0.05;   // % per tick base
-const O2_DOOR    = 0.20;   // % per tick per closed door
-const O2_DCLICK  = 3.5;    // % cost on click
-const LURE_CD_S  = 30;     // seconds
-const GRACE_MS   = 4200;   // ms before monster enters from open door
-const MOVE_IVAL  = [32000, 24000, 16000, 11000, 7500, 5000];
+const NIGHT_MS     = 6 * 60 * 1000;
+const TICK_MS      = 400;
+const O2_DRAIN     = 0.05;
+const O2_DOOR      = 0.20;
+const O2_DCLICK    = 3.5;
+const LURE_CD_S    = 30;
+const GRACE_MS     = 4200;
+const DOOR_RETREAT_MIN = 14000; // Gijs retreats from door after 14–25s if door stays closed
+const DOOR_RETREAT_MAX = 25000;
+const MOVE_IVAL    = [32000, 24000, 16000, 11000, 7500, 5000];
+const HOBO_MIN_MS  = 5000;
+const HOBO_MAX_MS  = 20000;
 
 /* ── CAM DEFINITIONS ── */
 const CAMS = [
   { id:0, name:'CAM 1', room:'STOOKKAMER'   },
   { id:1, name:'CAM 2', room:'OPSLAGRUIMTE' },
-  { id:2, name:'CAM 3', room:'NUTSRUIMTE'   },
+  { id:2, name:'CAM 3', room:'KLASLOKAAL'   }, // was NUTSRUIMTE
   { id:3, name:'CAM 4', room:'LINKER GANG'  },
   { id:4, name:'CAM 5', room:'RECHTER GANG' },
 ];
@@ -566,11 +520,17 @@ function mkState() {
     running:false, nightStart:0, hour:0,
     o2:100, o2Dead:false,
     lfClosed:false, rtClosed:false,
-    mPos:POS.C0, mPath:null, mDoorTimer:null, mMoveTimer:null,
+    // Gijs
+    mPos:POS.C0, mPath:null, mDoorTimer:null, mMoveTimer:null, mRetreatTimer:null,
+    // HoboGijs
+    hoboPos:0, hoboMoveTimer:null,
+    // camera
     camOpen:false, curCam:0,
+    // lure
     lureReady:false, lureCD:LURE_CD_S, lureCDTimer:null,
+    // meta
     dead:false, won:false,
-    firePtcls:[], fireAnim:null, tickTimer:null, timeTimer:null,
+    firePtcls:[], fireOn:false, fireAnim:null, tickTimer:null, timeTimer:null, fireTimer:null,
   };
 }
 
@@ -579,12 +539,15 @@ function mkState() {
 ════════════════════════════════════════════════ */
 function initAudio() {
   Object.entries({
-    ambience:[FILES.ambience,true,.28],
-    doorClose:[FILES.doorClose,false,.8],
-    jumpscare:[FILES.jumpscare,false,1],
-    lure:[FILES.lure,false,.75],
-    oxygenOut:[FILES.oxygenOut,false,.85],
-    win:[FILES.win,false,.8],
+    ambience:     [FILES.ambience,     true,  .28],
+    doorClose:    [FILES.doorClose,    false, .8 ],
+    jumpscare:    [FILES.jumpscare,    false, 1  ],
+    lure:         [FILES.lure,         false, .75],
+    oxygenOut:    [FILES.oxygenOut,    false, .85],
+    win:          [FILES.win,          false, .8 ],
+    laugh:        [FILES.laugh,        false, .7 ],
+    cameraSwitch: [FILES.cameraSwitch, false, .6 ],
+    footsteps:    [FILES.footsteps,    false, .75],
   }).forEach(([k,[src,loop,vol]])=>{
     SFX[k]=new Audio(src);SFX[k].loop=loop;SFX[k].volume=vol;
   });
@@ -603,27 +566,22 @@ function drawOffice() {
   const ctx = cv.getContext('2d');
   ctx.clearRect(0,0,W,H);
 
-  // ─── CEILING ───
   const ceilH = H*.065;
   const ceilGrad = ctx.createLinearGradient(0,0,0,ceilH*2);
   ceilGrad.addColorStop(0,'#0a0a0d');
   ceilGrad.addColorStop(1,'#141418');
   ctx.fillStyle=ceilGrad; ctx.fillRect(0,0,W,ceilH);
 
-  // ─── BACK WALL ───
-  const wallTop = ceilH;
-  const wallBot = H*.62;
+  const wallTop = ceilH, wallBot = H*.62;
   const wallGrad = ctx.createLinearGradient(0,wallTop,0,wallBot);
   wallGrad.addColorStop(0,'#12121a');
   wallGrad.addColorStop(1,'#0d0d15');
   ctx.fillStyle=wallGrad; ctx.fillRect(0,wallTop,W,wallBot-wallTop);
 
-  // Concrete texture – grid lines
   ctx.strokeStyle='rgba(255,255,255,0.012)'; ctx.lineWidth=.8;
   for(let x=0;x<W;x+=Math.floor(W/18)){ctx.beginPath();ctx.moveTo(x,wallTop);ctx.lineTo(x,wallBot);ctx.stroke()}
   for(let y=wallTop;y<wallBot;y+=Math.floor((wallBot-wallTop)/10)){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
 
-  // Wall cracks
   function crack(x1,y1,segs,len,spread){
     ctx.strokeStyle='rgba(0,0,0,0.5)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x1,y1);
     let cx=x1,cy=y1;
@@ -634,65 +592,48 @@ function drawOffice() {
   crack(W*.7,wallTop+15,7,80,14);  crack(W*.74,wallTop+40,4,45,9);
   crack(W*.5,wallTop+10,6,60,10);
 
-  // ─── PIPES ON CEILING ───
   function drawPipe(x,w){
     const pg=ctx.createLinearGradient(0,0,0,ceilH);
     pg.addColorStop(0,'#252530');pg.addColorStop(.5,'#1c1c26');pg.addColorStop(1,'#111118');
     ctx.fillStyle=pg; ctx.fillRect(x,0,w,ceilH);
-    // bolts
     for(let bx=x+10;bx<x+w-5;bx+=30){
       ctx.fillStyle='#1e1e28';
       ctx.beginPath();ctx.arc(bx,ceilH,4,0,Math.PI*2);ctx.fill();
     }
-    // shadow cast down
     const sh=ctx.createLinearGradient(0,ceilH,0,ceilH+20);
     sh.addColorStop(0,'rgba(0,0,0,.45)');sh.addColorStop(1,'rgba(0,0,0,0)');
     ctx.fillStyle=sh; ctx.fillRect(x,ceilH,w,20);
   }
   drawPipe(W*.04,W*.28); drawPipe(W*.6,W*.18); drawPipe(W*.84,W*.12);
 
-  // ─── HANGING LAMP ───
   const lx=W/2, wireTop=ceilH, wireH=H*.1;
   ctx.strokeStyle='#1e1e1e'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(lx,wireTop); ctx.lineTo(lx,wireTop+wireH); ctx.stroke();
-
-  // Lamp shade
   ctx.save();
   const shadeGrad=ctx.createLinearGradient(0,wireTop+wireH,0,wireTop+wireH+H*.07);
   shadeGrad.addColorStop(0,'#1a1a20');shadeGrad.addColorStop(1,'#111116');
   ctx.fillStyle=shadeGrad;
   ctx.beginPath();
-  ctx.moveTo(lx-H*.04,wireTop+wireH);
-  ctx.lineTo(lx+H*.04,wireTop+wireH);
-  ctx.lineTo(lx+H*.065,wireTop+wireH+H*.07);
-  ctx.lineTo(lx-H*.065,wireTop+wireH+H*.07);
+  ctx.moveTo(lx-H*.04,wireTop+wireH);ctx.lineTo(lx+H*.04,wireTop+wireH);
+  ctx.lineTo(lx+H*.065,wireTop+wireH+H*.07);ctx.lineTo(lx-H*.065,wireTop+wireH+H*.07);
   ctx.closePath(); ctx.fill();
   ctx.strokeStyle='#252528';ctx.lineWidth=1;ctx.stroke();
   ctx.restore();
 
-  // Bulb
   const bx=lx, by=wireTop+wireH;
   const bGrad=ctx.createRadialGradient(bx,by,0,bx,by,H*.008);
   bGrad.addColorStop(0,'#ffdd88');bGrad.addColorStop(1,'rgba(255,200,80,0)');
   ctx.fillStyle='#ffcc66';
   ctx.beginPath();ctx.arc(bx,by,H*.006,0,Math.PI*2);ctx.fill();
 
-  // Lamp glow on wall/floor
   const gx=lx, gy=wireTop+wireH+H*.04;
   const lg=ctx.createRadialGradient(gx,gy,0,gx,gy,W*.35);
   lg.addColorStop(0,'rgba(255,170,50,0.05)');lg.addColorStop(1,'rgba(255,170,50,0)');
   ctx.fillStyle=lg; ctx.fillRect(0,gy-20,W,H);
 
-  // ─── WHITEBOARD ───
-  const wbW=W*.22, wbH=H*.17;
-  const wbX=W/2-wbW/2, wbY=wallTop+H*.03;
-  // Frame
-  ctx.fillStyle='#5c4a30';
-  ctx.fillRect(wbX-5,wbY-5,wbW+10,wbH+10);
-  // Surface
-  ctx.fillStyle='#ece8e0';
-  ctx.fillRect(wbX,wbY,wbW,wbH);
-  // Written text (simulate)
+  const wbW=W*.22, wbH=H*.17, wbX=W/2-W*.22/2, wbY=wallTop+H*.03;
+  ctx.fillStyle='#5c4a30'; ctx.fillRect(wbX-5,wbY-5,wbW+10,wbH+10);
+  ctx.fillStyle='#ece8e0'; ctx.fillRect(wbX,wbY,wbW,wbH);
   ctx.fillStyle='#8b0000';
   ctx.font=`bold ${Math.floor(wbH*.14)}px 'Share Tech Mono',monospace`;
   ctx.textAlign='center';
@@ -701,18 +642,15 @@ function drawOffice() {
   ctx.font=`${Math.floor(wbH*.10)}px 'Share Tech Mono',monospace`;
   ctx.fillText('Past Simple · Conditional',wbX+wbW/2,wbY+wbH*.42);
   ctx.fillText('Irregular Verbs · Modal Verbs',wbX+wbW/2,wbY+wbH*.57);
-  // Red underline
   ctx.strokeStyle='#cc0000';ctx.lineWidth=2;
   ctx.beginPath();ctx.moveTo(wbX+20,wbY+wbH*.65);ctx.lineTo(wbX+wbW-20,wbY+wbH*.65);ctx.stroke();
   ctx.fillStyle='#cc0000';
   ctx.font=`bold ${Math.floor(wbH*.13)}px 'Share Tech Mono',monospace`;
   ctx.fillText('★ TEST RESULT: 1/10 ★',wbX+wbW/2,wbY+wbH*.84);
-  // Pin
   ctx.fillStyle='#cc2222';
   ctx.beginPath();ctx.arc(wbX+wbW/2,wbY-2,6,0,Math.PI*2);ctx.fill();
   ctx.textAlign='left';
 
-  // ─── POSTERS ───
   const posters=[
     {x:W*.04,  y:wallTop+H*.04, w:W*.1,  h:H*.14, rot:-.02,
      title:'Irregular Verbs', lines:['go → went → gone','see → saw → seen','eat → ate → eaten','run → ran → run']},
@@ -727,27 +665,21 @@ function drawOffice() {
     ctx.save();
     ctx.translate(p.x+p.w/2,p.y+p.h/2);
     ctx.rotate(p.rot);
-    // Shadow
     ctx.fillStyle='rgba(0,0,0,.5)';
     ctx.fillRect(-p.w/2+4,-p.h/2+4,p.w,p.h);
-    // Border
     ctx.fillStyle='#7a6040';
     ctx.fillRect(-p.w/2-3,-p.h/2-3,p.w+6,p.h+6);
-    // Paper
     const pg2=ctx.createLinearGradient(0,-p.h/2,0,p.h/2);
     pg2.addColorStop(0,'#ede8dc');pg2.addColorStop(1,'#ddd8cc');
     ctx.fillStyle=pg2; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
-    // Title
     ctx.fillStyle='#8b0000';
     ctx.font=`bold ${Math.max(7,Math.floor(p.h*.12))}px 'Share Tech Mono',monospace`;
     ctx.textAlign='center'; ctx.fillText(p.title,0,-p.h/2+p.h*.15);
     ctx.strokeStyle='#cc4444';ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(-p.w/2+6,-p.h/2+p.h*.22);ctx.lineTo(p.w/2-6,-p.h/2+p.h*.22);ctx.stroke();
-    // Body lines
     ctx.fillStyle='#333';
     ctx.font=`${Math.max(6,Math.floor(p.h*.09))}px 'Share Tech Mono',monospace`;
     p.lines.forEach((l,i)=>ctx.fillText(l,0,-p.h/2+p.h*(.32+i*.17)));
-    // Pin
     ctx.fillStyle='#cc1111';
     ctx.beginPath();ctx.arc(0,-p.h/2+4,5,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='#ff4444';
@@ -755,26 +687,20 @@ function drawOffice() {
     ctx.restore();
   });
 
-  // ─── FLOOR ───
   const floorY = H*.62;
   const floorGrad=ctx.createLinearGradient(0,floorY,0,H);
   floorGrad.addColorStop(0,'#101018');floorGrad.addColorStop(1,'#0c0c14');
   ctx.fillStyle=floorGrad; ctx.fillRect(0,floorY,W,H-floorY);
-
-  // Floor tiles
   ctx.strokeStyle='rgba(0,0,0,0.25)';ctx.lineWidth=1;
   const tileW=Math.floor(W/14);
   for(let x=0;x<W;x+=tileW){ctx.beginPath();ctx.moveTo(x,floorY);ctx.lineTo(x,H);ctx.stroke()}
   const tileH=Math.floor((H-floorY)/5);
   for(let y=floorY;y<H;y+=tileH){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
-
-  // Perspective perspective lines
   ctx.strokeStyle='rgba(255,255,255,0.015)';ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(0,floorY);ctx.lineTo(W/2,floorY);ctx.lineTo(W,floorY);ctx.stroke();
   ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(W/2,floorY);ctx.stroke();
   ctx.beginPath();ctx.moveTo(W,H);ctx.lineTo(W/2,floorY);ctx.stroke();
 
-  // Floor stains
   function stain(cx,cy,rx,ry,a){
     ctx.save();ctx.globalAlpha=a;
     ctx.fillStyle='rgba(0,0,0,.4)';
@@ -785,32 +711,24 @@ function drawOffice() {
   stain(W*.78,H*.75,W*.05,H*.018,.5);
   stain(W*.45,H*.85,W*.03,H*.012,.4);
 
-  // ─── DESK ───
-  const deskW=W*.32,deskH=H*.08;
-  const deskX=W/2-deskW/2, deskY=H-deskH;
+  const deskW=W*.32,deskH=H*.08,deskX=W/2-W*.32/2, deskY=H-H*.08;
   const dGrad=ctx.createLinearGradient(deskX,deskY,deskX,H);
   dGrad.addColorStop(0,'#2a1a08');dGrad.addColorStop(1,'#1a0f05');
   ctx.fillStyle=dGrad; ctx.fillRect(deskX,deskY,deskW,deskH);
   ctx.strokeStyle='#3e2810';ctx.lineWidth=2;
   ctx.strokeRect(deskX,deskY,deskW,deskH);
-  // Desk edge highlight
   const deH=ctx.createLinearGradient(0,deskY,0,deskY+4);
   deH.addColorStop(0,'rgba(255,200,100,.08)');deH.addColorStop(1,'rgba(255,200,100,0)');
   ctx.fillStyle=deH; ctx.fillRect(deskX,deskY,deskW,4);
 
-  // Monitor stand
-  const msW=W*.016,msH=H*.016,msX=W/2-msW/2,msY=deskY-msH;
+  const msW=W*.016,msH=H*.016,msX=W/2-W*.016/2,msY=deskY-H*.016;
   ctx.fillStyle='#202028';ctx.fillRect(msX,msY,msW,msH);
-  // Monitor
-  const mW=W*.1,mH=H*.09;
-  const mX=W/2-mW/2,mY=msY-mH;
+  const mW=W*.1,mH=H*.09,mX=W/2-W*.1/2,mY=msY-H*.09;
   ctx.fillStyle='#0c0c14';ctx.strokeStyle='#2a2a38';ctx.lineWidth=2;
   ctx.fillRect(mX,mY,mW,mH);ctx.strokeRect(mX,mY,mW,mH);
-  // Screen glow
   const scrGrad=ctx.createRadialGradient(W/2,mY+mH/2,0,W/2,mY+mH/2,mW*.4);
   scrGrad.addColorStop(0,'rgba(0,100,200,.12)');scrGrad.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=scrGrad;ctx.fillRect(mX+2,mY+2,mW-4,mH-4);
-  // Screen text
   ctx.fillStyle='#00ff66';
   ctx.font=`${Math.floor(mH*.18)}px 'Share Tech Mono',monospace`;
   ctx.textAlign='center';
@@ -820,27 +738,23 @@ function drawOffice() {
   ctx.fillText('>>> ACTIVE',W/2,mY+mH*.78);
   ctx.textAlign='left';
 
-  // Keyboard
-  const kW=W*.08,kH=H*.015,kX=W/2-kW/2,kY=deskY+2;
+  const kW=W*.08,kH=H*.015,kX=W/2-W*.08/2,kY=deskY+2;
   ctx.fillStyle='#181820';ctx.strokeStyle='#252530';ctx.lineWidth=1;
   ctx.fillRect(kX,kY,kW,kH);ctx.strokeRect(kX,kY,kW,kH);
 
-  // Coffee cup
   const cupX=W/2+deskW*.32,cupY=deskY-H*.038,cupR=W*.013;
   ctx.fillStyle='#2a2a2a';
   ctx.beginPath();ctx.arc(cupX,cupY+H*.035,cupR,.1,Math.PI-.1,false);
   ctx.lineTo(cupX-cupR*.8,cupY);ctx.arc(cupX,cupY,cupR*.8,Math.PI*1.1,0,true);ctx.closePath();ctx.fill();
   ctx.strokeStyle='#444';ctx.lineWidth=1;ctx.stroke();
-  // Steam
   ctx.strokeStyle='rgba(200,200,200,0.15)';ctx.lineWidth=1;
-  [0,4,-3].forEach((off,i)=>{
+  [0,4,-3].forEach((off)=>{
     ctx.beginPath();
     ctx.moveTo(cupX+off,cupY-H*.005);
     ctx.bezierCurveTo(cupX+off-3,cupY-H*.02,cupX+off+3,cupY-H*.03,cupX+off,cupY-H*.04);
     ctx.stroke();
   });
 
-  // Papers
   [-5,0,3].forEach((off,i)=>{
     ctx.save();ctx.translate(W/2-deskW*.3,deskY-H*.04+i*2);ctx.rotate((-8+off*2)*Math.PI/180);
     ctx.fillStyle=i===0?'#ddd':'#ccc';ctx.fillRect(0,0,W*.055,H*.04);
@@ -850,7 +764,6 @@ function drawOffice() {
     ctx.restore();
   });
 
-  // Ruler
   ctx.save();ctx.translate(W/2+deskW*.1,deskY+H*.01);ctx.rotate(-10*Math.PI/180);
   ctx.fillStyle='#b8902a';ctx.fillRect(0,0,W*.07,H*.009);
   ctx.strokeStyle='#8a6a1a';ctx.lineWidth=.5;ctx.strokeRect(0,0,W*.07,H*.009);
@@ -867,7 +780,6 @@ function drawCamRoom(canvas, roomId, small=false) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0,0,W,H);
 
-  // Apply green NV tint
   function nvTint(){
     ctx.fillStyle='rgba(0,18,4,0.3)';ctx.fillRect(0,0,W,H);
   }
@@ -876,7 +788,6 @@ function drawCamRoom(canvas, roomId, small=false) {
   fns[roomId]&&fns[roomId](ctx,W,H);
   nvTint();
 
-  // Noise/grain
   if(!small){
     const id=ctx.createImageData(W,H);
     for(let i=0;i<id.data.length;i+=4){const v=(Math.random()>0.98)?Math.random()*80:0;id.data[i]=id.data[i+1]=id.data[i+2]=v;id.data[i+3]=255*0.03;}
@@ -885,7 +796,6 @@ function drawCamRoom(canvas, roomId, small=false) {
 }
 
 function drawBoilerRoom(ctx,W,H){
-  // Floor + wall
   ctx.fillStyle='#0a0e08'; ctx.fillRect(0,0,W,H);
   const wg=ctx.createLinearGradient(0,0,0,H*.6);
   wg.addColorStop(0,'#0c1008');wg.addColorStop(1,'#0a0c06');
@@ -893,35 +803,29 @@ function drawBoilerRoom(ctx,W,H){
   const fg=ctx.createLinearGradient(0,H*.6,0,H);
   fg.addColorStop(0,'#080c06');fg.addColorStop(1,'#060a04');
   ctx.fillStyle=fg; ctx.fillRect(0,H*.6,W,H*.4);
-  // Grid wall
   ctx.strokeStyle='rgba(0,255,50,.04)';ctx.lineWidth=.5;
   for(let x=0;x<W;x+=W/12){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H*.6);ctx.stroke()}
   for(let y=0;y<H*.6;y+=H*.1){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
 
-  // Big boiler – left
   const bx=W*.05,bw=W*.2,bh=H*.5,by=H*.08;
   const bg=ctx.createLinearGradient(bx,0,bx+bw,0);
   bg.addColorStop(0,'#111a0a');bg.addColorStop(.4,'#1a2210');bg.addColorStop(1,'#0d1408');
   ctx.fillStyle=bg;ctx.fillRect(bx,by,bw,bh);
   ctx.strokeStyle='#222e14';ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
-  // gauge
   ctx.strokeStyle='#1a2a10';ctx.lineWidth=1;
   ctx.beginPath();ctx.arc(bx+bw*.5,by+bh*.28,bh*.12,0,Math.PI*2);ctx.stroke();
   ctx.fillStyle='#0c1208';ctx.beginPath();ctx.arc(bx+bw*.5,by+bh*.28,bh*.12,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='rgba(0,255,50,.2)';ctx.lineWidth=1.5;
   ctx.beginPath();ctx.moveTo(bx+bw*.5,by+bh*.28);
   ctx.lineTo(bx+bw*.5+bh*.09*Math.cos(-1.2),by+bh*.28+bh*.09*Math.sin(-1.2));ctx.stroke();
-  // bolts
   [[bx+6,by+6],[bx+bw-6,by+6],[bx+6,by+bh-6],[bx+bw-6,by+bh-6]].forEach(([cx,cy])=>{
     ctx.fillStyle='#1a2010';ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fill();
   });
-  // Pipe from boiler
   ctx.strokeStyle='#1a2a10';ctx.lineWidth=W*.025;
   ctx.beginPath();ctx.moveTo(bx+bw,by+bh*.2);ctx.lineTo(W*.6,by+bh*.2);ctx.lineTo(W*.6,0);ctx.stroke();
   ctx.strokeStyle='#222e14';ctx.lineWidth=W*.025*.6;
   ctx.beginPath();ctx.moveTo(bx+bw,by+bh*.2);ctx.lineTo(W*.6,by+bh*.2);ctx.lineTo(W*.6,0);ctx.stroke();
 
-  // Second boiler – right
   const bx2=W*.7,bw2=W*.25,bh2=H*.6,by2=H*.05;
   const bg2=ctx.createLinearGradient(bx2,0,bx2+bw2,0);
   bg2.addColorStop(0,'#0e1a08');bg2.addColorStop(.5,'#182208');bg2.addColorStop(1,'#0c1408');
@@ -929,18 +833,13 @@ function drawBoilerRoom(ctx,W,H){
   ctx.strokeStyle='#1e2c10';ctx.lineWidth=2;ctx.strokeRect(bx2,by2,bw2,bh2);
   ctx.strokeStyle='#1a2a10';ctx.lineWidth=1;
   for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(bx2,by2+bh2*(i*.28+.1));ctx.lineTo(bx2+bw2,by2+bh2*(i*.28+.1));ctx.stroke()}
-  // Glow from boiler
   const glow=ctx.createRadialGradient(bx2+bw2*.3,by2+bh2*.5,0,bx2+bw2*.3,by2+bh2*.5,bw2*.6);
   glow.addColorStop(0,'rgba(255,100,0,0.04)');glow.addColorStop(1,'rgba(255,100,0,0)');
   ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
-
-  // Floor pipe horizontal
   ctx.strokeStyle='#182212';ctx.lineWidth=H*.04;
   ctx.beginPath();ctx.moveTo(0,H*.72);ctx.lineTo(W,H*.72);ctx.stroke();
   ctx.strokeStyle='#1e2a14';ctx.lineWidth=H*.025;
   ctx.beginPath();ctx.moveTo(0,H*.72);ctx.lineTo(W,H*.72);ctx.stroke();
-
-  // Label
   ctx.fillStyle='rgba(0,255,50,0.18)'; ctx.font=`${Math.max(8,W*.018)}px 'Share Tech Mono',monospace`;
   ctx.fillText('BOILER-SYS-01',W*.02,H*.95);
 }
@@ -951,31 +850,27 @@ function drawStorage(ctx,W,H){
   wg.addColorStop(0,'#0e0c08');wg.addColorStop(1,'#080604');
   ctx.fillStyle=wg;ctx.fillRect(0,0,W,H);
 
-  // Shelving units
   const shelfUnits=[
     {x:0,w:W*.28,shelves:5},
     {x:W*.3,w:W*.28,shelves:4},
     {x:W*.62,w:W*.2,shelves:6},
   ];
   shelfUnits.forEach(({x,w,shelves})=>{
-    // Frame
     ctx.fillStyle='#141008';ctx.fillRect(x,0,w,H*.88);
     ctx.strokeStyle='#1e1808';ctx.lineWidth=2;ctx.strokeRect(x,0,w,H*.88);
-    // shelves
     for(let s=0;s<shelves;s++){
       const sy=H*.88/shelves*(s+1)-8;
       ctx.fillStyle='#1a1508';ctx.fillRect(x,sy-5,w,5);
       ctx.strokeStyle='#252010';ctx.lineWidth=1;ctx.strokeRect(x,sy-5,w,5);
-      // items on shelf
       let ix=x+4;
       while(ix<x+w-8){
         const iw=4+Math.random()*12,ih=8+Math.random()*20;
         const iv=Math.random();
-        if(iv<.4){// box
+        if(iv<.4){
           ctx.fillStyle=`hsl(${30+Math.random()*40},${10+Math.random()*15}%,${5+Math.random()*8}%)`;
           ctx.fillRect(ix,sy-5-ih,iw,ih);
           ctx.strokeStyle='rgba(255,255,200,.05)';ctx.lineWidth=.5;ctx.strokeRect(ix,sy-5-ih,iw,ih);
-        } else if(iv<.7) {// binder
+        } else if(iv<.7) {
           ctx.fillStyle=`hsl(${Math.random()*360},${15+Math.random()*20}%,${6+Math.random()*7}%)`;
           ctx.fillRect(ix,sy-5-ih*.8,iw*.5,ih*.8);
         }
@@ -983,10 +878,8 @@ function drawStorage(ctx,W,H){
       }
     }
   });
-  // Dust particles
   ctx.fillStyle='rgba(200,200,150,.04)';
   for(let i=0;i<30;i++){ctx.beginPath();ctx.arc(Math.random()*W,Math.random()*H,Math.random()*2,0,Math.PI*2);ctx.fill();}
-
   ctx.fillStyle='rgba(0,255,50,0.15)';ctx.font=`${Math.max(8,W*.018)}px 'Share Tech Mono',monospace`;
   ctx.fillText('STG-ROOM-02',W*.02,H*.97);
 }
@@ -997,19 +890,16 @@ function drawUtility(ctx,W,H){
   bg.addColorStop(0,'#0a0a10');bg.addColorStop(1,'#060608');
   ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
 
-  // Electrical cabinet
   const cx=W*.04,cw=W*.35,ch=H*.65,cy=H*.08;
   const cg=ctx.createLinearGradient(cx,0,cx+cw,0);
   cg.addColorStop(0,'#0e0e18');cg.addColorStop(.5,'#14141e');cg.addColorStop(1,'#0a0a14');
   ctx.fillStyle=cg;ctx.fillRect(cx,cy,cw,ch);
   ctx.strokeStyle='#1e1e2a';ctx.lineWidth=2;ctx.strokeRect(cx,cy,cw,ch);
-  // Panels on cabinet
   for(let row=0;row<3;row++){
     for(let col=0;col<2;col++){
       const px=cx+6+col*(cw/2-8),py=cy+6+row*(ch/3-4),pw=cw/2-14,ph=ch/3-10;
       ctx.fillStyle='#0a0a12';ctx.fillRect(px,py,pw,ph);
       ctx.strokeStyle='#181828';ctx.lineWidth=1;ctx.strokeRect(px,py,pw,ph);
-      // LEDs
       const colors=['#00aa44','#aa0000','#0044aa','#aaaa00'];
       for(let l=0;l<4;l++){
         const lx=px+6+l*pw*.22,ly=py+ph*.2;
@@ -1017,7 +907,6 @@ function drawUtility(ctx,W,H){
         ctx.beginPath();ctx.arc(lx,ly,3,0,Math.PI*2);ctx.fill();
         if(Math.random()>.5){ctx.fillStyle=colors[l]+'55';ctx.beginPath();ctx.arc(lx,ly,6,0,Math.PI*2);ctx.fill();}
       }
-      // switches
       for(let s=0;s<3;s++){
         const sx=px+8+s*pw*.28,sy=py+ph*.55;
         ctx.fillStyle='#222';ctx.fillRect(sx,sy,pw*.18,ph*.22);
@@ -1025,7 +914,6 @@ function drawUtility(ctx,W,H){
       }
     }
   }
-  // Wires hanging
   ctx.strokeStyle='rgba(30,30,50,.8)';ctx.lineWidth=2;
   for(let i=0;i<6;i++){
     ctx.beginPath();
@@ -1034,46 +922,31 @@ function drawUtility(ctx,W,H){
     ctx.bezierCurveTo(wx-10,cy+H*.1,wx+8,cy+H*.15,wx-5,cy+H*.25);
     ctx.stroke();
   }
-  // Second unit
   const cx2=W*.6,cw2=W*.22,ch2=H*.5,cy2=H*.12;
   ctx.fillStyle='#0c0c16';ctx.fillRect(cx2,cy2,cw2,ch2);
   ctx.strokeStyle='#1a1a24';ctx.lineWidth=1.5;ctx.strokeRect(cx2,cy2,cw2,ch2);
-  // Digital readout
   ctx.fillStyle='#001a04';ctx.fillRect(cx2+8,cy2+8,cw2-16,ch2*.2);
   ctx.fillStyle='#00ff44';ctx.font=`${Math.max(8,cw2*.12)}px 'VT323',monospace`;
   ctx.fillText('STATUS: OK',cx2+12,cy2+ch2*.17);
-
-  // Floor
   ctx.fillStyle='rgba(0,255,50,0.12)';ctx.font=`${Math.max(8,W*.018)}px 'Share Tech Mono',monospace`;
-  ctx.fillText('UTIL-03',W*.02,H*.97);
+  ctx.fillText('KLASLOKAAL-03',W*.02,H*.97); // updated label
 }
 
 function drawHall(ctx,W,H,side){
   const isLeft=side==='left';
   ctx.fillStyle='#080700'; ctx.fillRect(0,0,W,H);
-
-  // Perspective corridor
   const vpX=W/2, vpY=H*.38;
-  const wallColor='#0d0c06', ceilColor='#080700', floorColor='#0a0900';
-
-  // Floor
+  const floorColor='#0a0900';
   const fg=ctx.createLinearGradient(0,vpY,0,H);
   fg.addColorStop(0,floorColor);fg.addColorStop(1,'#060500');
   ctx.fillStyle=fg;
   ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(0,vpY);ctx.lineTo(W,vpY);ctx.lineTo(W,H);ctx.closePath();ctx.fill();
-
-  // Ceiling
   const cg=ctx.createLinearGradient(0,0,0,vpY);
-  cg.addColorStop(0,ceilColor);cg.addColorStop(1,'#0a0902');
+  cg.addColorStop(0,'#080700');cg.addColorStop(1,'#0a0902');
   ctx.fillStyle=cg;ctx.fillRect(0,0,W,vpY);
-
-  // Left wall
-  ctx.fillStyle=wallColor;
+  ctx.fillStyle='#0d0c06';
   ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(vpX,vpY);ctx.lineTo(0,H);ctx.closePath();ctx.fill();
-  // Right wall
   ctx.beginPath();ctx.moveTo(W,0);ctx.lineTo(vpX,vpY);ctx.lineTo(W,H);ctx.closePath();ctx.fill();
-
-  // Grid lines on floor (perspective)
   ctx.strokeStyle='rgba(255,220,0,.03)';ctx.lineWidth=.5;
   for(let i=0;i<10;i++){
     const t=i/10;
@@ -1082,44 +955,32 @@ function drawHall(ctx,W,H,side){
     const lx1=W-(W-vpX)*(1-t*.95);
     ctx.beginPath();ctx.moveTo(lx0,ly);ctx.lineTo(lx1,ly);ctx.stroke();
   }
-  // Vertical lines
   for(let i=1;i<8;i++){
     const t=i/8;
     const fx=t*W,fy=H;
     ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(vpX,vpY);ctx.stroke();
   }
-
-  // Wall lights (recessed)
   [.25,.55,.78].forEach(t=>{
-    // left side
     const lx0=(vpX)*(1-t*.95),lx1=(vpX)*(1-(t+.08)*.95);
     const ly0=vpY+(H-vpY)*t*0.5, ly1=vpY+(H-vpY)*(t*0.5+.1);
     const dx=(lx0-lx1)*.3;
     ctx.fillStyle='rgba(255,200,50,0.04)';
     ctx.beginPath();ctx.moveTo(lx0-dx,ly0);ctx.lineTo(lx0,ly0);ctx.lineTo(lx1,ly1);ctx.lineTo(lx1-dx,ly1);ctx.closePath();ctx.fill();
-    // right side
     const rx0=W-(vpX)*(1-t*.95),rx1=W-(vpX)*(1-(t+.08)*.95);
     ctx.fillStyle='rgba(255,200,50,0.03)';
     ctx.beginPath();ctx.moveTo(rx0+dx,ly0);ctx.lineTo(rx0,ly0);ctx.lineTo(rx1,ly1);ctx.lineTo(rx1+dx,ly1);ctx.closePath();ctx.fill();
   });
-
-  // Far end door (dark rectangle at vanishing point)
   const dw=W*.12,dh=H*.3;
   ctx.fillStyle='#040300';
   ctx.fillRect(vpX-dw/2,vpY-dh*.6,dw,dh);
   ctx.strokeStyle='rgba(255,220,0,.06)';ctx.lineWidth=1;
   ctx.strokeRect(vpX-dw/2,vpY-dh*.6,dw,dh);
-
-  // Pipes along ceiling edge
   ctx.strokeStyle='rgba(30,28,10,.9)';ctx.lineWidth=H*.025;
   ctx.beginPath();ctx.moveTo(0,H*.03);ctx.lineTo(vpX,vpY*.25);ctx.stroke();
   ctx.beginPath();ctx.moveTo(W,H*.03);ctx.lineTo(vpX,vpY*.25);ctx.stroke();
-
-  // Floor label
   ctx.fillStyle=`rgba(255,220,0,.15)`;ctx.font=`${Math.max(8,W*.018)}px 'Share Tech Mono',monospace`;
   ctx.fillText(isLeft?'L-HALL — DEUR NABIJ':'R-HALL — DEUR NABIJ',W*.02,H*.97);
 }
-
 function drawLeftHall(ctx,W,H){ drawHall(ctx,W,H,'left'); }
 function drawRightHall(ctx,W,H){ drawHall(ctx,W,H,'right'); }
 
@@ -1135,10 +996,10 @@ function buildCamStrip() {
     el.id='ct'+c.id;
     el.innerHTML=`<canvas class="ct-canvas" id="ctc${c.id}"></canvas>
       <div class="ct-label">${c.name} · ${c.room}</div>
-      <div class="ct-mdot" id="md${c.id}"></div>`;
+      <div class="ct-mdot" id="md${c.id}"></div>
+      <div class="ct-hobodot" id="hd${c.id}"></div>`;
     el.onclick=()=>switchCam(c.id);
     strip.appendChild(el);
-    // Draw thumbnail
     const cv=document.getElementById('ctc'+c.id);
     cv.width=120;cv.height=80;
     drawCamRoom(cv,c.id,true);
@@ -1146,6 +1007,9 @@ function buildCamStrip() {
 }
 
 function switchCam(id) {
+  if(id !== G.curCam) {
+    play('cameraSwitch');
+  }
   G.curCam=id;
   document.querySelectorAll('.cam-thumb').forEach(t=>t.classList.remove('ct-on'));
   document.getElementById('ct'+id)?.classList.add('ct-on');
@@ -1156,27 +1020,38 @@ function switchCam(id) {
 }
 
 function renderCamFeed() {
-  const id  = G.curCam;
-  const here= G.mPos===id;
-  const cv  = document.getElementById('camCanvas');
-  cv.width  = cv.offsetWidth||800;
-  cv.height = cv.offsetHeight||400;
+  const id   = G.curCam;
+  const gijsHere  = G.mPos===id;
+  const hoboHere  = G.hoboPos===id;
+  const cv   = document.getElementById('camCanvas');
+  cv.width   = cv.offsetWidth||800;
+  cv.height  = cv.offsetHeight||400;
   drawCamRoom(cv,id,false);
 
-  const img=document.getElementById('monsterCamImg');
-  img.style.display=here?'block':'none';
-  if(here) img.src=FILES.gijsCam;
+  const gijsImg = document.getElementById('monsterCamImg');
+  gijsImg.style.display = gijsHere ? 'block' : 'none';
+  if(gijsHere) gijsImg.src = FILES.gijsCam;
 
-  document.getElementById('camMain').classList.toggle('cam-active-static',here);
+  const hoboImg = document.getElementById('hoboCamImg');
+  hoboImg.style.display = hoboHere ? 'block' : 'none';
+  if(hoboHere) hoboImg.src = FILES.hoboGijsCam;
+
+  const hasMonster = gijsHere || hoboHere;
+  document.getElementById('camMain').classList.toggle('cam-active-static', hasMonster);
   document.getElementById('camTs').textContent=new Date().toLocaleTimeString('nl-NL');
 }
 
 function refreshMonsterDots() {
   CAMS.forEach(c=>{
-    document.getElementById('md'+c.id)?.classList.toggle('on',G.mPos===c.id);
+    // Gijs dot – only show if Gijs is on a camera (not at door, keeps player guessing)
+    const gijsOnCam = G.mPos === c.id;
+    document.getElementById('md'+c.id)?.classList.toggle('on', gijsOnCam);
+    // HoboGijs dot always shows
+    const hoboOnCam = G.hoboPos === c.id;
+    document.getElementById('hd'+c.id)?.classList.toggle('on', hoboOnCam);
   });
-  // status dot
-  document.getElementById('dotMon').classList.toggle('on',G.mPos>=POS.LD);
+  document.getElementById('dotMon').classList.toggle('on', G.mPos>=POS.LD);
+  document.getElementById('dotHobo').classList.toggle('on', true);
 }
 
 /* ════════════════════════════════════════════════
@@ -1213,14 +1088,15 @@ function toggleDoor(side) {
 }
 
 function refreshDoorLights() {
-  const lDanger=G.mPos===POS.LD, rDanger=G.mPos===POS.RD;
-  const lLight=document.getElementById('dlL'),rLight=document.getElementById('dlR');
-  lLight.className='d-light'+(lDanger?' dl-warn':G.lfClosed?' dl-safe':'');
-  rLight.className='d-light'+(rDanger?' dl-warn':G.rtClosed?' dl-safe':'');
+  // Only show safe (green) when door is closed – NO warning when Gijs is at door
+  const lLight=document.getElementById('dlL');
+  const rLight=document.getElementById('dlR');
+  lLight.className='d-light'+(G.lfClosed?' dl-safe':'');
+  rLight.className='d-light'+(G.rtClosed?' dl-safe':'');
 }
 
 /* ════════════════════════════════════════════════
-   MONSTER AI
+   MONSTER AI — GIJS
 ════════════════════════════════════════════════ */
 function scheduleMoveTimer() {
   if(G.mMoveTimer)clearTimeout(G.mMoveTimer);
@@ -1234,6 +1110,10 @@ function advanceMonster() {
   if(G.dead||G.won)return;
   const p=G.mPos;
   if(p===POS.LD||p===POS.RD)return;
+
+  // 20% chance to play laugh on move
+  if(Math.random()<0.2) play('laugh');
+
   let np=p;
   if(p===POS.C0)np=POS.C1;
   else if(p===POS.C1)np=POS.C2;
@@ -1250,6 +1130,25 @@ function handleAtDoor(pos) {
   refreshDoorLights();
   const closed=pos===POS.LD?G.lfClosed:G.rtClosed;
   if(!closed)armDoorTimer();
+
+  // Schedule a retreat timer – Gijs leaves after a random time even if blocked
+  if(G.mRetreatTimer) clearTimeout(G.mRetreatTimer);
+  const retreatDelay = DOOR_RETREAT_MIN + Math.random()*(DOOR_RETREAT_MAX-DOOR_RETREAT_MIN);
+  G.mRetreatTimer = setTimeout(()=>retreatGijs(),retreatDelay);
+}
+
+function retreatGijs() {
+  if(G.dead||G.won)return;
+  if(G.mPos!==POS.LD&&G.mPos!==POS.RD)return;
+  // Cancel door attack timer
+  if(G.mDoorTimer){clearTimeout(G.mDoorTimer);G.mDoorTimer=null;}
+  // Send Gijs back to cam 1, 2 or 3 (index 0,1,2)
+  const backPositions=[POS.C0,POS.C1,POS.C2];
+  G.mPos=backPositions[Math.floor(Math.random()*backPositions.length)];
+  play('footsteps');
+  refreshMonsterDots();refreshDoorLights();
+  if(G.camOpen)renderCamFeed();
+  updateLureUI();
 }
 
 function armDoorTimer() {
@@ -1263,13 +1162,47 @@ function armDoorTimer() {
 }
 
 /* ════════════════════════════════════════════════
+   MONSTER AI — HOBO GIJS
+   Roams cameras randomly every 5–20 seconds.
+   Luring on his cam = instant jumpscare.
+════════════════════════════════════════════════ */
+function scheduleHoboMove() {
+  if(G.hoboMoveTimer)clearTimeout(G.hoboMoveTimer);
+  if(G.dead||G.won)return;
+  const delay = HOBO_MIN_MS + Math.random()*(HOBO_MAX_MS-HOBO_MIN_MS);
+  G.hoboMoveTimer = setTimeout(()=>{
+    moveHobo();
+    scheduleHoboMove();
+  }, delay);
+}
+
+function moveHobo() {
+  if(G.dead||G.won)return;
+  // Pick a random different camera (0-4)
+  let np;
+  do { np = Math.floor(Math.random()*CAMS.length); } while(np===G.hoboPos);
+  G.hoboPos = np;
+  refreshMonsterDots();
+  if(G.camOpen)renderCamFeed();
+  updateLureUI();
+}
+
+/* ════════════════════════════════════════════════
    LURE
 ════════════════════════════════════════════════ */
 function inLureRange() {
   if(!G.camOpen)return false;
+  // Gijs adjacency check
   const adj={[POS.C0]:[POS.C1],[POS.C1]:[POS.C0,POS.C2],[POS.C2]:[POS.C1,POS.C3,POS.C4],
     [POS.C3]:[POS.C2,POS.LD],[POS.C4]:[POS.C2,POS.RD],[POS.LD]:[POS.C3],[POS.RD]:[POS.C4]};
-  return G.mPos===G.curCam||(adj[G.mPos]||[]).includes(G.curCam);
+  const gijsInRange = G.mPos===G.curCam||(adj[G.mPos]||[]).includes(G.curCam);
+  // HoboGijs is in range if exactly on current cam
+  const hoboInRange = G.hoboPos===G.curCam;
+  return gijsInRange || hoboInRange;
+}
+
+function hoboOnCurrentCam() {
+  return G.camOpen && G.hoboPos===G.curCam;
 }
 
 function updateLureUI() {
@@ -1296,13 +1229,22 @@ function updateLureUI() {
 
 function useLure() {
   if(!G.lureReady||!inLureRange()||G.dead||G.won)return;
+
+  // If HoboGijs is on the current camera — instant jumpscare!
+  if(hoboOnCurrentCam()) {
+    triggerHoboJS();
+    return;
+  }
+
   play('lure');
+  // Push Gijs back
   const pb={[POS.LD]:POS.C3,[POS.RD]:POS.C4,[POS.C3]:POS.C2,[POS.C4]:POS.C2,
     [POS.C2]:POS.C1,[POS.C1]:POS.C0,[POS.C0]:POS.C0};
   const np=pb[G.mPos];
   if(np!==undefined){
     G.mPos=np;
     if(G.mDoorTimer){clearTimeout(G.mDoorTimer);G.mDoorTimer=null;}
+    if(G.mRetreatTimer){clearTimeout(G.mRetreatTimer);G.mRetreatTimer=null;}
     refreshMonsterDots();refreshDoorLights();
     if(G.camOpen)renderCamFeed();
   }
@@ -1358,7 +1300,7 @@ function startFire() {
   cv.style.display='block';
   fireW=cv.width=window.innerWidth;fireH=cv.height=window.innerHeight;
   fireCtx=cv.getContext('2d');
-  G.firePtcls=[];
+  G.firePtcls=[];G.fireOn=true;
   for(let i=0;i<60;i++)G.firePtcls.push(newFlame(true));
   animFire();
 }
@@ -1378,7 +1320,6 @@ function animFire() {
   if(!G.fireOn)return;
   G.fireAnim=requestAnimationFrame(animFire);
   fireCtx.clearRect(0,0,fireW,fireH);
-  // Spawn
   for(let i=0;i<3;i++)G.firePtcls.push(newFlame());
   G.firePtcls=G.firePtcls.filter(f=>f.life>0);
   G.firePtcls.forEach(f=>{
@@ -1391,7 +1332,6 @@ function animFire() {
     fireCtx.fillStyle=g;
     fireCtx.beginPath();fireCtx.arc(f.x,f.y,f.size,0,Math.PI*2);fireCtx.fill();
   });
-  // Ember glow from bottom
   const eg=fireCtx.createLinearGradient(0,fireH*.5,0,fireH);
   eg.addColorStop(0,'rgba(255,40,0,0)');eg.addColorStop(1,'rgba(255,40,0,0.08)');
   fireCtx.fillStyle=eg;fireCtx.fillRect(0,0,fireW,fireH);
@@ -1413,12 +1353,12 @@ function tickTime() {
 /* ════════════════════════════════════════════════
    JUMPSCARES & DEATH
 ════════════════════════════════════════════════ */
-function doJumpscare(src,cause) {
+function doJumpscare(src, cause, audioKey='jumpscare') {
   if(G.dead)return;G.dead=true;killTimers();stopAll();
   doFlash(()=>{
     document.getElementById('jsImg').src=src;
     document.getElementById('jsScreen').style.display='flex';
-    play('jumpscare');
+    play(audioKey);
     setTimeout(()=>{
       document.getElementById('jsScreen').style.display='none';
       document.getElementById('gameScreen').style.display='none';
@@ -1427,8 +1367,16 @@ function doJumpscare(src,cause) {
     },3300);
   });
 }
-function triggerGijsJS(){doJumpscare(FILES.gijsJS,'Meester Gijs heeft je gevonden.<br><em>"That\'s a 1 out of 10. For you."</em>');}
-function triggerPatrickJS(){doJumpscare(FILES.patrickJS,'De zuurstof raakte op.<br><em>"You should have studied harder."</em>');}
+
+function triggerGijsJS(){
+  doJumpscare(FILES.gijsJS, 'Meester Gijs heeft je gevonden.<br><em>"That\'s a 1 out of 10. For you."</em>', 'jumpscare');
+}
+function triggerPatrickJS(){
+  doJumpscare(FILES.patrickJS, 'De zuurstof raakte op.<br><em>"You should have studied harder."</em>', 'jumpscare');
+}
+function triggerHoboJS(){
+  doJumpscare(FILES.hoboGijsJS, 'Je lokte het verkeerde monster.<br><em>"...You shouldn\'t have done that."</em>', 'jumpscare');
+}
 
 function doFlash(cb) {
   const el=document.getElementById('flashEl');
@@ -1446,7 +1394,8 @@ function triggerWin() {
    CLEANUP
 ════════════════════════════════════════════════ */
 function killTimers() {
-  [G.tickTimer,G.timeTimer,G.mMoveTimer,G.mDoorTimer,G.fireTimer,G.lureCDTimer].forEach(t=>{
+  [G.tickTimer,G.timeTimer,G.mMoveTimer,G.mDoorTimer,G.mRetreatTimer,
+   G.fireTimer,G.lureCDTimer,G.hoboMoveTimer].forEach(t=>{
     if(t)try{clearInterval(t);clearTimeout(t);}catch(e){}
   });
   G.fireOn=false;
@@ -1467,7 +1416,6 @@ function startGame() {
   document.getElementById('flashEl').style.opacity='0';
   document.getElementById('fireCanvas').style.display='none';
 
-  // Reset doors
   ['dpL','dpR'].forEach(id=>document.getElementById(id).classList.remove('shut'));
   ['dbL','dbR'].forEach(id=>{const b=document.getElementById(id);b.textContent='DEUR';b.classList.remove('on');});
   ['dlL','dlR'].forEach(id=>document.getElementById(id).className='d-light');
@@ -1478,7 +1426,6 @@ function startGame() {
   refreshMonsterDots();
   updateO2UI();updateLureUI();
 
-  // Lure cooldown start
   G.lureCD=LURE_CD_S;
   G.lureCDTimer=setInterval(()=>{
     G.lureCD--;if(G.lureCD<=0){G.lureReady=true;G.lureCD=0;clearInterval(G.lureCDTimer);}
@@ -1488,6 +1435,9 @@ function startGame() {
   G.tickTimer=setInterval(gameTick,TICK_MS);
   G.timeTimer=setInterval(tickTime,250);
   setTimeout(scheduleMoveTimer,5000);
+  // HoboGijs starts wandering immediately
+  G.hoboPos=Math.floor(Math.random()*CAMS.length);
+  scheduleHoboMove();
   G.fireOn=false;
 }
 
