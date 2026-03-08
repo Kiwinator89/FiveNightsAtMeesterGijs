@@ -39,8 +39,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .lore-card .quote{border-left:2px solid #440000;padding:10px 14px;margin:14px 0;
   font-style:italic;color:#884444;font-size:clamp(.68rem,1.1vw,.78rem)}
 .lore-card .warn{color:#664444;font-size:.72em;margin-top:12px;opacity:.7}
-
-/* ══ MODE SELECT ══ */
 .mode-select{display:flex;gap:16px;margin-bottom:28px;max-width:min(620px,88vw);width:100%}
 .mode-btn{flex:1;background:transparent;border:2px solid #220000;color:#441111;
   padding:18px 20px;font-family:'Share Tech Mono',monospace;font-size:clamp(.65rem,1.2vw,.8rem);
@@ -54,7 +52,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .mode-btn .mode-desc{font-size:clamp(.5rem,.8vw,.6rem);color:#444;letter-spacing:2px;text-align:center;line-height:1.6}
 .mode-btn.hard-selected .mode-desc{color:#885500}
 .mode-btn.selected .mode-desc{color:#662222}
-
 .start-btn{background:transparent;border:1px solid var(--red);color:var(--red);
   padding:14px 60px;font-family:'Share Tech Mono',monospace;font-size:clamp(.75rem,1.5vw,.9rem);
   letter-spacing:7px;text-transform:uppercase;cursor:pointer;transition:all .2s;
@@ -155,7 +152,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .hud-status-dot.crit{background:#ff0000!important;box-shadow:0 0 8px #ff0000!important;animation:dotPulse .25s infinite!important}
 @keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* ══ CHAPO SILENT ALERT — subtle red vignette only, no text ══ */
+/* ══ SILENT ALERT ══ */
 #alarmOverlay{position:absolute;inset:0;z-index:25;pointer-events:none;display:none;
   background:radial-gradient(ellipse at center,transparent 35%,rgba(180,0,0,.22) 100%);
   animation:alarmPulse .6s ease-in-out infinite}
@@ -197,63 +194,57 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   transition:filter 1s,transform 1s,opacity 1s}
 .tom-on-cam{position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:3;
   max-height:95%;max-width:60%;object-fit:contain;transition:filter .8s,transform .8s,opacity .8s}
-@keyframes mBreath{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.02) translateY(-4px)}}
-@keyframes hoboBreath{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.03) translateY(-6px)}}
-@keyframes jeffreyBreath{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.04) translateY(-8px)}}
-@keyframes tomCrit{0%,100%{transform:translateX(-50%) scale(1.08)}33%{transform:translateX(-48%) scale(1.10) rotate(-.5deg)}66%{transform:translateX(-52%) scale(1.09) rotate(.5deg)}}
-.cam-lure-in-feed{position:absolute;bottom:12px;right:12px;z-index:7}
-.cam-lure-in-feed .lure-btn{margin-bottom:0;font-size:clamp(.45rem,.8vw,.6rem)}
 
-/* ══ JEFFREY / CHAPO TIMERS — hidden from player ══ */
-#jeffreyTimerPanel,#chapoTimerPanel{display:none!important}
-
-/* ══ MUSIC BOX PANEL ══ */
-#musicBoxPanel{
-  position:absolute;bottom:0;left:0;right:0;z-index:8;
-  background:linear-gradient(0deg,rgba(0,0,0,.95) 0%,rgba(0,0,0,.7) 100%);
-  padding:10px 16px 14px;display:none;flex-direction:column;gap:8px;
-  border-top:1px solid #2a1a00
+/* ══ MADURO CAM ══ */
+.maduro-on-cam{
+  position:absolute;inset:0;z-index:8;
+  width:100%;height:100%;object-fit:cover;
+  display:none;
+  filter:brightness(0.82) contrast(1.2) saturate(1.1);
+  animation:maduroBreath 1.8s ease-in-out infinite
 }
-.mb-header{display:flex;justify-content:space-between;align-items:center}
-.mb-label{font-size:clamp(.5rem,.9vw,.65rem);color:#887744;letter-spacing:4px;text-transform:uppercase}
-.mb-pct{font-family:'VT323',monospace;font-size:clamp(.9rem,1.8vw,1.2rem);letter-spacing:2px;color:#aa9944}
-.mb-track{height:12px;background:#0a0800;border:1px solid #2a1a00;border-radius:2px;overflow:hidden;position:relative}
-.mb-track::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 10px,rgba(0,0,0,.2) 10px,rgba(0,0,0,.2) 11px)}
-.mb-fill{height:100%;border-radius:2px;transition:width .4s linear,background .6s;
-  background:linear-gradient(90deg,#886600,#ddcc00)}
-.mb-fill.warn{background:linear-gradient(90deg,#883300,#ff8800)}
-.mb-fill.crit{background:linear-gradient(90deg,#660000,#ff2200);animation:mbCrit .3s infinite}
-@keyframes mbCrit{0%,100%{opacity:1}50%{opacity:.4}}
-.mb-status{font-size:clamp(.4rem,.7vw,.55rem);color:#443322;letter-spacing:2px}
-.mb-windup-btn{
-  width:100%;padding:9px;background:rgba(40,30,0,.6);border:1px solid #443300;
-  color:#887733;font-family:'Share Tech Mono',monospace;font-size:clamp(.55rem,1vw,.7rem);
-  letter-spacing:4px;text-transform:uppercase;cursor:pointer;transition:all .15s;
+@keyframes maduroBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+
+/* ══ MADURO DISABLED CAM ══ */
+.maduro-disabled-overlay{
+  position:absolute;inset:0;z-index:22;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  background:#000;gap:14px
+}
+.maduro-disabled-overlay.active{display:flex}
+.maduro-err-title{
+  font-family:'VT323',monospace;
+  font-size:clamp(2rem,5vw,3.2rem);
+  color:#ff0000;letter-spacing:6px;
+  text-shadow:0 0 20px #ff0000;
+  animation:errBlink .45s infinite
+}
+@keyframes errBlink{0%,100%{opacity:1}50%{opacity:.25}}
+.maduro-err-code{
+  font-family:'Share Tech Mono',monospace;
+  font-size:clamp(.6rem,1.3vw,.85rem);
+  color:#660000;letter-spacing:4px;text-align:center
+}
+.maduro-err-bar{
+  width:min(280px,65%);height:6px;
+  background:#1a0000;border:1px solid #440000;
   position:relative;overflow:hidden
 }
-.mb-windup-btn:active,.mb-windup-btn.winding{
-  background:rgba(80,60,0,.8);border-color:#aa8800;color:#ffdd00;
-  box-shadow:0 0 20px rgba(180,140,0,.4)
+.maduro-err-bar-fill{
+  height:100%;background:linear-gradient(90deg,#660000,#ff0000);
+  width:0%;transition:width linear
 }
-.mb-windup-btn::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent,rgba(255,220,0,.1),transparent);
-  transform:translateX(-100%);transition:transform .3s}
-.mb-windup-btn.winding::after{transform:translateX(100%);transition:transform .6s}
-
-#tomDangerOverlay{
-  position:absolute;inset:0;pointer-events:none;z-index:7;opacity:0;transition:opacity .8s;
-  background:radial-gradient(ellipse at center,transparent 30%,rgba(180,0,0,.35) 100%);
+.maduro-err-sub{
+  font-family:'Share Tech Mono',monospace;
+  font-size:clamp(.45rem,.8vw,.58rem);color:#330000;letter-spacing:3px;text-align:center
+}
+.maduro-err-noise{
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,rgba(255,0,0,.03) 0px,rgba(255,0,0,.03) 1px,transparent 1px,transparent 4px);
+  pointer-events:none;z-index:1
 }
 
-/* ══ CAM STRIP ══ */
-.cam-strip{display:flex;gap:8px;height:min(80px,12vh)}
-.cam-thumb{flex:1;background:#010601;border:1px solid #0a140a;cursor:pointer;
-  position:relative;overflow:hidden;transition:border-color .15s}
-.cam-thumb:hover{border-color:#226622}
-.cam-thumb.ct-on{border-color:#33bb55;box-shadow:0 0 8px rgba(51,187,85,.2)}
-.ct-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
-.ct-label{position:absolute;bottom:4px;left:0;right:0;text-align:center;
-  font-size:clamp(.4rem,.65vw,.55rem);color:rgba(51,187,85,.5);letter-spacing:2px;z-index:2}
+/* cam dots */
 .ct-mdot{display:none;position:absolute;top:5px;right:5px;width:7px;height:7px;
   border-radius:50%;background:#ff2200;box-shadow:0 0 6px #ff2200;z-index:3;animation:mdBlink .6s infinite}
 .ct-mdot.on{display:block}
@@ -272,29 +263,86 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   border-radius:50%;background:#ddcc00;box-shadow:0 0 6px #ddcc00;z-index:3}
 .ct-tomdot.on{display:block;animation:tomDotAnim 1s infinite}
 @keyframes tomDotAnim{0%,100%{opacity:1;box-shadow:0 0 6px #ddcc00}50%{opacity:.3;box-shadow:0 0 2px #ddcc00}}
+/* MADURO dot */
+.ct-madurodot{display:none;position:absolute;top:5px;right:14px;width:7px;height:7px;
+  border-radius:50%;background:#ff00cc;box-shadow:0 0 6px #ff00cc;z-index:3}
+.ct-madurodot.on{display:block;animation:maduroDotAnim .4s infinite}
+@keyframes maduroDotAnim{0%,100%{opacity:1;box-shadow:0 0 8px #ff00cc}50%{opacity:.2;box-shadow:0 0 2px #ff00cc}}
+.cam-thumb.cam-maduro-warn{border-color:#ff00cc!important;box-shadow:0 0 10px rgba(255,0,204,.5)!important;animation:maduroThumbWarn .3s infinite}
+@keyframes maduroThumbWarn{0%,100%{border-color:#ff00cc}50%{border-color:#880088}}
+.ct-disabled-overlay{
+  position:absolute;inset:0;z-index:10;
+  background:rgba(0,0,0,.85);
+  display:none;align-items:center;justify-content:center;
+  font-family:'VT323',monospace;font-size:clamp(.6rem,1.2vw,.9rem);
+  color:#440000;letter-spacing:4px;flex-direction:column;gap:4px
+}
+.ct-disabled-overlay.active{display:flex}
+
 .ct-music-warn{border-color:#ff8800!important;box-shadow:0 0 8px rgba(255,100,0,.4)!important;animation:musicWarnBorder .4s infinite}
 @keyframes musicWarnBorder{0%,100%{border-color:#ff8800}50%{border-color:#ff3300}}
 @keyframes mdBlink{0%,100%{opacity:1}50%{opacity:0}}
 
-/* ══ GLITCH SYSTEM ══ */
-@keyframes glitchTear{
-  0%{transform:none}15%{transform:translateX(-6px) skewX(-1.5deg)}30%{transform:translateX(10px) scaleY(1.005)}
-  45%{transform:translateX(-4px) skewX(1deg)}60%{transform:translateX(7px)}75%{transform:translateX(-2px) skewX(-.5deg)}100%{transform:none}
+@keyframes mBreath{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.02) translateY(-4px)}}
+@keyframes hoboBreath{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.03) translateY(-6px)}}
+@keyframes jeffreyBreath{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.04) translateY(-8px)}}
+@keyframes tomCrit{0%,100%{transform:translateX(-50%) scale(1.08)}33%{transform:translateX(-48%) scale(1.10) rotate(-.5deg)}66%{transform:translateX(-52%) scale(1.09) rotate(.5deg)}}
+.cam-lure-in-feed{position:absolute;bottom:12px;right:12px;z-index:7}
+.cam-lure-in-feed .lure-btn{margin-bottom:0;font-size:clamp(.45rem,.8vw,.6rem)}
+
+/* ══ JEFFREY / CHAPO TIMERS — hidden ══ */
+#jeffreyTimerPanel,#chapoTimerPanel{display:none!important}
+
+/* ══ MUSIC BOX PANEL ══ */
+#musicBoxPanel{
+  position:absolute;bottom:0;left:0;right:0;z-index:8;
+  background:linear-gradient(0deg,rgba(0,0,0,.95) 0%,rgba(0,0,0,.7) 100%);
+  padding:10px 16px 14px;display:none;flex-direction:column;gap:8px;
+  border-top:1px solid #2a1a00
 }
-@keyframes glitchRgb{
-  0%{filter:none}20%{filter:hue-rotate(80deg) saturate(4) brightness(1.3)}
-  40%{filter:hue-rotate(190deg) saturate(5) brightness(.8) contrast(1.5)}
-  60%{filter:hue-rotate(280deg) saturate(3) brightness(1.1)}80%{filter:hue-rotate(40deg) saturate(6) brightness(1.4)}100%{filter:none}
+.mb-header{display:flex;justify-content:space-between;align-items:center}
+.mb-label{font-size:clamp(.5rem,.9vw,.65rem);color:#887744;letter-spacing:4px;text-transform:uppercase}
+.mb-pct{font-family:'VT323',monospace;font-size:clamp(.9rem,1.8vw,1.2rem);letter-spacing:2px;color:#aa9944}
+.mb-track{height:12px;background:#0a0800;border:1px solid #2a1a00;border-radius:2px;overflow:hidden;position:relative}
+.mb-track::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 10px,rgba(0,0,0,.2) 10px,rgba(0,0,0,.2) 11px)}
+.mb-fill{height:100%;border-radius:2px;transition:width .4s linear,background .6s;background:linear-gradient(90deg,#886600,#ddcc00)}
+.mb-fill.warn{background:linear-gradient(90deg,#883300,#ff8800)}
+.mb-fill.crit{background:linear-gradient(90deg,#660000,#ff2200);animation:mbCrit .3s infinite}
+@keyframes mbCrit{0%,100%{opacity:1}50%{opacity:.4}}
+.mb-status{font-size:clamp(.4rem,.7vw,.55rem);color:#443322;letter-spacing:2px}
+.mb-windup-btn{
+  width:100%;padding:9px;background:rgba(40,30,0,.6);border:1px solid #443300;
+  color:#887733;font-family:'Share Tech Mono',monospace;font-size:clamp(.55rem,1vw,.7rem);
+  letter-spacing:4px;text-transform:uppercase;cursor:pointer;transition:all .15s;
+  position:relative;overflow:hidden
 }
-@keyframes glitchShake{
-  0%,100%{transform:none}10%{transform:translate(3px,1px)}20%{transform:translate(-5px,-2px)}
-  30%{transform:translate(2px,3px)}40%{transform:translate(-3px,-1px)}50%{transform:translate(4px,2px)}
-  60%{transform:translate(-2px,3px)}70%{transform:translate(5px,-1px)}80%{transform:translate(-4px,2px)}90%{transform:translate(1px,-3px)}
+.mb-windup-btn:active,.mb-windup-btn.winding{
+  background:rgba(80,60,0,.8);border-color:#aa8800;color:#ffdd00;
+  box-shadow:0 0 20px rgba(180,140,0,.4)
 }
-@keyframes glitchScan{
-  0%{clip-path:inset(0 0 100% 0)}20%{clip-path:inset(20% 0 60% 0)}40%{clip-path:inset(0 0 50% 0)}
-  60%{clip-path:inset(40% 0 20% 0)}80%{clip-path:inset(60% 0 0 0)}100%{clip-path:inset(0 0 0 0)}
+.mb-windup-btn::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,220,0,.1),transparent);
+  transform:translateX(-100%);transition:transform .3s}
+.mb-windup-btn.winding::after{transform:translateX(100%);transition:transform .6s}
+#tomDangerOverlay{
+  position:absolute;inset:0;pointer-events:none;z-index:7;opacity:0;transition:opacity .8s;
+  background:radial-gradient(ellipse at center,transparent 30%,rgba(180,0,0,.35) 100%);
 }
+
+/* ══ CAM STRIP ══ */
+.cam-strip{display:flex;gap:8px;height:min(80px,12vh)}
+.cam-thumb{flex:1;background:#010601;border:1px solid #0a140a;cursor:pointer;
+  position:relative;overflow:hidden;transition:border-color .15s}
+.cam-thumb:hover{border-color:#226622}
+.cam-thumb.ct-on{border-color:#33bb55;box-shadow:0 0 8px rgba(51,187,85,.2)}
+.ct-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
+.ct-label{position:absolute;bottom:4px;left:0;right:0;text-align:center;
+  font-size:clamp(.4rem,.65vw,.55rem);color:rgba(51,187,85,.5);letter-spacing:2px;z-index:2}
+
+/* ══ GLITCH ══ */
+@keyframes glitchTear{0%{transform:none}15%{transform:translateX(-6px) skewX(-1.5deg)}30%{transform:translateX(10px) scaleY(1.005)}45%{transform:translateX(-4px) skewX(1deg)}60%{transform:translateX(7px)}75%{transform:translateX(-2px) skewX(-.5deg)}100%{transform:none}}
+@keyframes glitchRgb{0%{filter:none}20%{filter:hue-rotate(80deg) saturate(4) brightness(1.3)}40%{filter:hue-rotate(190deg) saturate(5) brightness(.8) contrast(1.5)}60%{filter:hue-rotate(280deg) saturate(3) brightness(1.1)}80%{filter:hue-rotate(40deg) saturate(6) brightness(1.4)}100%{filter:none}}
+@keyframes glitchShake{0%,100%{transform:none}10%{transform:translate(3px,1px)}20%{transform:translate(-5px,-2px)}30%{transform:translate(2px,3px)}40%{transform:translate(-3px,-1px)}50%{transform:translate(4px,2px)}60%{transform:translate(-2px,3px)}70%{transform:translate(5px,-1px)}80%{transform:translate(-4px,2px)}90%{transform:translate(1px,-3px)}}
 .cam-canvas.glitch-tear{animation:glitchTear .18s steps(1) forwards}
 .cam-canvas.glitch-rgb{animation:glitchRgb .22s steps(2) forwards}
 .cam-canvas.glitch-shake{animation:glitchShake .15s steps(1) forwards}
@@ -303,10 +351,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .cam-main.has-glitch .glitch-overlay{opacity:1}
 #glitchTearBand{position:absolute;left:0;right:0;height:12px;z-index:10;pointer-events:none;
   background:rgba(0,0,0,.5);display:none;mix-blend-mode:difference}
-@keyframes thumbGlitch{
-  0%,100%{filter:none;transform:none}30%{filter:hue-rotate(120deg) saturate(5);transform:translateX(2px) scaleY(1.01)}
-  60%{filter:hue-rotate(240deg) brightness(1.5);transform:translateX(-3px)}80%{filter:saturate(8) brightness(.7);transform:none}
-}
+@keyframes thumbGlitch{0%,100%{filter:none;transform:none}30%{filter:hue-rotate(120deg) saturate(5);transform:translateX(2px) scaleY(1.01)}60%{filter:hue-rotate(240deg) brightness(1.5);transform:translateX(-3px)}80%{filter:saturate(8) brightness(.7);transform:none}}
 .cam-thumb.glitching{animation:thumbGlitch .2s steps(2) forwards}
 
 /* ══ FLASH / FIRE ══ */
@@ -340,54 +385,95 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   background:conic-gradient(from 0deg at 50% 50%,transparent 0%,rgba(0,180,40,.025) 8%,transparent 16%,rgba(0,180,40,.015) 24%,transparent 32%);
   animation:rayRot 10s linear infinite;pointer-events:none}
 @keyframes rayRot{to{transform:rotate(360deg)}}
-.win-time{font-family:'Creepster',cursive;font-size:clamp(3rem,9vw,7rem);
-  color:#22dd55;text-shadow:0 0 60px #00ff44;letter-spacing:5px;animation:winPulse 2s infinite}
+.win-time{font-family:'Creepster',cursive;font-size:clamp(3rem,9vw,7rem);color:#22dd55;text-shadow:0 0 60px #00ff44;letter-spacing:5px;animation:winPulse 2s infinite}
 @keyframes winPulse{0%,100%{text-shadow:0 0 40px #00ff44}50%{text-shadow:0 0 90px #00ff44,0 0 120px #44ff8844}}
 .win-sunrise{font-size:clamp(.6rem,1.3vw,.9rem);color:#226633;letter-spacing:8px;text-transform:uppercase;margin-bottom:28px}
-.win-card{max-width:min(560px,88vw);background:rgba(0,12,3,.85);border:1px solid #0a2a0a;
-  border-top:2px solid #1a4a1a;padding:24px 28px;color:#6a9a6a;font-size:clamp(.65rem,1.1vw,.78rem);
-  line-height:1.8;text-align:center;margin-bottom:28px}
+.win-card{max-width:min(560px,88vw);background:rgba(0,12,3,.85);border:1px solid #0a2a0a;border-top:2px solid #1a4a1a;padding:24px 28px;color:#6a9a6a;font-size:clamp(.65rem,1.1vw,.78rem);line-height:1.8;text-align:center;margin-bottom:28px}
 .win-card strong{color:#44ff66}
 .win-card em{color:#3a6a3a;font-style:italic}
 .win-grade{font-size:clamp(1.4rem,3vw,2.2rem);color:#ffcc22;text-shadow:0 0 20px #ffaa00;margin:10px 0}
 
-/* Hard mode indicator */
-#hardModeLabel{position:absolute;top:50%;right:14px;transform:translateY(-50%);
-  font-size:clamp(.4rem,.65vw,.52rem);color:#ff6600;letter-spacing:3px;text-transform:uppercase;
-  opacity:0;pointer-events:none;transition:opacity .3s}
-#hardModeLabel.visible{opacity:1}
-
-/* ══ VENT SYSTEM ══ */
-#ventZone{position:absolute;bottom:18%;right:min(190px,19vw);z-index:13;display:flex;flex-direction:column;align-items:center;gap:6px}
+/* ══ VENT — Large, centered on back wall ══ */
+#ventZone{
+  position:absolute;
+  top:7%;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:13;
+  display:flex;flex-direction:column;align-items:center;gap:8px
+}
 #ventGrate{
-  width:min(64px,7vw);height:min(52px,6vw);
-  background:repeating-linear-gradient(0deg,#1a1410 0,#1a1410 4px,#0a0806 4px,#0a0806 10px),
-             repeating-linear-gradient(90deg,#1a1410 0,#1a1410 3px,transparent 3px,transparent 10px);
-  border:2px solid #2a2010;border-radius:3px;
-  box-shadow:inset 0 0 12px rgba(0,0,0,.8),0 0 6px rgba(0,0,0,.5);
-  position:relative;overflow:hidden;transition:all .3s}
+  width:min(180px,18vw);
+  height:min(130px,13vw);
+  background:
+    repeating-linear-gradient(0deg,#1a1410 0,#1a1410 7px,#0a0806 7px,#0a0806 16px),
+    repeating-linear-gradient(90deg,#1a1410 0,#1a1410 6px,transparent 6px,transparent 16px);
+  border:3px solid #2a2010;
+  border-radius:5px;
+  box-shadow:
+    inset 0 0 24px rgba(0,0,0,.85),
+    0 0 16px rgba(0,0,0,.65),
+    0 6px 30px rgba(0,0,0,.9),
+    inset 2px 2px 4px rgba(255,255,255,.04);
+  position:relative;overflow:hidden;transition:all .35s;
+  cursor:pointer;
+}
+#ventGrate:hover{border-color:#4a3a18;box-shadow:inset 0 0 24px rgba(0,0,0,.85),0 0 20px rgba(0,0,0,.7),0 0 8px rgba(255,160,0,.08)}
 #ventGrate.shut{
   background:linear-gradient(135deg,#1a1208 0%,#100e08 50%,#1a1208 100%);
-  border-color:#3a2a10;box-shadow:inset 0 0 8px rgba(0,0,0,.9),0 0 10px rgba(0,0,0,.6)}
-#ventGrate::after{content:'';position:absolute;inset:0;
-  background:repeating-linear-gradient(45deg,rgba(0,0,0,.15) 0,rgba(0,0,0,.15) 2px,transparent 2px,transparent 6px)}
-.vent-light{width:8px;height:8px;border-radius:50%;background:#111;border:1px solid #222;
-  box-shadow:inset 0 1px 2px rgba(0,0,0,.9);transition:background .15s,box-shadow .15s;
-  position:absolute;top:5px;right:5px}
-.vent-light.active{background:#ff4400;box-shadow:0 0 8px #ff4400,0 0 3px #ff4400}
-#ventBtn{background:#0c0a06;border:1px solid #2a2010;color:#443320;
-  padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:clamp(5px,.75vw,8px);
-  letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .15s;border-radius:2px;
-  white-space:nowrap}
-#ventBtn:hover{background:#141008;border-color:#4a3a18;color:#887744}
-#ventBtn.shut{background:#200800;border-color:#cc3300;color:#ff5500;box-shadow:0 0 8px #cc330033}
+  border-color:#6a4a18;
+  box-shadow:inset 0 0 16px rgba(0,0,0,.95),0 0 20px rgba(0,0,0,.7),0 0 10px rgba(204,51,0,.15)
+}
+#ventGrate::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,rgba(0,0,0,.12) 0,rgba(0,0,0,.12) 3px,transparent 3px,transparent 10px);
+  z-index:1
+}
+/* Corner bolts */
+#ventGrate::before{
+  content:'';position:absolute;inset:0;z-index:2;
+  background:
+    radial-gradient(circle 5px at 10px 10px, #2a2010 55%,transparent 55%),
+    radial-gradient(circle 5px at calc(100% - 10px) 10px, #2a2010 55%,transparent 55%),
+    radial-gradient(circle 5px at 10px calc(100% - 10px), #2a2010 55%,transparent 55%),
+    radial-gradient(circle 5px at calc(100% - 10px) calc(100% - 10px), #2a2010 55%,transparent 55%)
+}
+.vent-light{
+  width:10px;height:10px;border-radius:50%;
+  background:#111;border:1px solid #222;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.9);
+  transition:background .15s,box-shadow .15s;
+  position:absolute;top:7px;right:7px;z-index:4
+}
+.vent-light.active{background:#ff4400;box-shadow:0 0 14px #ff4400,0 0 5px #ff4400}
+#ventBtn{
+  background:#0c0a06;border:1px solid #2a2010;color:#554430;
+  padding:7px 18px;font-family:'Share Tech Mono',monospace;
+  font-size:clamp(6px,.9vw,10px);letter-spacing:3px;text-transform:uppercase;
+  cursor:pointer;transition:all .15s;border-radius:2px;white-space:nowrap
+}
+#ventBtn:hover{background:#141008;border-color:#5a4a20;color:#998855}
+#ventBtn.shut{background:#200800;border-color:#cc3300;color:#ff5500;box-shadow:0 0 10px #cc330044}
 #ventBtn .vent-label{display:block;text-align:center}
+#ventOxygenWarning{
+  font-size:clamp(.4rem,.65vw,.55rem);color:#663300;letter-spacing:2px;text-align:center;
+  opacity:0;transition:opacity .3s;pointer-events:none
+}
+#ventOxygenWarning.active{opacity:1;animation:ventWarnBlink .7s infinite}
+@keyframes ventWarnBlink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* Mark in vent overlay */
-#markVentImg{position:absolute;bottom:18%;right:min(165px,17vw);z-index:12;
-  width:min(110px,12vw);pointer-events:none;display:none;
+/* Mark in vent — repositioned to match new vent */
+#markVentImg{
+  position:absolute;
+  top:5%;
+  left:calc(50% - min(90px,9vw));
+  z-index:12;
+  width:min(160px,16vw);
+  pointer-events:none;display:none;
   filter:brightness(.3) contrast(1.8) saturate(.4);
-  animation:markBreath 1s ease-in-out infinite;transform-origin:bottom right}
+  animation:markBreath 1s ease-in-out infinite;
+  transform-origin:bottom center
+}
 @keyframes markBreath{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.03) translateY(-4px)}}
 #markVentImg.mark-visible{display:block}
 #markVentImg.mark-urgent{filter:brightness(.65) contrast(1.6) saturate(.8);animation:markPanic .4s infinite}
@@ -411,11 +497,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
         perhaps you will master the art of survival instead."</div>
       <p>Er is ook een <strong>muziekkamer</strong>. Daar speelt altijd muziek.
         Het <em>moet</em> blijven spelen. Je wilt er niet achter komen wat er gebeurt als hij stopt met spelen...</p>
-      <p class="warn">⚠ Zuurstof is schaars. Gesloten deuren én camera's verbruiken O₂ per seconde.<br>
-        ⚠ Hou de muziekdoos op CAM 6 opgewonden. Wacht niet te lang.</p>
+      <p class="warn">⚠ Zuurstof is schaars. Gesloten deuren, ventilatieschacht én camera's verbruiken O₂.<br>
+        ⚠ Hou de muziekdoos op CAM 6 opgewonden. Wacht niet te lang.<br>
+        ⚠ Maduro kan elk moment op een camera verschijnen. Kijk niet te lang.</p>
     </div>
-
-    <!-- MODE SELECT -->
     <div class="mode-select">
       <button class="mode-btn selected" id="easyModeBtn" onclick="selectMode('easy')">
         <div class="mode-icon">😰</div>
@@ -428,7 +513,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
         <div class="mode-desc">+ Jeffrey (deurimmuum)<br>+ Chapo (linker gang)<br>Agressiever AI</div>
       </button>
     </div>
-
     <button class="start-btn" id="startBtn">▶ &nbsp; NACHT BEGINNEN</button>
     <div class="start-hint">🎧 koptelefoon aanbevolen</div>
   </div>
@@ -439,13 +523,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   <canvas id="officeCanvas"></canvas>
   <div class="vignette"></div>
 
-  <!-- ALARM OVERLAYS -->
   <div id="alarmOverlay"></div>
 
-  <!-- VENT -->
+  <!-- VENT — centered on back wall -->
   <div id="ventZone">
-    <div id="ventGrate"><div class="vent-light" id="ventLight"></div></div>
+    <div id="ventGrate" onclick="toggleVent()"><div class="vent-light" id="ventLight"></div></div>
     <button id="ventBtn" onclick="toggleVent()"><span class="vent-label">VENT</span></button>
+    <div id="ventOxygenWarning">⚠ O₂ LEK</div>
   </div>
   <!-- Mark in vent -->
   <img id="markVentImg" src="Images/MarkVent.png" alt="">
@@ -493,6 +577,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
         <div class="hud-status-dot" id="dotMon"></div><span>GIJS</span>
         <div class="hud-status-dot" id="dotHobo"></div><span>HOBO GIJS-2</span>
         <div class="hud-status-dot on" id="dotTom"></div><span>MUZIEKDOOS</span>
+        <div class="hud-status-dot warn" id="dotMaduro"></div><span>MADURO</span>
         <div class="hud-status-dot" id="dotJeffrey" style="display:none"></div><span id="jeffreyLabel" style="display:none">JEFFREY</span>
         <div class="hud-status-dot" id="dotChapo" style="display:none"></div><span id="chapoLabel" style="display:none">CHAPO</span>
       </div>
@@ -518,26 +603,29 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
       <img class="jeffrey-on-cam"  id="jeffreyCamImg"  src="" alt="" style="display:none">
       <img class="chapo-on-cam"    id="chapoCamImg"    src="" alt="" style="display:none">
       <img class="tom-on-cam"      id="tomCamImg"      src="" alt="" style="display:none">
+      <!-- MADURO — covers whole feed -->
+      <img class="maduro-on-cam"   id="maduroCamImg"   src="Images/MaduroCamera.png" alt="">
+      <!-- MADURO disabled overlay -->
+      <div class="maduro-disabled-overlay" id="maduroDisabledOverlay">
+        <div class="maduro-err-noise"></div>
+        <div class="maduro-err-title">CAM OFFLINE</div>
+        <div class="maduro-err-code">ERR_SIGNAL_LOST · MADURO_INTERFERENCE</div>
+        <div class="maduro-err-bar"><div class="maduro-err-bar-fill" id="maduroErrFill"></div></div>
+        <div class="maduro-err-sub">HERVERBINDING IN <span id="maduroReconnectSec">20</span>s…</div>
+      </div>
       <div class="cam-scanlines"></div>
       <div class="cam-noise"></div>
       <div class="cam-vignette"></div>
       <div class="glitch-overlay"></div>
       <div id="glitchTearBand"></div>
       <div id="tomDangerOverlay"></div>
-      <div id="jeffreyTimerPanel" style="display:none">
-        <div class="jeffrey-timer-label">JEFFREY — WISSELT IN</div>
-        <div class="jeffrey-timer-val" id="jeffreyTimerVal">50s</div>
-      </div>
-      <div id="chapoTimerPanel" style="display:none">
-        <div class="chapo-timer-label">CHAPO — AANVAL IN</div>
-        <div class="chapo-timer-val" id="chapoTimerVal">60s</div>
-      </div>
+      <div id="jeffreyTimerPanel" style="display:none"></div>
+      <div id="chapoTimerPanel" style="display:none"></div>
       <div class="cam-lbl" id="camRoomLbl">STOOKKAMER</div>
       <div class="cam-ts" id="camTs">00:00:00</div>
       <div class="cam-lure-in-feed">
         <button class="lure-btn" id="lureBtnCam" disabled onclick="useLure()">🔊 LOKKEN</button>
       </div>
-      <!-- Music box panel -->
       <div id="musicBoxPanel">
         <div class="mb-header">
           <span class="mb-label">🎵 Muziekdoos</span>
@@ -587,14 +675,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 
 <script>
 /* ================================================================
-   ONE NIGHT AT MEESTER GIJS  –  v4.0
-   - Easy / Hard mode select
-   - Hard mode: Jeffrey (door-immune, switches every 20s, cam watching adds 1s/s)
-   - Hard mode: Chapo (stuck in left hall, escalating sprites, attacks after 60s,
-                       alarm, both doors needed, cam watching freezes timer)
-   - Camera now drains O2 per tick (not doors in one shot)
-   - Doors drain O2 per second while closed (not a one-time penalty)
-   - Win.mp3 plays on win
+   ONE NIGHT AT MEESTER GIJS  –  v5.0
+   New: Maduro enemy, enlarged/centered vent, vent O2 drain
    ================================================================ */
 
 const FILES = {
@@ -613,6 +695,7 @@ const FILES = {
   alarm:        'Audio/Alarm.mp3',
   vent:         'Audio/Vent.mp3',
   markAudio:    'Audio/Mark.mp3',
+  shock:        'Audio/Shock.mp3',
   gijsCam:      'Images/GijsCamera.png',
   gijsJS:       'Images/GijsJumpscare.png',
   patrickJS:    'Images/PatrickJumpscare.png',
@@ -626,6 +709,8 @@ const FILES = {
   chapoJS:      'Images/ChapoJumpscare.png',
   markVent:     'Images/MarkVent.png',
   markJS:       'Images/MarkJumpscare.png',
+  maduroCam:    'Images/MaduroCamera.png',
+  maduroJS:     'Images/MaduroJumpscare.png',
   camBg0:       'Images/StookKamer.png',
   camBg1:       'Images/VoorraadKamer.png',
   camBg2:       'Images/KlasLokaal.png',
@@ -634,114 +719,118 @@ const FILES = {
   camBg5:       'Images/MuziekKamer.png',
 };
 
-/* ── BALANCE EASY ── */
-const NIGHT_MS          = 6 * 60 * 1000;
-const TICK_MS           = 400;
-const O2_DRAIN_BASE     = 0.015;   // per tick, always
-const O2_DOOR_PER_TICK  = 0.10;    // per tick per closed door (replaces old one-shot)
-const O2_CAM_PER_TICK   = 0.04;    // per tick while cam is open
-const LURE_CD_S         = 30;
-const GRACE_MS          = 4200;
-const DOOR_RETREAT_MIN  = 14000;
-const DOOR_RETREAT_MAX  = 25000;
-// Easy move intervals (ms between moves)
-const MOVE_IVAL_EASY    = [32000, 24000, 16000, 11000, 7500, 5000];
-// Hard move intervals (faster)
-const MOVE_IVAL_HARD    = [18000, 13000, 9000, 6500, 4500, 3000];
-const HOBO_MIN_MS_EASY  = 5000;
-const HOBO_MAX_MS_EASY  = 20000;
-const HOBO_MIN_MS_HARD  = 3000;
-const HOBO_MAX_MS_HARD  = 10000;
-const MB_DRAIN_BASE     = 0.8;
-const MB_DRAIN_SCALE    = 0.3;
-const MB_WIND_RATE      = 5.5;
-const MUSIC_CAM_ID      = 5;
+/* ── BALANCE ── */
+const NIGHT_MS           = 6 * 60 * 1000;
+const TICK_MS            = 400;
+const O2_DRAIN_BASE      = 0.015;
+const O2_DOOR_PER_TICK   = 0.10;
+const O2_CAM_PER_TICK    = 0.04;
+const O2_VENT_PER_TICK   = 0.08;   // vent drain when CLOSED
+const LURE_CD_S          = 30;
+const GRACE_MS           = 4200;
+const DOOR_RETREAT_MIN   = 14000;
+const DOOR_RETREAT_MAX   = 25000;
+const MOVE_IVAL_EASY     = [32000,24000,16000,11000,7500,5000];
+const MOVE_IVAL_HARD     = [18000,13000,9000,6500,4500,3000];
+const HOBO_MIN_MS_EASY   = 5000;
+const HOBO_MAX_MS_EASY   = 20000;
+const HOBO_MIN_MS_HARD   = 3000;
+const HOBO_MAX_MS_HARD   = 10000;
+const MB_DRAIN_BASE      = 0.8;
+const MB_DRAIN_SCALE     = 0.3;
+const MB_WIND_RATE       = 5.5;
+const MUSIC_CAM_ID       = 5;
 
-// Jeffrey — walks CAM 1 → 2 → 3 → 4 → KILL, timer 50s, freezes when watched
-const JEFFREY_START_POS = 0; // CAM 1 (index 0)
-const JEFFREY_PATH      = [0,1,2,3,4]; // step-by-step: cam1→cam2→cam3→cam4→cam5=KILL
-const JEFFREY_SWITCH_S  = 50;
+// Maduro
+const MADURO_APPEAR_INTERVAL = 5000;   // ms between spawn checks
+const MADURO_APPEAR_CHANCE   = 0.04;   // 4% per check
+const MADURO_WATCH_LIMIT_MS  = 1500;   // ms looking at his cam before disable
+const MADURO_DISABLE_MS      = 20000;  // cam offline duration
+
+// Jeffrey
+const JEFFREY_START_POS  = 0;
+const JEFFREY_PATH       = [0,1,2,3,4];
+const JEFFREY_SWITCH_S   = 50;
 
 // Chapo
-const CHAPO_CAM_ID      = 3; // ALWAYS left hall (cam index 3 = CAM 4)
-const CHAPO_ATTACK_S    = 60; // seconds until attack
-const CHAPO_SPRITES     = 3;  // number of escalating threat levels
+const CHAPO_CAM_ID       = 3;
+const CHAPO_ATTACK_S     = 60;
+const CHAPO_SPRITES      = 3;
 
-/* ── CAMERA DEFINITIONS ── */
+/* ── CAMERAS ── */
 const CAMS = [
-  { id:0, name:'CAM 1', room:'STOOKKAMER'   },
-  { id:1, name:'CAM 2', room:'OPSLAGRUIMTE' },
-  { id:2, name:'CAM 3', room:'KLASLOKAAL'   },
-  { id:3, name:'CAM 4', room:'LINKER GANG'  },
-  { id:4, name:'CAM 5', room:'RECHTER GANG' },
-  { id:5, name:'CAM 6', room:'MUZIEKKAMER'  },
+  {id:0,name:'CAM 1',room:'STOOKKAMER'},
+  {id:1,name:'CAM 2',room:'OPSLAGRUIMTE'},
+  {id:2,name:'CAM 3',room:'KLASLOKAAL'},
+  {id:3,name:'CAM 4',room:'LINKER GANG'},
+  {id:4,name:'CAM 5',room:'RECHTER GANG'},
+  {id:5,name:'CAM 6',room:'MUZIEKKAMER'},
 ];
 
-const POS = { C0:0, C1:1, C2:2, C3:3, C4:4, LD:5, RD:6 };
-const GIJS_ALLOWED_CAMS = [POS.C0, POS.C1, POS.C2, POS.C3, POS.C4];
-const HOBO_ALLOWED_CAMS = [POS.C0, POS.C1, POS.C2, POS.C3, POS.C4];
+const POS = {C0:0,C1:1,C2:2,C3:3,C4:4,LD:5,RD:6};
+const GIJS_ALLOWED_CAMS  = [POS.C0,POS.C1,POS.C2,POS.C3,POS.C4];
+const HOBO_ALLOWED_CAMS  = [POS.C0,POS.C1,POS.C2,POS.C3,POS.C4];
+const MADURO_ALLOWED_CAMS= [0,1,2,3,4,5]; // all cams
 
-/* ── GAME MODE ── */
+/* ── MODE ── */
 let selectedMode = 'easy';
-
-function selectMode(mode) {
-  selectedMode = mode;
-  document.getElementById('easyModeBtn').className = 'mode-btn' + (mode==='easy'?' selected':'');
-  document.getElementById('hardModeBtn').className = 'mode-btn' + (mode==='hard'?' hard-selected':'');
-  const btn = document.getElementById('startBtn');
-  if (mode === 'hard') {
-    btn.classList.add('hard-mode-btn');
-    btn.textContent = '💀  HARD MODE STARTEN';
-  } else {
-    btn.classList.remove('hard-mode-btn');
-    btn.textContent = '▶   NACHT BEGINNEN';
-  }
+function selectMode(mode){
+  selectedMode=mode;
+  document.getElementById('easyModeBtn').className='mode-btn'+(mode==='easy'?' selected':'');
+  document.getElementById('hardModeBtn').className='mode-btn'+(mode==='hard'?' hard-selected':'');
+  const btn=document.getElementById('startBtn');
+  if(mode==='hard'){btn.classList.add('hard-mode-btn');btn.textContent='💀  HARD MODE STARTEN';}
+  else{btn.classList.remove('hard-mode-btn');btn.textContent='▶   NACHT BEGINNEN';}
 }
 
 /* ── STATE ── */
-let G = {};
-const SFX = {};
-let glitchActive = false;
-let glitchTimer  = null;
+let G={};
+const SFX={};
+let glitchActive=false,glitchTimer=null;
 
-function mkState() {
-  const hard = selectedMode === 'hard';
-  return {
-    running:false, nightStart:0, hour:0, hardMode:hard,
-    o2:100, o2Dead:false,
-    lfClosed:false, rtClosed:false,
-    mPos:POS.C0, mPath:null, mDoorTimer:null, mMoveTimer:null, mRetreatTimer:null,
-    hoboPos:0, hoboMoveTimer:null,
-    musicBox:100, isWindingUp:false,
-    // Jeffrey state (hard only) — walks path 0→1→2→3→4, step 5 = kill
-    jeffreyStep: 0,   // index into JEFFREY_PATH; jeffreyPos = JEFFREY_PATH[jeffreyStep]
-    jeffreyPos: JEFFREY_START_POS,
-    jeffreyTimer: JEFFREY_SWITCH_S,
-    jeffreyActive: hard,
-    // Chapo state (hard only)
-    chapoTimer: CHAPO_ATTACK_S,
-    chapoSprite: 0,
-    chapoAlarm: false,
-    chapoActive: hard,
-    chapoKillTimer: null,
-    camOpen:false, curCam:0,
-    lureReady:false, lureCD:LURE_CD_S, lureCDTimer:null,
-    dead:false, won:false,
-    // Mark vent state
+function mkState(){
+  const hard=selectedMode==='hard';
+  return{
+    running:false,nightStart:0,hour:0,hardMode:hard,
+    o2:100,o2Dead:false,
+    lfClosed:false,rtClosed:false,
     ventClosed:false,
+    mPos:POS.C0,mPath:null,mDoorTimer:null,mMoveTimer:null,mRetreatTimer:null,
+    hoboPos:0,hoboMoveTimer:null,
+    musicBox:100,isWindingUp:false,
+    // Maduro
+    maduroPos:-1,          // -1 = not present; 0-5 = cam id
+    maduroWatchMs:0,       // ms player has been watching maduro's cam
+    maduroDisabledCams:{}, // camId -> remaining disable ms
+    maduroSpawnTimer:null,
+    maduroReconnectTimers:{},
+    // Jeffrey
+    jeffreyStep:0,
+    jeffreyPos:JEFFREY_START_POS,
+    jeffreyTimer:JEFFREY_SWITCH_S,
+    jeffreyActive:hard,
+    // Chapo
+    chapoTimer:CHAPO_ATTACK_S,
+    chapoSprite:0,
+    chapoAlarm:false,
+    chapoActive:hard,
+    chapoKillTimer:null,
+    camOpen:false,curCam:0,
+    lureReady:false,lureCD:LURE_CD_S,lureCDTimer:null,
+    dead:false,won:false,
     markInVent:false,
     markAppearTimer:null,
     markKillTimer:null,
     markLeaveTimer:null,
     markCheckInterval:null,
-    firePtcls:[], fireOn:false, fireAnim:null,
-    tickTimer:null, timeTimer:null, fireTimer:null,
+    firePtcls:[],fireOn:false,fireAnim:null,
+    tickTimer:null,timeTimer:null,fireTimer:null,
     glitchLoopTimer:null,
   };
 }
 
 /* ════ AUDIO ════ */
-function initAudio() {
+function initAudio(){
   Object.entries({
     ambience:     [FILES.ambience,     true,  .28],
     doorClose:    [FILES.doorClose,    false, .8 ],
@@ -758,6 +847,7 @@ function initAudio() {
     jeffreyLaugh: [FILES.jeffreyLaugh, false, .8 ],
     vent:         [FILES.vent,         false, .85],
     markAudio:    [FILES.markAudio,    false, .75],
+    shock:        [FILES.shock,        false, .95],
   }).forEach(([k,[src,loop,vol]])=>{
     SFX[k]=new Audio(src);SFX[k].loop=loop;SFX[k].volume=vol;
   });
@@ -767,24 +857,24 @@ function stop(k){try{SFX[k]&&(SFX[k].pause(),SFX[k].currentTime=0)}catch(e){}}
 function stopAll(){Object.keys(SFX).forEach(stop)}
 
 /* ════ OFFICE DRAWING ════ */
-function drawOffice() {
-  const cv = document.getElementById('officeCanvas');
-  const W  = cv.width  = window.innerWidth;
-  const H  = cv.height = window.innerHeight;
-  const ctx = cv.getContext('2d');
+function drawOffice(){
+  const cv=document.getElementById('officeCanvas');
+  const W=cv.width=window.innerWidth;
+  const H=cv.height=window.innerHeight;
+  const ctx=cv.getContext('2d');
   ctx.clearRect(0,0,W,H);
 
-  const ceilH = H*.065;
-  const ceilGrad = ctx.createLinearGradient(0,0,0,ceilH*2);
-  ceilGrad.addColorStop(0,'#0a0a0d'); ceilGrad.addColorStop(1,'#141418');
-  ctx.fillStyle=ceilGrad; ctx.fillRect(0,0,W,ceilH);
+  const ceilH=H*.065;
+  const ceilGrad=ctx.createLinearGradient(0,0,0,ceilH*2);
+  ceilGrad.addColorStop(0,'#0a0a0d');ceilGrad.addColorStop(1,'#141418');
+  ctx.fillStyle=ceilGrad;ctx.fillRect(0,0,W,ceilH);
 
-  const wallTop=ceilH, wallBot=H*.62;
+  const wallTop=ceilH,wallBot=H*.62;
   const wallGrad=ctx.createLinearGradient(0,wallTop,0,wallBot);
-  wallGrad.addColorStop(0,'#12121a'); wallGrad.addColorStop(1,'#0d0d15');
-  ctx.fillStyle=wallGrad; ctx.fillRect(0,wallTop,W,wallBot-wallTop);
+  wallGrad.addColorStop(0,'#12121a');wallGrad.addColorStop(1,'#0d0d15');
+  ctx.fillStyle=wallGrad;ctx.fillRect(0,wallTop,W,wallBot-wallTop);
 
-  ctx.strokeStyle='rgba(255,255,255,0.012)'; ctx.lineWidth=.8;
+  ctx.strokeStyle='rgba(255,255,255,0.012)';ctx.lineWidth=.8;
   for(let x=0;x<W;x+=Math.floor(W/18)){ctx.beginPath();ctx.moveTo(x,wallTop);ctx.lineTo(x,wallBot);ctx.stroke()}
   for(let y=wallTop;y<wallBot;y+=Math.floor((wallBot-wallTop)/10)){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
 
@@ -794,9 +884,8 @@ function drawOffice() {
     for(let i=0;i<segs;i++){cx+=(-spread+Math.random()*spread*2);cy+=len/segs;ctx.lineTo(cx,cy)}
     ctx.stroke();
   }
-  crack(W*.18,wallTop+20,8,90,12); crack(W*.22,wallTop+55,5,50,8);
-  crack(W*.7,wallTop+15,7,80,14);  crack(W*.74,wallTop+40,4,45,9);
-  crack(W*.5,wallTop+10,6,60,10);
+  crack(W*.18,wallTop+20,8,90,12);crack(W*.22,wallTop+55,5,50,8);
+  crack(W*.7,wallTop+15,7,80,14);crack(W*.74,wallTop+40,4,45,9);
 
   function drawPipe(x,w){
     const pg=ctx.createLinearGradient(0,0,0,ceilH);
@@ -807,7 +896,7 @@ function drawOffice() {
     sh.addColorStop(0,'rgba(0,0,0,.45)');sh.addColorStop(1,'rgba(0,0,0,0)');
     ctx.fillStyle=sh;ctx.fillRect(x,ceilH,w,20);
   }
-  drawPipe(W*.04,W*.28); drawPipe(W*.6,W*.18); drawPipe(W*.84,W*.12);
+  drawPipe(W*.04,W*.28);drawPipe(W*.6,W*.18);drawPipe(W*.84,W*.12);
 
   const lx=W/2,wireTop=ceilH,wireH=H*.1;
   ctx.strokeStyle='#1e1e1e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(lx,wireTop);ctx.lineTo(lx,wireTop+wireH);ctx.stroke();
@@ -819,53 +908,58 @@ function drawOffice() {
   ctx.lineTo(lx+H*.065,wireTop+wireH+H*.07);ctx.lineTo(lx-H*.065,wireTop+wireH+H*.07);
   ctx.closePath();ctx.fill();ctx.strokeStyle='#252528';ctx.lineWidth=1;ctx.stroke();ctx.restore();
 
-  const bGrad=ctx.createRadialGradient(lx,wireTop+wireH,0,lx,wireTop+wireH,H*.008);
-  bGrad.addColorStop(0,'#ffdd88');bGrad.addColorStop(1,'rgba(255,200,80,0)');
-  ctx.fillStyle='#ffcc66';ctx.beginPath();ctx.arc(lx,wireTop+wireH,H*.006,0,Math.PI*2);ctx.fill();
-
-  const gy=wireTop+wireH+H*.04;
-  const lg=ctx.createRadialGradient(lx,gy,0,lx,gy,W*.35);
-  lg.addColorStop(0,'rgba(255,170,50,0.05)');lg.addColorStop(1,'rgba(255,170,50,0)');
-  ctx.fillStyle=lg;ctx.fillRect(0,gy-20,W,H);
-
-  const wbW=W*.22,wbH=H*.17,wbX=W/2-W*.22/2,wbY=wallTop+H*.03;
+  // Whiteboard — shifted slightly left to give vent room in center
+  const wbW=W*.18,wbH=H*.14,wbX=W*.15,wbY=wallTop+H*.04;
   ctx.fillStyle='#5c4a30';ctx.fillRect(wbX-5,wbY-5,wbW+10,wbH+10);
   ctx.fillStyle='#ece8e0';ctx.fillRect(wbX,wbY,wbW,wbH);
-  ctx.fillStyle='#8b0000';ctx.font=`bold ${Math.floor(wbH*.14)}px 'Share Tech Mono',monospace`;
+  ctx.fillStyle='#8b0000';ctx.font=`bold ${Math.floor(wbH*.13)}px 'Share Tech Mono',monospace`;
   ctx.textAlign='center';ctx.fillText('ENGLISH GRAMMAR',wbX+wbW/2,wbY+wbH*.22);
-  ctx.fillStyle='#444';ctx.font=`${Math.floor(wbH*.10)}px 'Share Tech Mono',monospace`;
+  ctx.fillStyle='#444';ctx.font=`${Math.floor(wbH*.09)}px 'Share Tech Mono',monospace`;
   ctx.fillText('Past Simple · Conditional',wbX+wbW/2,wbY+wbH*.42);
-  ctx.fillText('Irregular Verbs · Modal Verbs',wbX+wbW/2,wbY+wbH*.57);
+  ctx.fillText('Irregular Verbs',wbX+wbW/2,wbY+wbH*.57);
   ctx.strokeStyle='#cc0000';ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(wbX+20,wbY+wbH*.65);ctx.lineTo(wbX+wbW-20,wbY+wbH*.65);ctx.stroke();
-  ctx.fillStyle='#cc0000';ctx.font=`bold ${Math.floor(wbH*.13)}px 'Share Tech Mono',monospace`;
-  ctx.fillText('★ TEST RESULT: 1/10 ★',wbX+wbW/2,wbY+wbH*.84);
-  ctx.fillStyle='#cc2222';ctx.beginPath();ctx.arc(wbX+wbW/2,wbY-2,6,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.moveTo(wbX+10,wbY+wbH*.67);ctx.lineTo(wbX+wbW-10,wbY+wbH*.67);ctx.stroke();
+  ctx.fillStyle='#cc0000';ctx.font=`bold ${Math.floor(wbH*.12)}px 'Share Tech Mono',monospace`;
+  ctx.fillText('★ 1/10 ★',wbX+wbW/2,wbY+wbH*.84);
+  ctx.fillStyle='#cc2222';ctx.beginPath();ctx.arc(wbX+wbW/2,wbY-2,5,0,Math.PI*2);ctx.fill();
   ctx.textAlign='left';
 
+  // Posters
   const posters=[
-    {x:W*.04,y:wallTop+H*.04,w:W*.1,h:H*.14,rot:-.02,title:'Irregular Verbs',lines:['go → went → gone','see → saw → seen','eat → ate → eaten','run → ran → run']},
-    {x:W*.18,y:wallTop+H*.05,w:W*.09,h:H*.13,rot:.015,title:'Grammar Rules',lines:['He/She/It + -s','Past: V2 form','"Have" not "Haved"','NO Dutch words!']},
-    {x:W*.71,y:wallTop+H*.04,w:W*.1,h:H*.14,rot:.02,title:'Classroom Rules',lines:['1. Speak English','2. No Dutch','3. No phones','4. NO FAILING']},
-    {x:W*.84,y:wallTop+H*.05,w:W*.09,h:H*.13,rot:-.015,title:'Word of the Day',lines:['SURVIVE','(verb)','to remain alive','despite danger']},
+    {x:W*.04,y:wallTop+H*.05,w:W*.09,h:H*.13,rot:-.02,title:'Irregular Verbs',lines:['go → went','see → saw','eat → ate']},
+    {x:W*.72,y:wallTop+H*.04,w:W*.1,h:H*.14,rot:.02,title:'Rules',lines:['1. English only','2. No Dutch','3. No failing']},
+    {x:W*.86,y:wallTop+H*.05,w:W*.09,h:H*.13,rot:-.015,title:'Word of Day',lines:['SURVIVE','(verb)','stay alive']},
   ];
   posters.forEach(p=>{
     ctx.save();ctx.translate(p.x+p.w/2,p.y+p.h/2);ctx.rotate(p.rot);
     ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(-p.w/2+4,-p.h/2+4,p.w,p.h);
     ctx.fillStyle='#7a6040';ctx.fillRect(-p.w/2-3,-p.h/2-3,p.w+6,p.h+6);
-    const pg2=ctx.createLinearGradient(0,-p.h/2,0,p.h/2);
-    pg2.addColorStop(0,'#ede8dc');pg2.addColorStop(1,'#ddd8cc');
-    ctx.fillStyle=pg2;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
-    ctx.fillStyle='#8b0000';ctx.font=`bold ${Math.max(7,Math.floor(p.h*.12))}px 'Share Tech Mono',monospace`;
-    ctx.textAlign='center';ctx.fillText(p.title,0,-p.h/2+p.h*.15);
+    ctx.fillStyle='#ede8dc';ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    ctx.fillStyle='#8b0000';ctx.font=`bold ${Math.max(7,Math.floor(p.h*.11))}px 'Share Tech Mono',monospace`;
+    ctx.textAlign='center';ctx.fillText(p.title,0,-p.h/2+p.h*.16);
     ctx.strokeStyle='#cc4444';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(-p.w/2+6,-p.h/2+p.h*.22);ctx.lineTo(p.w/2-6,-p.h/2+p.h*.22);ctx.stroke();
-    ctx.fillStyle='#333';ctx.font=`${Math.max(6,Math.floor(p.h*.09))}px 'Share Tech Mono',monospace`;
-    p.lines.forEach((l,i)=>ctx.fillText(l,0,-p.h/2+p.h*(.32+i*.17)));
-    ctx.fillStyle='#cc1111';ctx.beginPath();ctx.arc(0,-p.h/2+4,5,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#ff4444';ctx.beginPath();ctx.arc(-1,-p.h/2+3,2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.moveTo(-p.w/2+5,-p.h/2+p.h*.23);ctx.lineTo(p.w/2-5,-p.h/2+p.h*.23);ctx.stroke();
+    ctx.fillStyle='#333';ctx.font=`${Math.max(6,Math.floor(p.h*.08))}px 'Share Tech Mono',monospace`;
+    p.lines.forEach((l,i)=>ctx.fillText(l,0,-p.h/2+p.h*(.32+i*.18)));
+    ctx.fillStyle='#cc1111';ctx.beginPath();ctx.arc(0,-p.h/2+4,4,0,Math.PI*2);ctx.fill();
     ctx.restore();
   });
+
+  // Vent surround — draw on wall behind the vent element
+  // Big vent housing on wall at center top area
+  const ventW=min180=Math.min(180,window.innerWidth*.18)+20;
+  const ventH=Math.min(130,window.innerWidth*.13)+20;
+  const ventX=W/2-ventW/2;
+  const ventY=H*.07-5;
+  // Recessed housing
+  ctx.fillStyle='#0a0806';
+  ctx.fillRect(ventX-8,ventY-8,ventW+16,ventH+16);
+  ctx.strokeStyle='#3a2a10';ctx.lineWidth=2;
+  ctx.strokeRect(ventX-8,ventY-8,ventW+16,ventH+16);
+  // Shadow / depth
+  const vsGrad=ctx.createLinearGradient(ventX-8,ventY-8,ventX-8,ventY+ventH+8);
+  vsGrad.addColorStop(0,'rgba(0,0,0,.6)');vsGrad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=vsGrad;ctx.fillRect(ventX-8,ventY-8,ventW+16,ventH+16);
 
   const floorY=H*.62;
   const floorGrad=ctx.createLinearGradient(0,floorY,0,H);
@@ -881,103 +975,60 @@ function drawOffice() {
   ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(W/2,floorY);ctx.stroke();
   ctx.beginPath();ctx.moveTo(W,H);ctx.lineTo(W/2,floorY);ctx.stroke();
 
-  function stain(cx,cy,rx,ry,a){
-    ctx.save();ctx.globalAlpha=a;ctx.fillStyle='rgba(0,0,0,.4)';
-    ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.fill();ctx.restore();
-  }
-  stain(W*.12,H*.8,W*.04,H*.015,.6); stain(W*.78,H*.75,W*.05,H*.018,.5); stain(W*.45,H*.85,W*.03,H*.012,.4);
-
+  // Desk
   const deskW=W*.32,deskH=H*.08,deskX=W/2-W*.32/2,deskY=H-H*.08;
   const dGrad=ctx.createLinearGradient(deskX,deskY,deskX,H);
   dGrad.addColorStop(0,'#2a1a08');dGrad.addColorStop(1,'#1a0f05');
   ctx.fillStyle=dGrad;ctx.fillRect(deskX,deskY,deskW,deskH);
   ctx.strokeStyle='#3e2810';ctx.lineWidth=2;ctx.strokeRect(deskX,deskY,deskW,deskH);
 
-  const msW=W*.016,msH=H*.016,msX=W/2-W*.016/2,msY=deskY-H*.016;
-  ctx.fillStyle='#202028';ctx.fillRect(msX,msY,msW,msH);
-  const mW=W*.1,mH=H*.09,mX=W/2-W*.1/2,mY=msY-H*.09;
+  // Monitor
+  const mW=W*.1,mH=H*.09,mX=W/2-W*.1/2,mY=deskY-H*.09;
   ctx.fillStyle='#0c0c14';ctx.strokeStyle='#2a2a38';ctx.lineWidth=2;
   ctx.fillRect(mX,mY,mW,mH);ctx.strokeRect(mX,mY,mW,mH);
-  ctx.fillStyle='#00ff66';ctx.font=`${Math.floor(mH*.18)}px 'Share Tech Mono',monospace`;
+  ctx.fillStyle='#00ff66';ctx.font=`${Math.floor(mH*.16)}px 'Share Tech Mono',monospace`;
   ctx.textAlign='center';
   ctx.fillText('SECURITY',W/2,mY+mH*.35);ctx.fillText('SYS ONLINE',W/2,mY+mH*.55);
   ctx.fillStyle='rgba(0,255,100,.4)';ctx.fillText('>>> ACTIVE',W/2,mY+mH*.78);
   ctx.textAlign='left';
-
-  const kW=W*.08,kH=H*.015,kX=W/2-W*.08/2,kY=deskY+2;
-  ctx.fillStyle='#181820';ctx.strokeStyle='#252530';ctx.lineWidth=1;ctx.fillRect(kX,kY,kW,kH);ctx.strokeRect(kX,kY,kW,kH);
-
-  const cupX=W/2+deskW*.32,cupY=deskY-H*.038,cupR=W*.013;
-  ctx.fillStyle='#2a2a2a';
-  ctx.beginPath();ctx.arc(cupX,cupY+H*.035,cupR,.1,Math.PI-.1,false);
-  ctx.lineTo(cupX-cupR*.8,cupY);ctx.arc(cupX,cupY,cupR*.8,Math.PI*1.1,0,true);ctx.closePath();ctx.fill();
-  ctx.strokeStyle='#444';ctx.lineWidth=1;ctx.stroke();
-  ctx.strokeStyle='rgba(200,200,200,0.15)';ctx.lineWidth=1;
-  [0,4,-3].forEach(off=>{
-    ctx.beginPath();ctx.moveTo(cupX+off,cupY-H*.005);
-    ctx.bezierCurveTo(cupX+off-3,cupY-H*.02,cupX+off+3,cupY-H*.03,cupX+off,cupY-H*.04);ctx.stroke();
-  });
-
-  [-5,0,3].forEach((off,i)=>{
-    ctx.save();ctx.translate(W/2-deskW*.3,deskY-H*.04+i*2);ctx.rotate((-8+off*2)*Math.PI/180);
-    ctx.fillStyle=i===0?'#ddd':'#ccc';ctx.fillRect(0,0,W*.055,H*.04);
-    ctx.strokeStyle='#aaa';ctx.lineWidth=.5;ctx.strokeRect(0,0,W*.055,H*.04);
-    ctx.fillStyle='#888';ctx.font=`${Math.floor(H*.011)}px monospace`;ctx.textAlign='left';
-    if(i===0){['PROEFWERK ENGELS','Score: 1/10','Naam: JIJ'].forEach((l,j)=>ctx.fillText(l,3,H*.012*(j+1)))}
-    ctx.restore();
-  });
-
-  ctx.save();ctx.translate(W/2+deskW*.1,deskY+H*.01);ctx.rotate(-10*Math.PI/180);
-  ctx.fillStyle='#b8902a';ctx.fillRect(0,0,W*.07,H*.009);
-  ctx.strokeStyle='#8a6a1a';ctx.lineWidth=.5;ctx.strokeRect(0,0,W*.07,H*.009);
-  for(let i=0;i<14;i++){ctx.strokeStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.moveTo(i*W*.005,0);ctx.lineTo(i*W*.005,H*.003);ctx.stroke()}
-  ctx.restore();
 }
 
 /* ════ CAM ROOM DRAWING ════ */
-// Cache loaded images so we don't re-create on every render
-const CAM_BG_IMGS = {};
-const CAM_BG_KEYS = ['camBg0','camBg1','camBg2','camBg3','camBg4','camBg5'];
+const CAM_BG_IMGS={};
+const CAM_BG_KEYS=['camBg0','camBg1','camBg2','camBg3','camBg4','camBg5'];
 
-function getCamBgImg(roomId, cb){
-  const key = CAM_BG_KEYS[roomId];
+function getCamBgImg(roomId,cb){
+  const key=CAM_BG_KEYS[roomId];
   if(!key) return cb(null);
-  if(CAM_BG_IMGS[roomId]){return cb(CAM_BG_IMGS[roomId]);}
-  const img = new Image();
-  img.onload = ()=>{ CAM_BG_IMGS[roomId]=img; cb(img); };
-  img.onerror = ()=>cb(null);
-  img.src = FILES[key];
+  if(CAM_BG_IMGS[roomId]) return cb(CAM_BG_IMGS[roomId]);
+  const img=new Image();
+  img.onload=()=>{CAM_BG_IMGS[roomId]=img;cb(img);};
+  img.onerror=()=>cb(null);
+  img.src=FILES[key];
 }
 
-function drawCamRoom(canvas, roomId, small=false){
-  const W = canvas.width  = canvas.offsetWidth  || (small ? 120 : 800);
-  const H = canvas.height = canvas.offsetHeight || (small ? 80  : 500);
-  const ctx = canvas.getContext('2d');
+function drawCamRoom(canvas,roomId,small=false){
+  const W=canvas.width=canvas.offsetWidth||(small?120:800);
+  const H=canvas.height=canvas.offsetHeight||(small?80:500);
+  const ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,W,H);
-
-  // Night-vision overlay helper
   function nvTint(){
     ctx.fillStyle='rgba(0,18,4,0.35)';ctx.fillRect(0,0,W,H);
-    // scanlines
     ctx.fillStyle='rgba(0,0,0,0.08)';
-    for(let y=0;y<H;y+=3){ctx.fillRect(0,y,W,1);}
+    for(let y=0;y<H;y+=3) ctx.fillRect(0,y,W,1);
   }
-
   function finishDraw(img){
     if(img){
-      // draw image cover-fit
-      const iR=img.naturalWidth/img.naturalHeight, cR=W/H;
+      const iR=img.naturalWidth/img.naturalHeight,cR=W/H;
       let sw,sh,sx=0,sy=0;
       if(iR>cR){sh=img.naturalHeight;sw=sh*cR;sx=(img.naturalWidth-sw)/2;}
       else{sw=img.naturalWidth;sh=sw/cR;sy=(img.naturalHeight-sh)/2;}
       ctx.drawImage(img,sx,sy,sw,sh,0,0,W,H);
     } else {
-      // Fallback: simple dark room
       ctx.fillStyle='#080a06';ctx.fillRect(0,0,W,H);
     }
     nvTint();
     if(!small){
-      // Film grain
       const id=ctx.createImageData(W,H);
       for(let i=0;i<id.data.length;i+=4){
         const v=(Math.random()>0.97)?Math.random()*60:0;
@@ -986,147 +1037,9 @@ function drawCamRoom(canvas, roomId, small=false){
       ctx.putImageData(id,0,0);
     }
   }
-
-  const cached = CAM_BG_IMGS[roomId];
-  if(cached){
-    finishDraw(cached);
-  } else {
-    // Draw placeholder while loading, then trigger re-render once loaded
-    ctx.fillStyle='#060806';ctx.fillRect(0,0,W,H);
-    nvTint();
-    getCamBgImg(roomId, (img)=>{
-      finishDraw(img||null);
-    });
-  }
-}
-
-function drawBoilerRoom(ctx,W,H){
-  ctx.fillStyle='#0a0e08';ctx.fillRect(0,0,W,H);
-  const wg=ctx.createLinearGradient(0,0,0,H*.6);wg.addColorStop(0,'#0c1008');wg.addColorStop(1,'#0a0c06');
-  ctx.fillStyle=wg;ctx.fillRect(0,0,W,H*.6);
-  const fg=ctx.createLinearGradient(0,H*.6,0,H);fg.addColorStop(0,'#080c06');fg.addColorStop(1,'#060a04');
-  ctx.fillStyle=fg;ctx.fillRect(0,H*.6,W,H*.4);
-  ctx.strokeStyle='rgba(0,255,50,.04)';ctx.lineWidth=.5;
-  for(let x=0;x<W;x+=W/12){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H*.6);ctx.stroke()}
-  for(let y=0;y<H*.6;y+=H*.1){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
-  const bx=W*.05,bw=W*.2,bh=H*.5,by=H*.08;
-  const bg=ctx.createLinearGradient(bx,0,bx+bw,0);bg.addColorStop(0,'#111a0a');bg.addColorStop(.4,'#1a2210');bg.addColorStop(1,'#0d1408');
-  ctx.fillStyle=bg;ctx.fillRect(bx,by,bw,bh);ctx.strokeStyle='#222e14';ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
-  ctx.strokeStyle='#1a2a10';ctx.lineWidth=1;ctx.beginPath();ctx.arc(bx+bw*.5,by+bh*.28,bh*.12,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle='#0c1208';ctx.beginPath();ctx.arc(bx+bw*.5,by+bh*.28,bh*.12,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(0,255,50,.2)';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(bx+bw*.5,by+bh*.28);ctx.lineTo(bx+bw*.5+bh*.09*Math.cos(-1.2),by+bh*.28+bh*.09*Math.sin(-1.2));ctx.stroke();
-  [[bx+6,by+6],[bx+bw-6,by+6],[bx+6,by+bh-6],[bx+bw-6,by+bh-6]].forEach(([cx,cy])=>{ctx.fillStyle='#1a2010';ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fill()});
-  ctx.strokeStyle='#1a2a10';ctx.lineWidth=W*.025;
-  ctx.beginPath();ctx.moveTo(bx+bw,by+bh*.2);ctx.lineTo(W*.6,by+bh*.2);ctx.lineTo(W*.6,0);ctx.stroke();
-  ctx.strokeStyle='#222e14';ctx.lineWidth=W*.025*.6;
-  ctx.beginPath();ctx.moveTo(bx+bw,by+bh*.2);ctx.lineTo(W*.6,by+bh*.2);ctx.lineTo(W*.6,0);ctx.stroke();
-  const bx2=W*.7,bw2=W*.25,bh2=H*.6,by2=H*.05;
-  const bg2=ctx.createLinearGradient(bx2,0,bx2+bw2,0);bg2.addColorStop(0,'#0e1a08');bg2.addColorStop(.5,'#182208');bg2.addColorStop(1,'#0c1408');
-  ctx.fillStyle=bg2;ctx.fillRect(bx2,by2,bw2,bh2);ctx.strokeStyle='#1e2c10';ctx.lineWidth=2;ctx.strokeRect(bx2,by2,bw2,bh2);
-  ctx.strokeStyle='#1a2a10';ctx.lineWidth=1;
-  for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(bx2,by2+bh2*(i*.28+.1));ctx.lineTo(bx2+bw2,by2+bh2*(i*.28+.1));ctx.stroke()}
-  ctx.fillStyle='rgba(0,255,50,0.18)';ctx.font=`${Math.max(8,W*.018)}px 'Share Tech Mono',monospace`;ctx.fillText('BOILER-SYS-01',W*.02,H*.95);
-}
-
-function drawStorage(ctx,W,H){
-  ctx.fillStyle='#0c0a06';ctx.fillRect(0,0,W,H);
-  const su=[{x:0,w:W*.28,shelves:5},{x:W*.3,w:W*.28,shelves:4},{x:W*.62,w:W*.2,shelves:6}];
-  su.forEach(({x,w,shelves})=>{
-    ctx.fillStyle='#141008';ctx.fillRect(x,0,w,H*.88);ctx.strokeStyle='#1e1808';ctx.lineWidth=2;ctx.strokeRect(x,0,w,H*.88);
-    for(let s=0;s<shelves;s++){
-      const sy=H*.88/shelves*(s+1)-8;
-      ctx.fillStyle='#1a1508';ctx.fillRect(x,sy-5,w,5);ctx.strokeStyle='#252010';ctx.lineWidth=1;ctx.strokeRect(x,sy-5,w,5);
-      let ix=x+4;
-      while(ix<x+w-8){
-        const iw=4+Math.random()*12,ih=8+Math.random()*20,iv=Math.random();
-        if(iv<.4){ctx.fillStyle=`hsl(${30+Math.random()*40},${10+Math.random()*15}%,${5+Math.random()*8}%)`;ctx.fillRect(ix,sy-5-ih,iw,ih);}
-        else if(iv<.7){ctx.fillStyle=`hsl(${Math.random()*360},${15+Math.random()*20}%,${6+Math.random()*7}%)`;ctx.fillRect(ix,sy-5-ih*.8,iw*.5,ih*.8);}
-        ix+=iw+2+Math.random()*3;
-      }
-    }
-  });
-  ctx.fillStyle='rgba(0,255,50,0.15)';ctx.font=`${Math.max(8,W*.018)}px 'Share Tech Mono',monospace`;ctx.fillText('STG-ROOM-02',W*.02,H*.97);
-}
-
-function drawUtility(ctx,W,H){
-  ctx.fillStyle='#08080e';ctx.fillRect(0,0,W,H);
-  const cx=W*.04,cw=W*.35,ch=H*.65,cy=H*.08;
-  const cg=ctx.createLinearGradient(cx,0,cx+cw,0);cg.addColorStop(0,'#0e0e18');cg.addColorStop(.5,'#14141e');cg.addColorStop(1,'#0a0a14');
-  ctx.fillStyle=cg;ctx.fillRect(cx,cy,cw,ch);ctx.strokeStyle='#1e1e2a';ctx.lineWidth=2;ctx.strokeRect(cx,cy,cw,ch);
-  for(let row=0;row<3;row++){
-    for(let col=0;col<2;col++){
-      const px=cx+6+col*(cw/2-8),py=cy+6+row*(ch/3-4),pw=cw/2-14,ph=ch/3-10;
-      ctx.fillStyle='#0a0a12';ctx.fillRect(px,py,pw,ph);ctx.strokeStyle='#181828';ctx.lineWidth=1;ctx.strokeRect(px,py,pw,ph);
-      const colors=['#00aa44','#aa0000','#0044aa','#aaaa00'];
-      for(let l=0;l<4;l++){
-        const lx=px+6+l*pw*.22,ly=py+ph*.2;
-        ctx.fillStyle=Math.random()>.3?colors[l]:'#111';ctx.beginPath();ctx.arc(lx,ly,3,0,Math.PI*2);ctx.fill();
-      }
-    }
-  }
-  ctx.fillStyle='rgba(0,255,50,0.12)';ctx.font=`${Math.max(8,W*.018)}px 'Share Tech Mono',monospace`;ctx.fillText('KLASLOKAAL-03',W*.02,H*.97);
-}
-
-function drawHall(ctx,W,H,side){
-  const isLeft=side==='left';
-  ctx.fillStyle='#080700';ctx.fillRect(0,0,W,H);
-  const vpX=W/2,vpY=H*.38;
-  const fg=ctx.createLinearGradient(0,vpY,0,H);fg.addColorStop(0,'#0a0900');fg.addColorStop(1,'#060500');
-  ctx.fillStyle=fg;ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(0,vpY);ctx.lineTo(W,vpY);ctx.lineTo(W,H);ctx.closePath();ctx.fill();
-  const cg=ctx.createLinearGradient(0,0,0,vpY);cg.addColorStop(0,'#080700');cg.addColorStop(1,'#0a0902');
-  ctx.fillStyle=cg;ctx.fillRect(0,0,W,vpY);
-  ctx.fillStyle='#0d0c06';
-  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(vpX,vpY);ctx.lineTo(0,H);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(W,0);ctx.lineTo(vpX,vpY);ctx.lineTo(W,H);ctx.closePath();ctx.fill();
-  ctx.strokeStyle='rgba(255,220,0,.03)';ctx.lineWidth=.5;
-  for(let i=0;i<10;i++){const t=i/10,ly=vpY+(H-vpY)*t,lx0=(vpX)*(1-t*.95),lx1=W-(W-vpX)*(1-t*.95);ctx.beginPath();ctx.moveTo(lx0,ly);ctx.lineTo(lx1,ly);ctx.stroke()}
-  for(let i=1;i<8;i++){const t=i/8;ctx.beginPath();ctx.moveTo(t*W,H);ctx.lineTo(vpX,vpY);ctx.stroke()}
-  const dw=W*.12,dh=H*.3;
-  ctx.fillStyle='#040300';ctx.fillRect(vpX-dw/2,vpY-dh*.6,dw,dh);
-  ctx.strokeStyle='rgba(255,220,0,.06)';ctx.lineWidth=1;ctx.strokeRect(vpX-dw/2,vpY-dh*.6,dw,dh);
-  ctx.strokeStyle='rgba(30,28,10,.9)';ctx.lineWidth=H*.025;
-  ctx.beginPath();ctx.moveTo(0,H*.03);ctx.lineTo(vpX,vpY*.25);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(W,H*.03);ctx.lineTo(vpX,vpY*.25);ctx.stroke();
-  ctx.fillStyle='rgba(255,220,0,.15)';ctx.font=`${Math.max(8,W*.018)}px 'Share Tech Mono',monospace`;
-  ctx.fillText(isLeft?'L-HALL — DEUR NABIJ':'R-HALL — DEUR NABIJ',W*.02,H*.97);
-}
-function drawLeftHall(ctx,W,H){drawHall(ctx,W,H,'left')}
-function drawRightHall(ctx,W,H){drawHall(ctx,W,H,'right')}
-
-function drawMusicRoom(ctx,W,H){
-  const bg=ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'#0a0806');bg.addColorStop(.5,'#080604');bg.addColorStop(1,'#060402');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-  const lampGlow=ctx.createRadialGradient(W*.8,H*.1,0,W*.8,H*.1,W*.5);
-  lampGlow.addColorStop(0,'rgba(200,130,40,0.12)');lampGlow.addColorStop(1,'rgba(200,130,40,0)');
-  ctx.fillStyle=lampGlow;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#0c0a06';ctx.fillRect(0,0,W,H*.6);
-  ctx.strokeStyle='rgba(80,50,10,.12)';ctx.lineWidth=1;
-  for(let x=0;x<W;x+=W*.08){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H*.6);ctx.stroke()}
-  const floorG=ctx.createLinearGradient(0,H*.6,0,H);floorG.addColorStop(0,'#0e0a06');floorG.addColorStop(1,'#080602');
-  ctx.fillStyle=floorG;ctx.fillRect(0,H*.6,W,H*.4);
-  ctx.strokeStyle='rgba(60,40,10,.2)';ctx.lineWidth=1;
-  for(let x=0;x<W;x+=W*.07){ctx.beginPath();ctx.moveTo(x,H*.6);ctx.lineTo(x+W*.03,H);ctx.stroke()}
-  const px=W*.08,py=H*.22,pw=W*.32,ph=H*.45;
-  const pianoG=ctx.createLinearGradient(px,py,px+pw,py+ph);
-  pianoG.addColorStop(0,'#0e0c08');pianoG.addColorStop(.5,'#141008');pianoG.addColorStop(1,'#0a0806');
-  ctx.fillStyle=pianoG;
-  ctx.beginPath();
-  ctx.moveTo(px,py+ph*.15);ctx.lineTo(px+pw*.05,py);ctx.lineTo(px+pw*.85,py);
-  ctx.bezierCurveTo(px+pw,py,px+pw,py+ph*.4,px+pw*.9,py+ph*.55);
-  ctx.lineTo(px+pw*.6,py+ph);ctx.lineTo(px,py+ph);ctx.closePath();ctx.fill();
-  ctx.strokeStyle='#201a10';ctx.lineWidth=2;ctx.stroke();
-  ctx.strokeStyle='#2a2010';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(px+pw*.05,py);ctx.lineTo(px+pw*.85,py);ctx.stroke();
-  ctx.fillStyle='#0a0806';ctx.fillRect(px+pw*.05,py+ph*.7,pw*.6,ph*.15);
-  ctx.strokeStyle='#1e1808';ctx.lineWidth=1;ctx.strokeRect(px+pw*.05,py+ph*.7,pw*.6,ph*.15);
-  const keyW=pw*.6/18;
-  for(let k=0;k<18;k++){
-    ctx.fillStyle=k%2===0?'rgba(240,230,210,0.15)':'rgba(0,0,0,0.4)';
-    ctx.fillRect(px+pw*.05+k*keyW,py+ph*.7,keyW-0.5,ph*.15);
-  }
-  ctx.fillStyle='rgba(180,140,60,.25)';ctx.font=`${Math.max(8,W*.018)}px 'Share Tech Mono',monospace`;ctx.fillText('MUZIEKKAMER — CAM 6',W*.02,H*.97);
+  const cached=CAM_BG_IMGS[roomId];
+  if(cached){finishDraw(cached);}
+  else{ctx.fillStyle='#060806';ctx.fillRect(0,0,W,H);nvTint();getCamBgImg(roomId,(img)=>finishDraw(img||null));}
 }
 
 /* ════ CAMERA UI ════ */
@@ -1143,7 +1056,9 @@ function buildCamStrip(){
       <div class="ct-hobodot" id="hd${c.id}"></div>
       <div class="ct-jeffreydot" id="jd${c.id}"></div>
       <div class="ct-chapodot" id="cpd${c.id}"></div>
-      <div class="ct-tomdot${c.id===MUSIC_CAM_ID?' on':''}" id="td${c.id}"></div>`;
+      <div class="ct-tomdot${c.id===MUSIC_CAM_ID?' on':''}" id="td${c.id}"></div>
+      <div class="ct-madurodot" id="cpmd${c.id}"></div>
+      <div class="ct-disabled-overlay" id="ctdis${c.id}"><span>OFFLINE</span><span style="font-size:.5em;color:#330000;letter-spacing:2px">MADURO</span></div>`;
     el.onclick=()=>switchCam(c.id);
     strip.appendChild(el);
     const cv=document.getElementById('ctc'+c.id);
@@ -1152,31 +1067,59 @@ function buildCamStrip(){
   });
 }
 
+function isCamDisabled(camId){
+  return !!(G.maduroDisabledCams&&G.maduroDisabledCams[camId]>0);
+}
+
 function switchCam(id){
+  if(isCamDisabled(id)){
+    // flash the disabled state, don't switch
+    const el=document.getElementById('ct'+id);
+    if(el){el.style.animation='none';setTimeout(()=>el.style.animation='',50);}
+    return;
+  }
   if(id!==G.curCam) play('cameraSwitch');
+  // Maduro disappears when you look away
+  if(G.maduroPos===G.curCam && id!==G.curCam){
+    maduroDespawn();
+  }
   if(G.curCam===MUSIC_CAM_ID&&id!==MUSIC_CAM_ID){
     if(SFX.muziek) SFX.muziek.volume=0.15;
   }
   G.curCam=id;
+  G.maduroWatchMs=0; // reset watch timer when switching
   document.querySelectorAll('.cam-thumb').forEach(t=>t.classList.remove('ct-on'));
   document.getElementById('ct'+id)?.classList.add('ct-on');
   document.getElementById('camNameLbl').textContent=CAMS[id].name;
   document.getElementById('camRoomLbl').textContent=CAMS[id].room;
   const mbp=document.getElementById('musicBoxPanel');
-  mbp.style.display = id===MUSIC_CAM_ID ? 'flex' : 'none';
-  if(SFX.muziek) SFX.muziek.volume = id===MUSIC_CAM_ID ? 0.55 : 0.15;
+  mbp.style.display=id===MUSIC_CAM_ID?'flex':'none';
+  if(SFX.muziek) SFX.muziek.volume=id===MUSIC_CAM_ID?0.55:0.15;
   renderCamFeed();
   updateLureUI();
 }
 
 function renderCamFeed(){
   const id=G.curCam;
-  const gijsHere   = G.mPos===id && id!==MUSIC_CAM_ID;
-  const hoboHere   = G.hoboPos===id && id!==MUSIC_CAM_ID;
-  const jeffreyHere= G.jeffreyActive && G.jeffreyPos===id && id!==MUSIC_CAM_ID;
-  // Chapo: visible on left hall cam (id===3) ONLY when NOT in attack phase
-  const chapoHere  = G.chapoActive && id===CHAPO_CAM_ID && !G.chapoAlarm;
+  const disabled=isCamDisabled(id);
+
+  // Show/hide disabled overlay on main feed
+  const disOv=document.getElementById('maduroDisabledOverlay');
+  disOv.classList.toggle('active',disabled);
+
+  if(disabled){
+    // Don't render other entities while disabled
+    ['monsterCamImg','hoboCamImg','jeffreyCamImg','chapoCamImg','tomCamImg','maduroCamImg'].forEach(i=>
+      document.getElementById(i).style.display='none');
+    return;
+  }
+
+  const gijsHere   = G.mPos===id&&id!==MUSIC_CAM_ID;
+  const hoboHere   = G.hoboPos===id&&id!==MUSIC_CAM_ID;
+  const jeffreyHere= G.jeffreyActive&&G.jeffreyPos===id&&id!==MUSIC_CAM_ID;
+  const chapoHere  = G.chapoActive&&id===CHAPO_CAM_ID&&!G.chapoAlarm;
   const tomHere    = id===MUSIC_CAM_ID;
+  const maduroHere = G.maduroPos===id;
 
   const cv=document.getElementById('camCanvas');
   cv.width=cv.offsetWidth||800;cv.height=cv.offsetHeight||400;
@@ -1193,37 +1136,26 @@ function renderCamFeed(){
 
   const chapoImg=document.getElementById('chapoCamImg');
   chapoImg.style.display=chapoHere?'block':'none';
-  if(chapoHere){
-    chapoImg.src=FILES.chapoCam;
-    applyChapoStyle(chapoImg, G.chapoSprite, G.chapoTimer);
-  }
+  if(chapoHere){chapoImg.src=FILES.chapoCam;applyChapoStyle(chapoImg,G.chapoSprite,G.chapoTimer);}
 
   const tomImg=document.getElementById('tomCamImg');
   tomImg.style.display=tomHere?'block':'none';
-  if(tomHere){
-    tomImg.src=FILES.tomCam;
-    applyTomStyle(tomImg,G.musicBox);
-  }
+  if(tomHere){tomImg.src=FILES.tomCam;applyTomStyle(tomImg,G.musicBox);}
+
+  // MADURO — covers everything
+  const maduroImg=document.getElementById('maduroCamImg');
+  maduroImg.style.display=maduroHere?'block':'none';
 
   const overlay=document.getElementById('tomDangerOverlay');
-  if(tomHere){
-    const danger=Math.max(0,(100-G.musicBox)/100);
-    overlay.style.opacity=String(Math.pow(danger,1.4)*0.9);
-  } else {
-    overlay.style.opacity='0';
-  }
-
-  // (timer panels are hidden from player — no display updates needed)
+  if(tomHere){const danger=Math.max(0,(100-G.musicBox)/100);overlay.style.opacity=String(Math.pow(danger,1.4)*0.9);}
+  else overlay.style.opacity='0';
 
   document.getElementById('camMain').classList.toggle('cam-active-static',gijsHere||hoboHere||jeffreyHere);
   document.getElementById('camTs').textContent=new Date().toLocaleTimeString('nl-NL');
 }
 
-function applyChapoStyle(img, sprite, timer){
-  // sprite 0: lurking, 1: agitated, 2: charging
-  const ratios=[0,0.33,0.66];
-  const progress=1-(timer/CHAPO_ATTACK_S);
-  let brightness, scale, hue;
+function applyChapoStyle(img,sprite,timer){
+  let brightness,scale,hue;
   if(sprite===0){brightness=0.25;scale=0.7;hue=0;}
   else if(sprite===1){brightness=0.55;scale=0.88;hue=10;}
   else{brightness=0.85;scale=1.05;hue=20;}
@@ -1236,45 +1168,24 @@ function applyChapoStyle(img, sprite, timer){
 
 function applyTomStyle(img,level){
   let filter,transform,opacity;
-  if(level>75){
-    filter='brightness(0.04) contrast(4) saturate(0)';
-    transform='translateX(-50%) scale(0.65) translateY(8%)';
-    opacity='0.5';img.style.animation='none';
-  } else if(level>55){
-    filter='brightness(0.15) contrast(2.5) saturate(0.2)';
-    transform='translateX(-50%) scale(0.75) translateY(4%)';
-    opacity='0.65';img.style.animation='none';
-  } else if(level>35){
-    filter='brightness(0.35) contrast(1.8) saturate(0.6)';
-    transform='translateX(-50%) scale(0.88)';
-    opacity='0.8';img.style.animation='mBreath 3s ease-in-out infinite';
-  } else if(level>15){
-    filter='brightness(0.65) contrast(1.4) saturate(1.2) hue-rotate(330deg)';
-    transform='translateX(-50%) scale(0.97)';
-    opacity='0.92';img.style.animation='mBreath 2s ease-in-out infinite';
-  } else if(level>5){
-    filter='brightness(0.9) contrast(1.2) saturate(2.5) hue-rotate(330deg)';
-    transform='translateX(-50%) scale(1.05)';
-    opacity='1';img.style.animation='tomCrit 0.5s infinite';
-  } else {
-    filter='brightness(1.1) contrast(1.1) saturate(4) hue-rotate(340deg)';
-    transform='translateX(-50%) scale(1.12)';
-    opacity='1';img.style.animation='tomCrit 0.25s infinite';
-  }
+  if(level>75){filter='brightness(0.04) contrast(4) saturate(0)';transform='translateX(-50%) scale(0.65) translateY(8%)';opacity='0.5';img.style.animation='none';}
+  else if(level>55){filter='brightness(0.15) contrast(2.5) saturate(0.2)';transform='translateX(-50%) scale(0.75) translateY(4%)';opacity='0.65';img.style.animation='none';}
+  else if(level>35){filter='brightness(0.35) contrast(1.8) saturate(0.6)';transform='translateX(-50%) scale(0.88)';opacity='0.8';img.style.animation='mBreath 3s ease-in-out infinite';}
+  else if(level>15){filter='brightness(0.65) contrast(1.4) saturate(1.2) hue-rotate(330deg)';transform='translateX(-50%) scale(0.97)';opacity='0.92';img.style.animation='mBreath 2s ease-in-out infinite';}
+  else if(level>5){filter='brightness(0.9) contrast(1.2) saturate(2.5) hue-rotate(330deg)';transform='translateX(-50%) scale(1.05)';opacity='1';img.style.animation='tomCrit 0.5s infinite';}
+  else{filter='brightness(1.1) contrast(1.1) saturate(4) hue-rotate(340deg)';transform='translateX(-50%) scale(1.12)';opacity='1';img.style.animation='tomCrit 0.25s infinite';}
   img.style.filter=filter;img.style.transform=transform;img.style.opacity=opacity;
   img.style.transition='filter 1s, transform 1s, opacity 1s';
 }
 
 function refreshMonsterDots(){
   CAMS.forEach(c=>{
-    document.getElementById('md'+c.id)?.classList.toggle('on', G.mPos===c.id && c.id!==MUSIC_CAM_ID);
-    document.getElementById('hd'+c.id)?.classList.toggle('on', G.hoboPos===c.id && c.id!==MUSIC_CAM_ID);
-    // Jeffrey dot
+    document.getElementById('md'+c.id)?.classList.toggle('on',G.mPos===c.id&&c.id!==MUSIC_CAM_ID);
+    document.getElementById('hd'+c.id)?.classList.toggle('on',G.hoboPos===c.id&&c.id!==MUSIC_CAM_ID);
     const jd=document.getElementById('jd'+c.id);
-    if(jd) jd.classList.toggle('on', G.jeffreyActive && G.jeffreyPos===c.id && c.id!==MUSIC_CAM_ID);
-    // Chapo dot - only on left hall cam, hidden during alarm
+    if(jd) jd.classList.toggle('on',G.jeffreyActive&&G.jeffreyPos===c.id&&c.id!==MUSIC_CAM_ID);
     const cpd=document.getElementById('cpd'+c.id);
-    if(cpd) cpd.classList.toggle('on', G.chapoActive && c.id===CHAPO_CAM_ID && !G.chapoAlarm);
+    if(cpd) cpd.classList.toggle('on',G.chapoActive&&c.id===CHAPO_CAM_ID&&!G.chapoAlarm);
     const td=document.getElementById('td'+c.id);
     if(td&&c.id===MUSIC_CAM_ID){
       td.className='ct-tomdot on';
@@ -1282,7 +1193,20 @@ function refreshMonsterDots(){
       else if(G.musicBox<50) td.style.animationDuration='0.6s';
       else td.style.animationDuration='1s';
     }
+    // Maduro dot
+    const cpmd=document.getElementById('cpmd'+c.id);
+    if(cpmd) cpmd.classList.toggle('on',G.maduroPos===c.id);
+    // Disabled overlay on thumb
+    const ctdis=document.getElementById('ctdis'+c.id);
+    if(ctdis) ctdis.classList.toggle('active',isCamDisabled(c.id));
+    // Thumb maduro warn style
+    const thumb=document.getElementById('ct'+c.id);
+    if(thumb){
+      if(isCamDisabled(c.id)) thumb.classList.add('cam-maduro-warn');
+      else thumb.classList.remove('cam-maduro-warn');
+    }
   });
+
   document.getElementById('dotMon').classList.toggle('on',G.mPos>=POS.LD);
   document.getElementById('dotHobo').classList.toggle('on',true);
 
@@ -1294,13 +1218,125 @@ function refreshMonsterDots(){
     else dotTom.classList.add('crit');
   }
 
-  const dotJ=document.getElementById('dotJeffrey');
-  if(dotJ&&G.jeffreyActive){
-    dotJ.className='hud-status-dot warn';
+  // Maduro HUD dot
+  const dotM=document.getElementById('dotMaduro');
+  if(dotM){
+    dotM.className='hud-status-dot';
+    const hasDis=Object.values(G.maduroDisabledCams||{}).some(v=>v>0);
+    if(hasDis) dotM.classList.add('crit');
+    else if(G.maduroPos>=0) dotM.classList.add('warn');
+    else dotM.classList.add('on');
   }
+
+  const dotJ=document.getElementById('dotJeffrey');
+  if(dotJ&&G.jeffreyActive) dotJ.className='hud-status-dot warn';
   const dotC=document.getElementById('dotChapo');
-  if(dotC&&G.chapoActive){
-    dotC.className='hud-status-dot'+(G.chapoAlarm?' crit':G.chapoTimer<30?' warn':' on');
+  if(dotC&&G.chapoActive) dotC.className='hud-status-dot'+(G.chapoAlarm?' crit':G.chapoTimer<30?' warn':' on');
+}
+
+/* ════ MADURO AI ════ */
+function scheduleMaduroSpawn(){
+  if(G.maduroSpawnTimer) clearInterval(G.maduroSpawnTimer);
+  G.maduroSpawnTimer=setInterval(()=>{
+    if(G.dead||G.won) return;
+    if(G.maduroPos>=0) return; // already on a cam
+    if(Math.random()<MADURO_APPEAR_CHANCE){
+      // Pick a random cam that is not currently disabled
+      const available=MADURO_ALLOWED_CAMS.filter(id=>!isCamDisabled(id));
+      if(available.length===0) return;
+      const camId=available[Math.floor(Math.random()*available.length)];
+      maduroSpawn(camId);
+    }
+  },MADURO_APPEAR_INTERVAL);
+}
+
+function maduroSpawn(camId){
+  G.maduroPos=camId;
+  G.maduroWatchMs=0;
+  refreshMonsterDots();
+  if(G.camOpen&&G.curCam===camId) renderCamFeed();
+}
+
+function maduroDespawn(){
+  if(G.maduroPos<0) return;
+  G.maduroPos=-1;
+  G.maduroWatchMs=0;
+  refreshMonsterDots();
+  if(G.camOpen) renderCamFeed();
+}
+
+function tickMaduro(){
+  if(G.dead||G.won) return;
+
+  // Tick down disabled cams
+  let anyChange=false;
+  Object.keys(G.maduroDisabledCams).forEach(camId=>{
+    if(G.maduroDisabledCams[camId]>0){
+      G.maduroDisabledCams[camId]-=TICK_MS;
+      if(G.maduroDisabledCams[camId]<=0){
+        G.maduroDisabledCams[camId]=0;
+        anyChange=true;
+        // Update reconnect display
+        updateMaduroReconnectDisplay(parseInt(camId),0);
+      } else {
+        updateMaduroReconnectDisplay(parseInt(camId), Math.ceil(G.maduroDisabledCams[camId]/1000));
+      }
+    }
+  });
+  if(anyChange) refreshMonsterDots();
+
+  // If Maduro is on a cam and player is watching it, accumulate watch time
+  if(G.maduroPos>=0&&G.camOpen&&G.curCam===G.maduroPos&&!isCamDisabled(G.curCam)){
+    G.maduroWatchMs+=TICK_MS;
+    if(G.maduroWatchMs>=MADURO_WATCH_LIMIT_MS){
+      triggerMaduroCamDisable(G.maduroPos);
+    }
+  } else if(G.maduroPos>=0&&(!G.camOpen||G.curCam!==G.maduroPos)){
+    // Not watching — reset watch timer
+    G.maduroWatchMs=0;
+  }
+}
+
+function triggerMaduroCamDisable(camId){
+  play('shock');
+  const prev=G.maduroPos;
+  G.maduroPos=-1;
+  G.maduroWatchMs=0;
+  G.maduroDisabledCams[camId]=MADURO_DISABLE_MS;
+  refreshMonsterDots();
+
+  // If currently watching this cam, show disabled overlay immediately
+  if(G.camOpen&&G.curCam===camId){
+    renderCamFeed();
+    startMaduroReconnectBar();
+    // Force switch to another cam after a beat
+    setTimeout(()=>{
+      if(!G.dead&&!G.won&&G.camOpen&&G.curCam===camId){
+        // Find a non-disabled cam
+        const other=CAMS.find(c=>c.id!==camId&&!isCamDisabled(c.id));
+        if(other) switchCam(other.id);
+      }
+    },2200);
+  }
+}
+
+function startMaduroReconnectBar(){
+  const fill=document.getElementById('maduroErrFill');
+  if(fill){
+    fill.style.transition='none';
+    fill.style.width='0%';
+    setTimeout(()=>{
+      fill.style.transition=`width ${MADURO_DISABLE_MS/1000}s linear`;
+      fill.style.width='100%';
+    },50);
+  }
+}
+
+function updateMaduroReconnectDisplay(camId,secsLeft){
+  // Update the reconnect sec display if this cam is currently shown
+  if(G.camOpen&&G.curCam===camId){
+    const el=document.getElementById('maduroReconnectSec');
+    if(el) el.textContent=secsLeft;
   }
 }
 
@@ -1352,22 +1388,15 @@ function stopWindUp(){
 /* ════ JEFFREY AI ════ */
 function tickJeffrey(){
   if(!G.jeffreyActive||G.dead||G.won) return;
-  const tickSec = TICK_MS / 1000;
-  // Timer FREEZES completely while player watches Jeffrey's current camera
-  const watchingJeffrey = G.camOpen && G.curCam===G.jeffreyPos;
+  const tickSec=TICK_MS/1000;
+  const watchingJeffrey=G.camOpen&&G.curCam===G.jeffreyPos&&!isCamDisabled(G.curCam);
   if(watchingJeffrey) return;
-
-  G.jeffreyTimer -= tickSec;
-
-  if(G.jeffreyTimer <= 0){
+  G.jeffreyTimer-=tickSec;
+  if(G.jeffreyTimer<=0){
     G.jeffreyStep++;
-    // Past last cam in path (step 5) = instant kill
-    if(G.jeffreyStep >= JEFFREY_PATH.length){
-      triggerJeffreyJS();
-      return;
-    }
-    G.jeffreyPos = JEFFREY_PATH[G.jeffreyStep];
-    G.jeffreyTimer = JEFFREY_SWITCH_S;
+    if(G.jeffreyStep>=JEFFREY_PATH.length){triggerJeffreyJS();return;}
+    G.jeffreyPos=JEFFREY_PATH[G.jeffreyStep];
+    G.jeffreyTimer=JEFFREY_SWITCH_S;
     play('jeffreyLaugh');
     refreshMonsterDots();
     if(G.camOpen) renderCamFeed();
@@ -1377,28 +1406,14 @@ function tickJeffrey(){
 /* ════ CHAPO AI ════ */
 function tickChapo(){
   if(!G.chapoActive||G.dead||G.won) return;
-  if(G.chapoAlarm) return; // alarm already triggered, handled by door logic
-  const tickSec = TICK_MS/1000;
-  // If watching chapo's cam, freeze the timer
-  const watching = G.camOpen && G.curCam===CHAPO_CAM_ID;
-  if(!watching){
-    G.chapoTimer -= tickSec;
-  }
-
-  // Update sprite based on time remaining ratio
-  const ratio = G.chapoTimer / CHAPO_ATTACK_S;
-  let newSprite;
-  if(ratio > 0.6) newSprite=0;
-  else if(ratio > 0.25) newSprite=1;
-  else newSprite=2;
-  if(newSprite!==G.chapoSprite){
-    G.chapoSprite=newSprite;
-    if(G.camOpen&&G.curCam===CHAPO_CAM_ID) renderCamFeed();
-  }
-
-  if(G.chapoTimer <= 0 && !G.chapoAlarm){
-    triggerChapoAlarm();
-  }
+  if(G.chapoAlarm) return;
+  const tickSec=TICK_MS/1000;
+  const watching=G.camOpen&&G.curCam===CHAPO_CAM_ID&&!isCamDisabled(CHAPO_CAM_ID);
+  if(!watching) G.chapoTimer-=tickSec;
+  const ratio=G.chapoTimer/CHAPO_ATTACK_S;
+  let newSprite=ratio>0.6?0:ratio>0.25?1:2;
+  if(newSprite!==G.chapoSprite){G.chapoSprite=newSprite;if(G.camOpen&&G.curCam===CHAPO_CAM_ID) renderCamFeed();}
+  if(G.chapoTimer<=0&&!G.chapoAlarm) triggerChapoAlarm();
 }
 
 function triggerChapoAlarm(){
@@ -1407,24 +1422,17 @@ function triggerChapoAlarm(){
   document.getElementById('alarmOverlay').style.display='block';
   refreshMonsterDots();
   if(G.camOpen) renderCamFeed();
-  // If both doors are already closed, resolve immediately
-  if(G.lfClosed && G.rtClosed){ checkChapoResolved(); return; }
-  // Otherwise give player 3 seconds to close both doors
-  G.chapoKillTimer=setTimeout(()=>{
-    if(!G.dead&&!G.won&&G.chapoAlarm) triggerChapoJS();
-  },3000);
+  if(G.lfClosed&&G.rtClosed){checkChapoResolved();return;}
+  G.chapoKillTimer=setTimeout(()=>{if(!G.dead&&!G.won&&G.chapoAlarm) triggerChapoJS();},3000);
 }
 
 function checkChapoResolved(){
   if(!G.chapoAlarm||G.dead||G.won) return;
-  if(G.lfClosed && G.rtClosed){
-    // Both doors closed in time — Chapo repelled!
+  if(G.lfClosed&&G.rtClosed){
     if(G.chapoKillTimer){clearTimeout(G.chapoKillTimer);G.chapoKillTimer=null;}
     stop('alarm');
     document.getElementById('alarmOverlay').style.display='none';
-    G.chapoAlarm=false;
-    G.chapoTimer=CHAPO_ATTACK_S;
-    G.chapoSprite=0;
+    G.chapoAlarm=false;G.chapoTimer=CHAPO_ATTACK_S;G.chapoSprite=0;
     refreshMonsterDots();
     if(G.camOpen) renderCamFeed();
   }
@@ -1433,98 +1441,71 @@ function checkChapoResolved(){
 /* ════ MARK VENT AI ════ */
 function scheduleMarkCheck(){
   if(G.markCheckInterval) clearInterval(G.markCheckInterval);
-  G.markCheckInterval = setInterval(()=>{
-    if(G.dead||G.won) return;
-    if(G.markInVent) return; // already in vent
-    // 10% chance every 10 seconds to appear
-    if(Math.random() < 0.10) markAppear();
-  }, 10000);
+  G.markCheckInterval=setInterval(()=>{
+    if(G.dead||G.won||G.markInVent) return;
+    if(Math.random()<0.10) markAppear();
+  },10000);
 }
 
 function markAppear(){
   if(G.dead||G.won||G.markInVent) return;
-  G.markInVent = true;
+  G.markInVent=true;
   play('vent');
-  if(Math.random() < 0.20) setTimeout(()=>play('markAudio'), 400);
+  if(Math.random()<0.20) setTimeout(()=>play('markAudio'),400);
   updateVentUI();
-
-  // If vent is already closed when he appears — he leaves after 1-3s
-  if(G.ventClosed){
-    markLeaveAfterDelay(1000 + Math.random()*2000);
-    return;
-  }
-
-  // Show Mark visually
-  const img = document.getElementById('markVentImg');
+  if(G.ventClosed){markLeaveAfterDelay(1000+Math.random()*2000);return;}
+  const img=document.getElementById('markVentImg');
   img.classList.add('mark-visible');
-
-  // After 6s, escalate to urgent
-  G.markAppearTimer = setTimeout(()=>{
-    if(!G.dead&&!G.won&&G.markInVent&&!G.ventClosed){
-      img.classList.add('mark-urgent');
-    }
-  }, 6000);
-
-  // After 8s total — jumpscare
-  G.markKillTimer = setTimeout(()=>{
-    if(!G.dead&&!G.won&&G.markInVent&&!G.ventClosed){
-      triggerMarkJS();
-    }
-  }, 8000);
+  G.markAppearTimer=setTimeout(()=>{if(!G.dead&&!G.won&&G.markInVent&&!G.ventClosed) img.classList.add('mark-urgent');},6000);
+  G.markKillTimer=setTimeout(()=>{if(!G.dead&&!G.won&&G.markInVent&&!G.ventClosed) triggerMarkJS();},8000);
 }
 
 function markLeave(){
   if(!G.markInVent) return;
-  G.markInVent = false;
+  G.markInVent=false;
   if(G.markAppearTimer){clearTimeout(G.markAppearTimer);G.markAppearTimer=null;}
   if(G.markKillTimer){clearTimeout(G.markKillTimer);G.markKillTimer=null;}
   if(G.markLeaveTimer){clearTimeout(G.markLeaveTimer);G.markLeaveTimer=null;}
   stop('vent');
-  const img = document.getElementById('markVentImg');
+  const img=document.getElementById('markVentImg');
   img.classList.remove('mark-visible','mark-urgent');
   updateVentUI();
 }
 
 function markLeaveAfterDelay(ms){
   if(G.markLeaveTimer) clearTimeout(G.markLeaveTimer);
-  G.markLeaveTimer = setTimeout(()=>markLeave(), ms);
+  G.markLeaveTimer=setTimeout(()=>markLeave(),ms);
 }
 
 function toggleVent(){
   if(G.dead||G.won) return;
-  G.ventClosed = !G.ventClosed;
+  G.ventClosed=!G.ventClosed;
   if(G.ventClosed) play('doorClose');
   updateVentUI();
-
-  if(G.ventClosed && G.markInVent){
-    // Close while Mark is visible — he leaves in 1–3s
+  if(G.ventClosed&&G.markInVent){
     if(G.markAppearTimer){clearTimeout(G.markAppearTimer);G.markAppearTimer=null;}
     if(G.markKillTimer){clearTimeout(G.markKillTimer);G.markKillTimer=null;}
-    markLeaveAfterDelay(1000 + Math.random()*2000);
-  } else if(!G.ventClosed && G.markInVent){
-    // Opened while Mark is still there — 1 second to close again
+    markLeaveAfterDelay(1000+Math.random()*2000);
+  } else if(!G.ventClosed&&G.markInVent){
     if(G.markKillTimer) clearTimeout(G.markKillTimer);
-    G.markKillTimer = setTimeout(()=>{
-      if(!G.dead&&!G.won&&G.markInVent&&!G.ventClosed) triggerMarkJS();
-    }, 1000);
+    G.markKillTimer=setTimeout(()=>{if(!G.dead&&!G.won&&G.markInVent&&!G.ventClosed) triggerMarkJS();},1000);
   }
 }
 
 function updateVentUI(){
-  const grate = document.getElementById('ventGrate');
-  const btn   = document.getElementById('ventBtn');
-  const light = document.getElementById('ventLight');
-  const img   = document.getElementById('markVentImg');
-  grate.classList.toggle('shut', G.ventClosed);
-  btn.classList.toggle('shut', G.ventClosed);
-  btn.querySelector('.vent-label').textContent = G.ventClosed ? 'OPEN' : 'VENT';
-  light.classList.toggle('active', G.markInVent && !G.ventClosed);
-  // Only show visual if vent open and Mark present
-  if(G.markInVent && !G.ventClosed){
-    img.classList.add('mark-visible');
-  } else if(G.ventClosed || !G.markInVent){
-    img.classList.remove('mark-visible','mark-urgent');
-  }
+  const grate=document.getElementById('ventGrate');
+  const btn=document.getElementById('ventBtn');
+  const light=document.getElementById('ventLight');
+  const img=document.getElementById('markVentImg');
+  const warn=document.getElementById('ventOxygenWarning');
+  grate.classList.toggle('shut',G.ventClosed);
+  btn.classList.toggle('shut',G.ventClosed);
+  btn.querySelector('.vent-label').textContent=G.ventClosed?'OPEN VENT':'SLUIT VENT';
+  light.classList.toggle('active',G.markInVent&&!G.ventClosed);
+  // O2 warning
+  if(warn) warn.classList.toggle('active',G.ventClosed);
+  if(G.markInVent&&!G.ventClosed) img.classList.add('mark-visible');
+  else if(G.ventClosed||!G.markInVent) img.classList.remove('mark-visible','mark-urgent');
 }
 
 /* ════ CAMERA TOGGLE ════ */
@@ -1537,6 +1518,9 @@ function toggleCam(){
     stopWindUp();
     document.getElementById('musicBoxPanel').style.display='none';
     if(SFX.muziek) SFX.muziek.volume=0.15;
+    // Maduro despawns when you close cameras
+    if(G.maduroPos>=0) maduroDespawn();
+    G.maduroWatchMs=0;
   }
   if(G.camOpen) switchCam(G.curCam);
   updateLureUI();
@@ -1545,30 +1529,22 @@ function toggleCam(){
 /* ════ DOOR LOGIC ════ */
 function toggleDoor(side){
   if(G.dead||G.won) return;
-  // Removing one-shot O2 penalty — doors now drain per tick instead
   if(side==='left'){
     G.lfClosed=!G.lfClosed;
     if(G.lfClosed) play('doorClose');
     document.getElementById('dpL').classList.toggle('shut',G.lfClosed);
     const b=document.getElementById('dbL');b.textContent=G.lfClosed?'OPEN':'DEUR';b.classList.toggle('on',G.lfClosed);
-    if(G.lfClosed){
-      if(G.mPos===POS.LD&&G.mDoorTimer){clearTimeout(G.mDoorTimer);G.mDoorTimer=null;}
-    } else {
-      if(G.mPos===POS.LD) armDoorTimer();
-    }
+    if(G.lfClosed){if(G.mPos===POS.LD&&G.mDoorTimer){clearTimeout(G.mDoorTimer);G.mDoorTimer=null;}}
+    else{if(G.mPos===POS.LD) armDoorTimer();}
   } else {
     G.rtClosed=!G.rtClosed;
     if(G.rtClosed) play('doorClose');
     document.getElementById('dpR').classList.toggle('shut',G.rtClosed);
     const b=document.getElementById('dbR');b.textContent=G.rtClosed?'OPEN':'DEUR';b.classList.toggle('on',G.rtClosed);
-    if(G.rtClosed){
-      if(G.mPos===POS.RD&&G.mDoorTimer){clearTimeout(G.mDoorTimer);G.mDoorTimer=null;}
-    } else {
-      if(G.mPos===POS.RD) armDoorTimer();
-    }
+    if(G.rtClosed){if(G.mPos===POS.RD&&G.mDoorTimer){clearTimeout(G.mDoorTimer);G.mDoorTimer=null;}}
+    else{if(G.mPos===POS.RD) armDoorTimer();}
   }
   refreshDoorLights();
-  // Check if chapo alarm is resolved
   if(G.chapoAlarm) checkChapoResolved();
 }
 
@@ -1581,7 +1557,7 @@ function refreshDoorLights(){
 function scheduleMoveTimer(){
   if(G.mMoveTimer) clearTimeout(G.mMoveTimer);
   if(G.dead||G.won) return;
-  const intervals = G.hardMode ? MOVE_IVAL_HARD : MOVE_IVAL_EASY;
+  const intervals=G.hardMode?MOVE_IVAL_HARD:MOVE_IVAL_EASY;
   const base=intervals[Math.min(G.hour,5)];
   const delay=base+Math.random()*4000-1500;
   G.mMoveTimer=setTimeout(()=>{advanceMonster();scheduleMoveTimer();},delay);
@@ -1594,17 +1570,11 @@ function advanceMonster(){
   let np=G.mPos;
   if(G.mPos===POS.C0) np=POS.C1;
   else if(G.mPos===POS.C1) np=POS.C2;
-  else if(G.mPos===POS.C2){
-    if(!G.mPath) G.mPath=Math.random()<.5?'left':'right';
-    np=G.mPath==='left'?POS.C3:POS.C4;
-    G.mPath=null;
-  }
+  else if(G.mPos===POS.C2){if(!G.mPath) G.mPath=Math.random()<.5?'left':'right';np=G.mPath==='left'?POS.C3:POS.C4;G.mPath=null;}
   else if(G.mPos===POS.C3) np=POS.LD;
   else if(G.mPos===POS.C4) np=POS.RD;
-  else if(G.mPos===MUSIC_CAM_ID) np=POS.C2;
   G.mPos=np;
-  refreshMonsterDots();
-  refreshDoorLights();
+  refreshMonsterDots();refreshDoorLights();
   if(G.camOpen) renderCamFeed();
   if(np===POS.LD||np===POS.RD) handleAtDoor(np);
 }
@@ -1625,8 +1595,7 @@ function retreatGijs(){
   const backs=[POS.C0,POS.C1,POS.C2];
   G.mPos=backs[Math.floor(Math.random()*backs.length)];
   play('footsteps');
-  refreshMonsterDots();
-  refreshDoorLights();
+  refreshMonsterDots();refreshDoorLights();
   if(G.camOpen) renderCamFeed();
   updateLureUI();
 }
@@ -1645,8 +1614,8 @@ function armDoorTimer(){
 function scheduleHoboMove(){
   if(G.hoboMoveTimer) clearTimeout(G.hoboMoveTimer);
   if(G.dead||G.won) return;
-  const minMs = G.hardMode ? HOBO_MIN_MS_HARD : HOBO_MIN_MS_EASY;
-  const maxMs = G.hardMode ? HOBO_MAX_MS_HARD : HOBO_MAX_MS_EASY;
+  const minMs=G.hardMode?HOBO_MIN_MS_HARD:HOBO_MIN_MS_EASY;
+  const maxMs=G.hardMode?HOBO_MAX_MS_HARD:HOBO_MAX_MS_EASY;
   const delay=minMs+Math.random()*(maxMs-minMs);
   G.hoboMoveTimer=setTimeout(()=>{moveHobo();scheduleHoboMove();},delay);
 }
@@ -1666,22 +1635,16 @@ function moveHobo(){
 function inLureRange(){
   if(!G.camOpen) return false;
   const adj={
-    [POS.C0]:[POS.C1],
-    [POS.C1]:[POS.C0,POS.C2],
-    [POS.C2]:[POS.C1,POS.C3,POS.C4],
-    [POS.C3]:[POS.C2,POS.LD],
-    [POS.C4]:[POS.C2,POS.RD],
-    [POS.LD]:[POS.C3],
-    [POS.RD]:[POS.C4]
+    [POS.C0]:[POS.C1],[POS.C1]:[POS.C0,POS.C2],
+    [POS.C2]:[POS.C1,POS.C3,POS.C4],[POS.C3]:[POS.C2,POS.LD],
+    [POS.C4]:[POS.C2,POS.RD],[POS.LD]:[POS.C3],[POS.RD]:[POS.C4]
   };
   const gijsInRange=G.curCam!==MUSIC_CAM_ID&&(G.mPos===G.curCam||(adj[G.mPos]||[]).includes(G.curCam));
   const hoboInRange=G.curCam!==MUSIC_CAM_ID&&G.hoboPos===G.curCam;
   return gijsInRange||hoboInRange;
 }
 
-function hoboOnCurrentCam(){
-  return G.camOpen&&G.hoboPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
-}
+function hoboOnCurrentCam(){return G.camOpen&&G.hoboPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;}
 
 function updateLureUI(){
   const ready=G.lureReady,range=inLureRange();
@@ -1707,11 +1670,7 @@ function useLure(){
   if(!G.lureReady||!inLureRange()||G.dead||G.won) return;
   if(hoboOnCurrentCam()){triggerHoboJS();return;}
   play('lure');
-  const pb={
-    [POS.LD]:POS.C3,[POS.RD]:POS.C4,
-    [POS.C3]:POS.C2,[POS.C4]:POS.C2,
-    [POS.C2]:POS.C1,[POS.C1]:POS.C0,[POS.C0]:POS.C0
-  };
+  const pb={[POS.LD]:POS.C3,[POS.RD]:POS.C4,[POS.C3]:POS.C2,[POS.C4]:POS.C2,[POS.C2]:POS.C1,[POS.C1]:POS.C0,[POS.C0]:POS.C0};
   const np=pb[G.mPos];
   if(np!==undefined){
     G.mPos=np;
@@ -1722,22 +1681,18 @@ function useLure(){
   }
   G.lureReady=false;G.lureCD=LURE_CD_S;
   clearInterval(G.lureCDTimer);
-  G.lureCDTimer=setInterval(()=>{
-    G.lureCD--;
-    if(G.lureCD<=0){G.lureReady=true;G.lureCD=0;clearInterval(G.lureCDTimer);}
-    updateLureUI();
-  },1000);
+  G.lureCDTimer=setInterval(()=>{G.lureCD--;if(G.lureCD<=0){G.lureReady=true;G.lureCD=0;clearInterval(G.lureCDTimer);}updateLureUI();},1000);
   updateLureUI();
 }
 
 /* ════ O2 ════ */
 function gameTick(){
   if(G.dead||G.won) return;
-  // Per-tick O2 drain
   let drain=O2_DRAIN_BASE;
   if(G.lfClosed) drain+=O2_DOOR_PER_TICK;
   if(G.rtClosed) drain+=O2_DOOR_PER_TICK;
   if(G.camOpen)  drain+=O2_CAM_PER_TICK;
+  if(G.ventClosed) drain+=O2_VENT_PER_TICK;  // vent closed = O2 leak
   G.o2=Math.max(0,G.o2-drain);
   updateO2UI();
   if(G.o2<=0&&!G.o2Dead) oxygenDepleted();
@@ -1745,6 +1700,7 @@ function gameTick(){
   tickMusicBox();
   tickJeffrey();
   tickChapo();
+  tickMaduro();
   maybeGlitch();
 }
 
@@ -1780,14 +1736,14 @@ function tickMusicBox(){
   if(G.camOpen&&G.curCam===MUSIC_CAM_ID) renderCamFeed();
 }
 
-/* ════ GLITCH SYSTEM ════ */
+/* ════ GLITCH ════ */
 function maybeGlitch(){
   if(G.dead||G.won||!G.camOpen||glitchActive) return;
-  const gijsOnCam =G.mPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
-  const gijsNear  =[POS.LD,POS.RD].includes(G.mPos);
-  const hoboOnCam =G.hoboPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
-  const jeffOnCam =G.jeffreyActive&&G.jeffreyPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
-  const musicLow  =G.curCam===MUSIC_CAM_ID&&G.musicBox<40;
+  const gijsOnCam=G.mPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
+  const gijsNear=[POS.LD,POS.RD].includes(G.mPos);
+  const hoboOnCam=G.hoboPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
+  const jeffOnCam=G.jeffreyActive&&G.jeffreyPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
+  const musicLow=G.curCam===MUSIC_CAM_ID&&G.musicBox<40;
   let chance=0.006;
   if(gijsOnCam) chance+=0.035;
   if(gijsNear)  chance+=0.02;
@@ -1820,16 +1776,6 @@ function fireGlitch(){
     glitchActive=false;
     if(Math.random()<0.3) setTimeout(fireGlitch,80+Math.random()*150);
   },duration);
-  glitchThumbnail(G.mPos<CAMS.length&&G.mPos!==MUSIC_CAM_ID?G.mPos:null);
-  glitchThumbnail(G.hoboPos<CAMS.length&&G.hoboPos!==MUSIC_CAM_ID?G.hoboPos:null);
-}
-
-function glitchThumbnail(camId){
-  if(camId===null||camId===undefined) return;
-  const thumb=document.getElementById('ct'+camId);
-  if(!thumb) return;
-  thumb.classList.add('glitching');
-  setTimeout(()=>thumb.classList.remove('glitching'),200+Math.random()*150);
 }
 
 function fireFullScreenGlitch(){
@@ -1870,9 +1816,6 @@ function animFire(){
     g.addColorStop(0,`rgba(${f.col},${a})`);g.addColorStop(.5,`rgba(${f.col},${a*.4})`);g.addColorStop(1,`rgba(${f.col},0)`);
     fireCtx.fillStyle=g;fireCtx.beginPath();fireCtx.arc(f.x,f.y,f.size,0,Math.PI*2);fireCtx.fill();
   });
-  const eg=fireCtx.createLinearGradient(0,fireH*.5,0,fireH);
-  eg.addColorStop(0,'rgba(255,40,0,0)');eg.addColorStop(1,'rgba(255,40,0,0.08)');
-  fireCtx.fillStyle=eg;fireCtx.fillRect(0,0,fireW,fireH);
 }
 
 /* ════ TIME ════ */
@@ -1907,16 +1850,8 @@ function triggerPatrickJS(){doJumpscare(FILES.patrickJS,'De zuurstof raakte op.<
 function triggerHoboJS(){doJumpscare(FILES.hoboGijsJS,'Je lokte het verkeerde monster.<br><em>"...You shouldn\'t have done that."</em>');}
 function triggerTomJS(){stopWindUp();doJumpscare(FILES.tomJS,'De muziek stopte.<br><em>"...I\'ve been waiting so long to come out."</em>');}
 function triggerJeffreyJS(){doJumpscare(FILES.jeffreyJS,'Jeffrey heeft je gevonden.<br><em>"De deuren houden mij niet tegen."</em>');}
-function triggerMarkJS(){
-  if(G.dead) return;
-  markLeave();
-  doJumpscare(FILES.markJS,'Mark kwam uit de ventilatie.<br><em>"Je had de schacht moeten sluiten."</em>');
-}
-function triggerChapoJS(){
-  if(G.dead) return;
-  stop('alarm');
-  doJumpscare(FILES.chapoJS,'Chapo heeft aangevallen.<br><em>"Jij had beide deuren moeten sluiten."</em>');
-}
+function triggerMarkJS(){if(G.dead) return;markLeave();doJumpscare(FILES.markJS,'Mark kwam uit de ventilatie.<br><em>"Je had de schacht moeten sluiten."</em>');}
+function triggerChapoJS(){if(G.dead) return;stop('alarm');doJumpscare(FILES.chapoJS,'Chapo heeft aangevallen.<br><em>"Jij had beide deuren moeten sluiten."</em>');}
 
 function doFlash(cb){
   const el=document.getElementById('flashEl');
@@ -1926,7 +1861,7 @@ function doFlash(cb){
 
 function triggerWin(){
   if(G.won||G.dead) return;G.won=true;killTimers();stopAll();
-  play('win'); // Win.mp3
+  play('win');
   document.getElementById('gameScreen').style.display='none';
   document.getElementById('winScreen').style.display='flex';
 }
@@ -1935,7 +1870,8 @@ function triggerWin(){
 function killTimers(){
   [G.tickTimer,G.timeTimer,G.mMoveTimer,G.mDoorTimer,G.mRetreatTimer,
    G.fireTimer,G.lureCDTimer,G.hoboMoveTimer,G.chapoKillTimer,
-   G.markAppearTimer,G.markKillTimer,G.markLeaveTimer,G.markCheckInterval
+   G.markAppearTimer,G.markKillTimer,G.markLeaveTimer,G.markCheckInterval,
+   G.maduroSpawnTimer
   ].forEach(t=>{if(t)try{clearInterval(t);clearTimeout(t);}catch(e){}});
   if(glitchTimer){clearTimeout(glitchTimer);glitchTimer=null;}
   glitchActive=false;
@@ -1960,26 +1896,28 @@ function startGame(){
   document.getElementById('musicBoxPanel').style.display='none';
   document.getElementById('tomDangerOverlay').style.opacity='0';
   document.getElementById('alarmOverlay').style.display='none';
-  // Reset vent + Mark
+  document.getElementById('maduroDisabledOverlay').classList.remove('active');
+  document.getElementById('maduroCamImg').style.display='none';
+
+  // Reset vent — starts OPEN
+  G.ventClosed=false;
   document.getElementById('ventGrate').classList.remove('shut');
   document.getElementById('ventBtn').classList.remove('shut');
-  document.getElementById('ventBtn').querySelector('.vent-label').textContent='VENT';
+  document.getElementById('ventBtn').querySelector('.vent-label').textContent='SLUIT VENT';
   document.getElementById('ventLight').classList.remove('active');
   document.getElementById('markVentImg').classList.remove('mark-visible','mark-urgent');
+  document.getElementById('ventOxygenWarning').classList.remove('active');
 
   ['dpL','dpR'].forEach(id=>document.getElementById(id).classList.remove('shut'));
   ['dbL','dbR'].forEach(id=>{const b=document.getElementById(id);b.textContent='DEUR';b.classList.remove('on');});
   ['dlL','dlR'].forEach(id=>document.getElementById(id).className='d-light');
 
-  // Show/hide hard mode HUD elements
-  const isHard = G.hardMode;
+  const isHard=G.hardMode;
   document.getElementById('dotJeffrey').style.display=isHard?'':'none';
   document.getElementById('jeffreyLabel').style.display=isHard?'':'none';
   document.getElementById('dotChapo').style.display=isHard?'':'none';
   document.getElementById('chapoLabel').style.display=isHard?'':'none';
-  document.getElementById('nightModeLbl').textContent = isHard
-    ? 'Nacht 1 · HARD MODE · Kelder Detentie'
-    : 'Nacht 1 · Kelder Detentie';
+  document.getElementById('nightModeLbl').textContent=isHard?'Nacht 1 · HARD MODE · Kelder Detentie':'Nacht 1 · Kelder Detentie';
 
   initAudio();play('ambience');
   if(SFX.muziek){SFX.muziek.volume=0.15;SFX.muziek.playbackRate=1;SFX.muziek.play().catch(()=>{});}
@@ -1990,13 +1928,10 @@ function startGame(){
   updateO2UI();
   updateMusicBoxUI();
   updateLureUI();
+  updateVentUI();
 
   G.lureCD=LURE_CD_S;
-  G.lureCDTimer=setInterval(()=>{
-    G.lureCD--;
-    if(G.lureCD<=0){G.lureReady=true;G.lureCD=0;clearInterval(G.lureCDTimer);}
-    updateLureUI();
-  },1000);
+  G.lureCDTimer=setInterval(()=>{G.lureCD--;if(G.lureCD<=0){G.lureReady=true;G.lureCD=0;clearInterval(G.lureCDTimer);}updateLureUI();},1000);
 
   G.tickTimer=setInterval(gameTick,TICK_MS);
   G.timeTimer=setInterval(tickTime,250);
@@ -2005,12 +1940,12 @@ function startGame(){
   scheduleHoboMove();
   G.fireOn=false;
   scheduleMarkCheck();
+  scheduleMaduroSpawn();
 
-  // Jeffrey: starts at CAM 1 (index 0), walks linearly, 50s per step
   if(G.hardMode){
-    G.jeffreyStep = 0;
-    G.jeffreyPos  = JEFFREY_PATH[0]; // CAM 1
-    G.jeffreyTimer= JEFFREY_SWITCH_S;
+    G.jeffreyStep=0;
+    G.jeffreyPos=JEFFREY_PATH[0];
+    G.jeffreyTimer=JEFFREY_SWITCH_S;
     refreshMonsterDots();
   }
 }
@@ -2020,7 +1955,7 @@ function restartGame(){
   startGame();
 }
 
-/* ════ START SCREEN ANIMATION ════ */
+/* ════ START SCREEN ════ */
 function animateStartBg(){
   const cv=document.getElementById('dripsCanvas');
   if(!cv) return;
@@ -2063,9 +1998,8 @@ window.addEventListener('resize',()=>{
 document.getElementById('startBtn').addEventListener('click',startGame);
 window.addEventListener('load',()=>{
   animateStartBg();
-  selectMode('easy'); // default selection
+  selectMode('easy');
   Object.values(FILES).forEach(src=>{const i=new Image();i.src=src;});
-  // Pre-load camera backgrounds so first render is instant
   CAM_BG_KEYS.forEach((key,id)=>getCamBgImg(id,()=>{}));
 });
 </script>
