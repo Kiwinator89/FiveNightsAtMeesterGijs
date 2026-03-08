@@ -545,7 +545,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 /* ================================================================
    ONE NIGHT AT MEESTER GIJS  –  v4.0
    - Easy / Hard mode select
-   - Hard mode: Jeffrey Epstein: Kruipt langzaam naar je deur. Vindt het niet leuk om bekeken te worden../
+   - Hard mode: Jeffrey (door-immune, switches every 20s, cam watching adds 1s/s)
    - Hard mode: Chapo (stuck in left hall, escalating sprites, attacks after 60s,
                        alarm, both doors needed, cam watching freezes timer)
    - Camera now drains O2 per tick (not doors in one shot)
@@ -582,8 +582,8 @@ const FILES = {
 /* ── BALANCE EASY ── */
 const NIGHT_MS          = 6 * 60 * 1000;
 const TICK_MS           = 400;
-const O2_DRAIN_BASE     = 0.03;   // per tick, always
-const O2_DOOR_PER_TICK  = 0.20;    // per tick per closed door (replaces old one-shot)
+const O2_DRAIN_BASE     = 0.015;   // per tick, always
+const O2_DOOR_PER_TICK  = 0.10;    // per tick per closed door (replaces old one-shot)
 const O2_CAM_PER_TICK   = 0.04;    // per tick while cam is open
 const LURE_CD_S         = 30;
 const GRACE_MS          = 4200;
@@ -665,9 +665,10 @@ function mkState() {
     jeffreyActive: hard,
     // Chapo state (hard only)
     chapoTimer: CHAPO_ATTACK_S,
-    chapoSprite: 0, // 0,1,2 = escalating
+    chapoSprite: 0,
     chapoAlarm: false,
     chapoActive: hard,
+    chapoKillTimer: null,
     camOpen:false, curCam:0,
     lureReady:false, lureCD:LURE_CD_S, lureCDTimer:null,
     dead:false, won:false,
@@ -1291,12 +1292,17 @@ function triggerChapoAlarm(){
   document.getElementById('alarmOverlay').style.display='block';
   refreshMonsterDots();
   if(G.camOpen) renderCamFeed();
+  // 3 seconds to close both doors — then instant death
+  G.chapoKillTimer=setTimeout(()=>{
+    if(!G.dead&&!G.won&&G.chapoAlarm) triggerChapoJS();
+  },3000);
 }
 
 function checkChapoResolved(){
   if(!G.chapoAlarm||G.dead||G.won) return;
   if(G.lfClosed && G.rtClosed){
-    // Both doors closed — Chapo repelled!
+    // Both doors closed in time — Chapo repelled!
+    if(G.chapoKillTimer){clearTimeout(G.chapoKillTimer);G.chapoKillTimer=null;}
     stop('alarm');
     document.getElementById('alarmOverlay').style.display='none';
     G.chapoAlarm=false;
@@ -1526,15 +1532,6 @@ function gameTick(){
   tickJeffrey();
   tickChapo();
   maybeGlitch();
-
-  // Check if chapo alarm needs jump-scare (timer ran out and doors not closed fast enough)
-  if(G.chapoAlarm){
-    // Give player a 5-second grace window after alarm triggers
-    // (chapoTimer goes negative; at -5 it's too late)
-    if(G.chapoTimer < -5){
-      triggerChapoJS();
-    }
-  }
 }
 
 function updateO2UI(){
@@ -1718,7 +1715,7 @@ function triggerWin(){
 /* ════ CLEANUP ════ */
 function killTimers(){
   [G.tickTimer,G.timeTimer,G.mMoveTimer,G.mDoorTimer,G.mRetreatTimer,
-   G.fireTimer,G.lureCDTimer,G.hoboMoveTimer].forEach(t=>{if(t)try{clearInterval(t);clearTimeout(t);}catch(e){}});
+   G.fireTimer,G.lureCDTimer,G.hoboMoveTimer,G.chapoKillTimer].forEach(t=>{if(t)try{clearInterval(t);clearTimeout(t);}catch(e){}});
   if(glitchTimer){clearTimeout(glitchTimer);glitchTimer=null;}
   glitchActive=false;
   G.fireOn=false;
