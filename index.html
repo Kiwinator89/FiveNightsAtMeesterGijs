@@ -356,6 +356,42 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   font-size:clamp(.4rem,.65vw,.52rem);color:#ff6600;letter-spacing:3px;text-transform:uppercase;
   opacity:0;pointer-events:none;transition:opacity .3s}
 #hardModeLabel.visible{opacity:1}
+
+/* ══ VENT SYSTEM ══ */
+#ventZone{position:absolute;bottom:18%;right:min(190px,19vw);z-index:13;display:flex;flex-direction:column;align-items:center;gap:6px}
+#ventGrate{
+  width:min(64px,7vw);height:min(52px,6vw);
+  background:repeating-linear-gradient(0deg,#1a1410 0,#1a1410 4px,#0a0806 4px,#0a0806 10px),
+             repeating-linear-gradient(90deg,#1a1410 0,#1a1410 3px,transparent 3px,transparent 10px);
+  border:2px solid #2a2010;border-radius:3px;
+  box-shadow:inset 0 0 12px rgba(0,0,0,.8),0 0 6px rgba(0,0,0,.5);
+  position:relative;overflow:hidden;transition:all .3s}
+#ventGrate.shut{
+  background:linear-gradient(135deg,#1a1208 0%,#100e08 50%,#1a1208 100%);
+  border-color:#3a2a10;box-shadow:inset 0 0 8px rgba(0,0,0,.9),0 0 10px rgba(0,0,0,.6)}
+#ventGrate::after{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,rgba(0,0,0,.15) 0,rgba(0,0,0,.15) 2px,transparent 2px,transparent 6px)}
+.vent-light{width:8px;height:8px;border-radius:50%;background:#111;border:1px solid #222;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.9);transition:background .15s,box-shadow .15s;
+  position:absolute;top:5px;right:5px}
+.vent-light.active{background:#ff4400;box-shadow:0 0 8px #ff4400,0 0 3px #ff4400}
+#ventBtn{background:#0c0a06;border:1px solid #2a2010;color:#443320;
+  padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:clamp(5px,.75vw,8px);
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .15s;border-radius:2px;
+  white-space:nowrap}
+#ventBtn:hover{background:#141008;border-color:#4a3a18;color:#887744}
+#ventBtn.shut{background:#200800;border-color:#cc3300;color:#ff5500;box-shadow:0 0 8px #cc330033}
+#ventBtn .vent-label{display:block;text-align:center}
+
+/* Mark in vent overlay */
+#markVentImg{position:absolute;bottom:18%;right:min(165px,17vw);z-index:12;
+  width:min(110px,12vw);pointer-events:none;display:none;
+  filter:brightness(.3) contrast(1.8) saturate(.4);
+  animation:markBreath 1s ease-in-out infinite;transform-origin:bottom right}
+@keyframes markBreath{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.03) translateY(-4px)}}
+#markVentImg.mark-visible{display:block}
+#markVentImg.mark-urgent{filter:brightness(.65) contrast(1.6) saturate(.8);animation:markPanic .4s infinite}
+@keyframes markPanic{0%,100%{transform:scale(1.02)}50%{transform:scale(1.05) translateX(-3px)}}
 </style>
 </head>
 <body>
@@ -405,6 +441,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 
   <!-- ALARM OVERLAYS -->
   <div id="alarmOverlay"></div>
+
+  <!-- VENT -->
+  <div id="ventZone">
+    <div id="ventGrate"><div class="vent-light" id="ventLight"></div></div>
+    <button id="ventBtn" onclick="toggleVent()"><span class="vent-label">VENT</span></button>
+  </div>
+  <!-- Mark in vent -->
+  <img id="markVentImg" src="Images/MarkVent.png" alt="">
 
   <!-- LEFT DOOR -->
   <div class="door-zone dz-l" id="dzL">
@@ -561,11 +605,14 @@ const FILES = {
   oxygenOut:    'Audio/OxygenOutage.mp3',
   win:          'Audio/Win.mp3',
   laugh:        'Audio/Laugh.mp3',
+  jeffreyLaugh: 'Audio/JeffreyLaugh.mp3',
   cameraSwitch: 'Audio/CameraSwitch.mp3',
   footsteps:    'Audio/Footsteps.mp3',
   muziek:       'Audio/Muziek.mp3',
   windUp:       'Audio/WindUp.mp3',
   alarm:        'Audio/Alarm.mp3',
+  vent:         'Audio/Vent.mp3',
+  markAudio:    'Audio/Mark.mp3',
   gijsCam:      'Images/GijsCamera.png',
   gijsJS:       'Images/GijsJumpscare.png',
   patrickJS:    'Images/PatrickJumpscare.png',
@@ -577,6 +624,14 @@ const FILES = {
   jeffreyJS:    'Images/JeffreyJumpscare.png',
   chapoCam:     'Images/ChapoCamera.png',
   chapoJS:      'Images/ChapoJumpscare.png',
+  markVent:     'Images/MarkVent.png',
+  markJS:       'Images/MarkJumpscare.png',
+  camBg0:       'Images/StookKamer.png',
+  camBg1:       'Images/VoorraadKamer.png',
+  camBg2:       'Images/KlasLokaal.png',
+  camBg3:       'Images/LinkerGang.png',
+  camBg4:       'Images/RechterGang.png',
+  camBg5:       'Images/MuziekKamer.png',
 };
 
 /* ── BALANCE EASY ── */
@@ -605,7 +660,7 @@ const MUSIC_CAM_ID      = 5;
 // Jeffrey — walks CAM 1 → 2 → 3 → 4 → KILL, timer 50s, freezes when watched
 const JEFFREY_START_POS = 0; // CAM 1 (index 0)
 const JEFFREY_PATH      = [0,1,2,3,4]; // step-by-step: cam1→cam2→cam3→cam4→cam5=KILL
-const JEFFREY_SWITCH_S  = 55;
+const JEFFREY_SWITCH_S  = 50;
 
 // Chapo
 const CHAPO_CAM_ID      = 3; // ALWAYS left hall (cam index 3 = CAM 4)
@@ -672,6 +727,13 @@ function mkState() {
     camOpen:false, curCam:0,
     lureReady:false, lureCD:LURE_CD_S, lureCDTimer:null,
     dead:false, won:false,
+    // Mark vent state
+    ventClosed:false,
+    markInVent:false,
+    markAppearTimer:null,
+    markKillTimer:null,
+    markLeaveTimer:null,
+    markCheckInterval:null,
     firePtcls:[], fireOn:false, fireAnim:null,
     tickTimer:null, timeTimer:null, fireTimer:null,
     glitchLoopTimer:null,
@@ -693,6 +755,9 @@ function initAudio() {
     muziek:       [FILES.muziek,       true,  .45],
     windUp:       [FILES.windUp,       true,  .7 ],
     alarm:        [FILES.alarm,        true,  .9 ],
+    jeffreyLaugh: [FILES.jeffreyLaugh, false, .8 ],
+    vent:         [FILES.vent,         false, .85],
+    markAudio:    [FILES.markAudio,    false, .75],
   }).forEach(([k,[src,loop,vol]])=>{
     SFX[k]=new Audio(src);SFX[k].loop=loop;SFX[k].volume=vol;
   });
@@ -870,19 +935,68 @@ function drawOffice() {
 }
 
 /* ════ CAM ROOM DRAWING ════ */
-function drawCamRoom(canvas,roomId,small=false){
-  const W=canvas.width=canvas.offsetWidth||(small?120:800);
-  const H=canvas.height=canvas.offsetHeight||(small?80:500);
-  const ctx=canvas.getContext('2d');
+// Cache loaded images so we don't re-create on every render
+const CAM_BG_IMGS = {};
+const CAM_BG_KEYS = ['camBg0','camBg1','camBg2','camBg3','camBg4','camBg5'];
+
+function getCamBgImg(roomId, cb){
+  const key = CAM_BG_KEYS[roomId];
+  if(!key) return cb(null);
+  if(CAM_BG_IMGS[roomId]){return cb(CAM_BG_IMGS[roomId]);}
+  const img = new Image();
+  img.onload = ()=>{ CAM_BG_IMGS[roomId]=img; cb(img); };
+  img.onerror = ()=>cb(null);
+  img.src = FILES[key];
+}
+
+function drawCamRoom(canvas, roomId, small=false){
+  const W = canvas.width  = canvas.offsetWidth  || (small ? 120 : 800);
+  const H = canvas.height = canvas.offsetHeight || (small ? 80  : 500);
+  const ctx = canvas.getContext('2d');
   ctx.clearRect(0,0,W,H);
-  function nvTint(){ctx.fillStyle='rgba(0,18,4,0.3)';ctx.fillRect(0,0,W,H);}
-  const fns=[drawBoilerRoom,drawStorage,drawUtility,drawLeftHall,drawRightHall,drawMusicRoom];
-  fns[roomId]&&fns[roomId](ctx,W,H);
-  nvTint();
-  if(!small){
-    const id=ctx.createImageData(W,H);
-    for(let i=0;i<id.data.length;i+=4){const v=(Math.random()>0.98)?Math.random()*80:0;id.data[i]=id.data[i+1]=id.data[i+2]=v;id.data[i+3]=255*0.03;}
-    ctx.putImageData(id,0,0);
+
+  // Night-vision overlay helper
+  function nvTint(){
+    ctx.fillStyle='rgba(0,18,4,0.35)';ctx.fillRect(0,0,W,H);
+    // scanlines
+    ctx.fillStyle='rgba(0,0,0,0.08)';
+    for(let y=0;y<H;y+=3){ctx.fillRect(0,y,W,1);}
+  }
+
+  function finishDraw(img){
+    if(img){
+      // draw image cover-fit
+      const iR=img.naturalWidth/img.naturalHeight, cR=W/H;
+      let sw,sh,sx=0,sy=0;
+      if(iR>cR){sh=img.naturalHeight;sw=sh*cR;sx=(img.naturalWidth-sw)/2;}
+      else{sw=img.naturalWidth;sh=sw/cR;sy=(img.naturalHeight-sh)/2;}
+      ctx.drawImage(img,sx,sy,sw,sh,0,0,W,H);
+    } else {
+      // Fallback: simple dark room
+      ctx.fillStyle='#080a06';ctx.fillRect(0,0,W,H);
+    }
+    nvTint();
+    if(!small){
+      // Film grain
+      const id=ctx.createImageData(W,H);
+      for(let i=0;i<id.data.length;i+=4){
+        const v=(Math.random()>0.97)?Math.random()*60:0;
+        id.data[i]=id.data[i+1]=id.data[i+2]=v;id.data[i+3]=255*0.04;
+      }
+      ctx.putImageData(id,0,0);
+    }
+  }
+
+  const cached = CAM_BG_IMGS[roomId];
+  if(cached){
+    finishDraw(cached);
+  } else {
+    // Draw placeholder while loading, then trigger re-render once loaded
+    ctx.fillStyle='#060806';ctx.fillRect(0,0,W,H);
+    nvTint();
+    getCamBgImg(roomId, (img)=>{
+      finishDraw(img||null);
+    });
   }
 }
 
@@ -1254,6 +1368,7 @@ function tickJeffrey(){
     }
     G.jeffreyPos = JEFFREY_PATH[G.jeffreyStep];
     G.jeffreyTimer = JEFFREY_SWITCH_S;
+    play('jeffreyLaugh');
     refreshMonsterDots();
     if(G.camOpen) renderCamFeed();
   }
@@ -1312,6 +1427,103 @@ function checkChapoResolved(){
     G.chapoSprite=0;
     refreshMonsterDots();
     if(G.camOpen) renderCamFeed();
+  }
+}
+
+/* ════ MARK VENT AI ════ */
+function scheduleMarkCheck(){
+  if(G.markCheckInterval) clearInterval(G.markCheckInterval);
+  G.markCheckInterval = setInterval(()=>{
+    if(G.dead||G.won) return;
+    if(G.markInVent) return; // already in vent
+    // 10% chance every 10 seconds to appear
+    if(Math.random() < 0.10) markAppear();
+  }, 10000);
+}
+
+function markAppear(){
+  if(G.dead||G.won||G.markInVent) return;
+  G.markInVent = true;
+  play('vent');
+  if(Math.random() < 0.20) setTimeout(()=>play('markAudio'), 400);
+  updateVentUI();
+
+  // If vent is already closed when he appears — he leaves after 1-3s
+  if(G.ventClosed){
+    markLeaveAfterDelay(1000 + Math.random()*2000);
+    return;
+  }
+
+  // Show Mark visually
+  const img = document.getElementById('markVentImg');
+  img.classList.add('mark-visible');
+
+  // After 6s, escalate to urgent
+  G.markAppearTimer = setTimeout(()=>{
+    if(!G.dead&&!G.won&&G.markInVent&&!G.ventClosed){
+      img.classList.add('mark-urgent');
+    }
+  }, 6000);
+
+  // After 8s total — jumpscare
+  G.markKillTimer = setTimeout(()=>{
+    if(!G.dead&&!G.won&&G.markInVent&&!G.ventClosed){
+      triggerMarkJS();
+    }
+  }, 8000);
+}
+
+function markLeave(){
+  if(!G.markInVent) return;
+  G.markInVent = false;
+  if(G.markAppearTimer){clearTimeout(G.markAppearTimer);G.markAppearTimer=null;}
+  if(G.markKillTimer){clearTimeout(G.markKillTimer);G.markKillTimer=null;}
+  if(G.markLeaveTimer){clearTimeout(G.markLeaveTimer);G.markLeaveTimer=null;}
+  stop('vent');
+  const img = document.getElementById('markVentImg');
+  img.classList.remove('mark-visible','mark-urgent');
+  updateVentUI();
+}
+
+function markLeaveAfterDelay(ms){
+  if(G.markLeaveTimer) clearTimeout(G.markLeaveTimer);
+  G.markLeaveTimer = setTimeout(()=>markLeave(), ms);
+}
+
+function toggleVent(){
+  if(G.dead||G.won) return;
+  G.ventClosed = !G.ventClosed;
+  if(G.ventClosed) play('doorClose');
+  updateVentUI();
+
+  if(G.ventClosed && G.markInVent){
+    // Close while Mark is visible — he leaves in 1–3s
+    if(G.markAppearTimer){clearTimeout(G.markAppearTimer);G.markAppearTimer=null;}
+    if(G.markKillTimer){clearTimeout(G.markKillTimer);G.markKillTimer=null;}
+    markLeaveAfterDelay(1000 + Math.random()*2000);
+  } else if(!G.ventClosed && G.markInVent){
+    // Opened while Mark is still there — 1 second to close again
+    if(G.markKillTimer) clearTimeout(G.markKillTimer);
+    G.markKillTimer = setTimeout(()=>{
+      if(!G.dead&&!G.won&&G.markInVent&&!G.ventClosed) triggerMarkJS();
+    }, 1000);
+  }
+}
+
+function updateVentUI(){
+  const grate = document.getElementById('ventGrate');
+  const btn   = document.getElementById('ventBtn');
+  const light = document.getElementById('ventLight');
+  const img   = document.getElementById('markVentImg');
+  grate.classList.toggle('shut', G.ventClosed);
+  btn.classList.toggle('shut', G.ventClosed);
+  btn.querySelector('.vent-label').textContent = G.ventClosed ? 'OPEN' : 'VENT';
+  light.classList.toggle('active', G.markInVent && !G.ventClosed);
+  // Only show visual if vent open and Mark present
+  if(G.markInVent && !G.ventClosed){
+    img.classList.add('mark-visible');
+  } else if(G.ventClosed || !G.markInVent){
+    img.classList.remove('mark-visible','mark-urgent');
   }
 }
 
@@ -1695,7 +1907,11 @@ function triggerPatrickJS(){doJumpscare(FILES.patrickJS,'De zuurstof raakte op.<
 function triggerHoboJS(){doJumpscare(FILES.hoboGijsJS,'Je lokte het verkeerde monster.<br><em>"...You shouldn\'t have done that."</em>');}
 function triggerTomJS(){stopWindUp();doJumpscare(FILES.tomJS,'De muziek stopte.<br><em>"...I\'ve been waiting so long to come out."</em>');}
 function triggerJeffreyJS(){doJumpscare(FILES.jeffreyJS,'Jeffrey heeft je gevonden.<br><em>"De deuren houden mij niet tegen."</em>');}
-function triggerChapoJS(){
+function triggerMarkJS(){
+  if(G.dead) return;
+  markLeave();
+  doJumpscare(FILES.markJS,'Mark kwam uit de ventilatie.<br><em>"Je had de schacht moeten sluiten."</em>');
+}
   if(G.dead) return;
   stop('alarm');
   doJumpscare(FILES.chapoJS,'Chapo heeft aangevallen.<br><em>"Jij had beide deuren moeten sluiten."</em>');
@@ -1717,7 +1933,9 @@ function triggerWin(){
 /* ════ CLEANUP ════ */
 function killTimers(){
   [G.tickTimer,G.timeTimer,G.mMoveTimer,G.mDoorTimer,G.mRetreatTimer,
-   G.fireTimer,G.lureCDTimer,G.hoboMoveTimer,G.chapoKillTimer].forEach(t=>{if(t)try{clearInterval(t);clearTimeout(t);}catch(e){}});
+   G.fireTimer,G.lureCDTimer,G.hoboMoveTimer,G.chapoKillTimer,
+   G.markAppearTimer,G.markKillTimer,G.markLeaveTimer,G.markCheckInterval
+  ].forEach(t=>{if(t)try{clearInterval(t);clearTimeout(t);}catch(e){}});
   if(glitchTimer){clearTimeout(glitchTimer);glitchTimer=null;}
   glitchActive=false;
   G.fireOn=false;
@@ -1741,6 +1959,12 @@ function startGame(){
   document.getElementById('musicBoxPanel').style.display='none';
   document.getElementById('tomDangerOverlay').style.opacity='0';
   document.getElementById('alarmOverlay').style.display='none';
+  // Reset vent + Mark
+  document.getElementById('ventGrate').classList.remove('shut');
+  document.getElementById('ventBtn').classList.remove('shut');
+  document.getElementById('ventBtn').querySelector('.vent-label').textContent='VENT';
+  document.getElementById('ventLight').classList.remove('active');
+  document.getElementById('markVentImg').classList.remove('mark-visible','mark-urgent');
 
   ['dpL','dpR'].forEach(id=>document.getElementById(id).classList.remove('shut'));
   ['dbL','dbR'].forEach(id=>{const b=document.getElementById(id);b.textContent='DEUR';b.classList.remove('on');});
@@ -1779,6 +2003,7 @@ function startGame(){
   G.hoboPos=HOBO_ALLOWED_CAMS[Math.floor(Math.random()*HOBO_ALLOWED_CAMS.length)];
   scheduleHoboMove();
   G.fireOn=false;
+  scheduleMarkCheck();
 
   // Jeffrey: starts at CAM 1 (index 0), walks linearly, 50s per step
   if(G.hardMode){
@@ -1839,6 +2064,8 @@ window.addEventListener('load',()=>{
   animateStartBg();
   selectMode('easy'); // default selection
   Object.values(FILES).forEach(src=>{const i=new Image();i.src=src;});
+  // Pre-load camera backgrounds so first render is instant
+  CAM_BG_KEYS.forEach((key,id)=>getCamBgImg(id,()=>{}));
 });
 </script>
 </body>
