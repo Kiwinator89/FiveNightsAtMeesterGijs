@@ -405,24 +405,28 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 #ventGrate{
   width:min(180px,18vw);
   height:min(130px,13vw);
+  background:linear-gradient(135deg,#1a1208 0%,#100e08 50%,#1a1208 100%);
+  border:3px solid #6a4a18;
+  border-radius:5px;
+  box-shadow:
+    inset 0 0 16px rgba(0,0,0,.95),
+    0 0 20px rgba(0,0,0,.7),
+    0 0 10px rgba(204,51,0,.15),
+    0 6px 30px rgba(0,0,0,.9);
+  position:relative;overflow:hidden;transition:all .35s;
+  cursor:pointer;
+}
+#ventGrate:hover{border-color:#8a6a30;box-shadow:inset 0 0 16px rgba(0,0,0,.95),0 0 24px rgba(0,0,0,.7),0 0 14px rgba(255,160,0,.15)}
+#ventGrate.shut{
   background:
     repeating-linear-gradient(0deg,#1a1410 0,#1a1410 7px,#0a0806 7px,#0a0806 16px),
     repeating-linear-gradient(90deg,#1a1410 0,#1a1410 6px,transparent 6px,transparent 16px);
-  border:3px solid #2a2010;
-  border-radius:5px;
+  border-color:#2a2010;
   box-shadow:
     inset 0 0 24px rgba(0,0,0,.85),
     0 0 16px rgba(0,0,0,.65),
     0 6px 30px rgba(0,0,0,.9),
-    inset 2px 2px 4px rgba(255,255,255,.04);
-  position:relative;overflow:hidden;transition:all .35s;
-  cursor:pointer;
-}
-#ventGrate:hover{border-color:#4a3a18;box-shadow:inset 0 0 24px rgba(0,0,0,.85),0 0 20px rgba(0,0,0,.7),0 0 8px rgba(255,160,0,.08)}
-#ventGrate.shut{
-  background:linear-gradient(135deg,#1a1208 0%,#100e08 50%,#1a1208 100%);
-  border-color:#6a4a18;
-  box-shadow:inset 0 0 16px rgba(0,0,0,.95),0 0 20px rgba(0,0,0,.7),0 0 10px rgba(204,51,0,.15)
+    inset 2px 2px 4px rgba(255,255,255,.04)
 }
 #ventGrate::after{
   content:'';position:absolute;inset:0;
@@ -453,7 +457,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   cursor:pointer;transition:all .15s;border-radius:2px;white-space:nowrap
 }
 #ventBtn:hover{background:#141008;border-color:#5a4a20;color:#998855}
-#ventBtn.shut{background:#200800;border-color:#cc3300;color:#ff5500;box-shadow:0 0 10px #cc330044}
+#ventBtn.shut{background:#0c0a06;border-color:#2a2010;color:#443320}
 #ventBtn .vent-label{display:block;text-align:center}
 #ventOxygenWarning{
   font-size:clamp(.4rem,.65vw,.55rem);color:#663300;letter-spacing:2px;text-align:center;
@@ -467,10 +471,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   position:absolute;
   top:5%;
   left:calc(50% - min(90px,9vw));
-  z-index:12;
+  z-index:16;
   width:min(160px,16vw);
   pointer-events:none;display:none;
-  filter:brightness(.3) contrast(1.8) saturate(.4);
+  filter:brightness(.65) contrast(1.6) saturate(.6);
   animation:markBreath 1s ease-in-out infinite;
   transform-origin:bottom center
 }
