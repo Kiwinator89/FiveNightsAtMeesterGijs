@@ -169,12 +169,25 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .cam-hdr{display:flex;justify-content:space-between;align-items:center;
   border-bottom:1px solid #0c140c;padding-bottom:10px}
 .cam-hdr-title{color:#1a6a2a;font-size:clamp(.6rem,1.1vw,.75rem);letter-spacing:5px;text-transform:uppercase}
-.cam-hdr-right{display:flex;align-items:center;gap:16px}
+.cam-hdr-right{display:flex;align-items:center;gap:10px}
 .cam-rec{color:#ff1133;font-size:clamp(.5rem,.8vw,.62rem);animation:recBlink 1s infinite}
 @keyframes recBlink{0%,100%{opacity:1}50%{opacity:0}}
 .cam-close-btn{background:transparent;border:1px solid #222;color:#444;padding:5px 14px;
   font-family:'Share Tech Mono',monospace;font-size:clamp(.5rem,.8vw,.6rem);letter-spacing:3px;cursor:pointer;transition:all .15s}
 .cam-close-btn:hover{border-color:#666;color:#888}
+
+/* ══ ALARM BUTTON ══ */
+.alarm-cam-btn{background:transparent;border:1px solid #222;color:#444;padding:5px 14px;
+  font-family:'Share Tech Mono',monospace;font-size:clamp(.5rem,.8vw,.6rem);letter-spacing:3px;
+  cursor:pointer;transition:all .15s;position:relative}
+.alarm-cam-btn:hover:not(:disabled){border-color:#ff3300;color:#ff6600;box-shadow:0 0 10px rgba(255,60,0,.3)}
+.alarm-cam-btn.ready{border-color:#ff3300;color:#ff5500;animation:alarmBtnGlow 1s infinite}
+.alarm-cam-btn.target{border-color:#ff0000;color:#ff0000;box-shadow:0 0 16px rgba(255,0,0,.5);animation:alarmBtnTarget .5s infinite}
+.alarm-cam-btn:disabled{border-color:#111;color:#222;cursor:not-allowed}
+@keyframes alarmBtnGlow{0%,100%{box-shadow:0 0 4px rgba(255,60,0,.2)}50%{box-shadow:0 0 14px rgba(255,60,0,.5)}}
+@keyframes alarmBtnTarget{0%,100%{box-shadow:0 0 8px rgba(255,0,0,.4);border-color:#ff0000}50%{box-shadow:0 0 22px rgba(255,0,0,.8);border-color:#ff6600}}
+.alarm-cd-lbl{font-size:clamp(.4rem,.65vw,.52rem);color:#332200;letter-spacing:2px;white-space:nowrap}
+.alarm-cd-lbl.hot{color:#ff5500;animation:alarmBtnGlow .8s infinite}
 
 /* ══ CAM MAIN FEED ══ */
 .cam-main{flex:1;position:relative;background:#020602;border:1px solid #0a140a;overflow:hidden;min-height:0}
@@ -198,6 +211,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   transition:filter 1s,transform 1s,opacity 1s}
 .tom-on-cam{position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:3;
   max-height:95%;max-width:60%;object-fit:contain;transition:filter .8s,transform .8s,opacity .8s}
+/* ══ DIDDY CAM ══ */
+.diddy-on-cam{position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:5;
+  max-height:95%;max-width:60%;object-fit:contain;
+  filter:brightness(.55) contrast(1.5) saturate(.5);animation:mBreath 2s ease-in-out infinite}
 
 /* ══ ATTACK FLASH OVERLAY ══ */
 #attackFlashOverlay{
@@ -308,8 +325,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   border-radius:50%;background:#ff00cc;box-shadow:0 0 6px #ff00cc;z-index:3}
 .ct-madurodot.on{display:block;animation:maduroDotAnim .4s infinite}
 @keyframes maduroDotAnim{0%,100%{opacity:1;box-shadow:0 0 8px #ff00cc}50%{opacity:.2;box-shadow:0 0 2px #ff00cc}}
+/* DIDDY dot */
+.ct-diddydot{display:none;position:absolute;bottom:5px;right:5px;width:7px;height:7px;
+  border-radius:50%;background:#ff00ff;box-shadow:0 0 6px #ff00ff;z-index:3}
+.ct-diddydot.on{display:block;animation:diddyDotAnim .5s infinite}
+@keyframes diddyDotAnim{0%,100%{opacity:1;box-shadow:0 0 8px #ff00ff}50%{opacity:.2;box-shadow:0 0 2px #ff00ff}}
 .cam-thumb.cam-maduro-warn{border-color:#ff00cc!important;box-shadow:0 0 10px rgba(255,0,204,.5)!important;animation:maduroThumbWarn .3s infinite}
 @keyframes maduroThumbWarn{0%,100%{border-color:#ff00cc}50%{border-color:#880088}}
+/* Diddy on cam thumb */
+.cam-thumb.cam-diddy-warn{border-color:#ff00ff!important;box-shadow:0 0 10px rgba(255,0,255,.5)!important;animation:diddyThumbWarn .4s infinite}
+@keyframes diddyThumbWarn{0%,100%{border-color:#ff00ff}50%{border-color:#880088}}
 .ct-disabled-overlay{
   position:absolute;inset:0;z-index:10;
   background:rgba(0,0,0,.85);
@@ -473,7 +498,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   background:repeating-linear-gradient(45deg,rgba(0,0,0,.12) 0,rgba(0,0,0,.12) 3px,transparent 3px,transparent 10px);
   z-index:1
 }
-/* Corner bolts */
 #ventGrate::before{
   content:'';position:absolute;inset:0;z-index:2;
   background:
@@ -506,7 +530,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 #ventOxygenWarning.active{opacity:1;animation:ventWarnBlink .7s infinite}
 @keyframes ventWarnBlink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* Mark in vent — repositioned to match new vent */
 #markVentImg{
   position:absolute;
   top:5%;
@@ -543,7 +566,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
         Het <em>moet</em> blijven spelen. Je wilt er niet achter komen wat er gebeurt als hij stopt met spelen...</p>
       <p class="warn">⚠ Zuurstof is schaars. Gesloten deuren, ventilatieschacht én camera's verbruiken O₂.<br>
         ⚠ Hou de muziekdoos op CAM 6 opgewonden. Wacht niet te lang.<br>
-        ⚠ Maduro kan elk moment op een camera verschijnen. Kijk niet te lang.</p>
+        ⚠ Maduro kan elk moment op een camera verschijnen. Kijk niet te lang.<br>
+        ⚠ [HARD] Diddy negeert deuren. Gebruik het camera-ALARM om hem terug te sturen.<br>
+        ⚠ [HARD] Chapo is immuun voor deuren. Gebruik ALARM om hem te resetten. ALARM cooldown: 20s.</p>
     </div>
     <div class="mode-select">
       <button class="mode-btn selected" id="easyModeBtn" onclick="selectMode('easy')">
@@ -554,7 +579,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
       <button class="mode-btn" id="hardModeBtn" onclick="selectMode('hard')">
         <div class="mode-icon">💀</div>
         <div class="mode-name">HARD MODE</div>
-        <div class="mode-desc">+ Jeffrey (deurimmuum)<br>+ Chapo (linker gang)<br>Agressiever AI</div>
+        <div class="mode-desc">+ Jeffrey (deurimmuum)<br>+ Chapo (deurimmuum)<br>+ Diddy (alarm vereist)<br>Agressiever AI</div>
       </button>
     </div>
     <button class="start-btn" id="startBtn">▶ &nbsp; NACHT BEGINNEN</button>
@@ -624,6 +649,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
         <div class="hud-status-dot warn" id="dotMaduro"></div><span>MADURO</span>
         <div class="hud-status-dot" id="dotJeffrey" style="display:none"></div><span id="jeffreyLabel" style="display:none">JEFFREY</span>
         <div class="hud-status-dot" id="dotChapo" style="display:none"></div><span id="chapoLabel" style="display:none">CHAPO</span>
+        <div class="hud-status-dot" id="dotDiddy" style="display:none"></div><span id="diddyLabel" style="display:none">DIDDY</span>
       </div>
     </div>
   </div>
@@ -637,6 +663,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
       </div>
       <div class="cam-hdr-right">
         <span class="cam-rec">● REC</span>
+        <button class="alarm-cam-btn" id="alarmCamBtn" onclick="useCameraAlarm()" disabled>🚨 ALARM</button>
+        <span class="alarm-cd-lbl" id="alarmCdLbl">CD: --</span>
         <button class="cam-close-btn" onclick="toggleCam()">✕ SLUITEN</button>
       </div>
     </div>
@@ -647,6 +675,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
       <img class="jeffrey-on-cam"  id="jeffreyCamImg"  src="" alt="" style="display:none">
       <img class="chapo-on-cam"    id="chapoCamImg"    src="" alt="" style="display:none">
       <img class="tom-on-cam"      id="tomCamImg"      src="" alt="" style="display:none">
+      <img class="diddy-on-cam"    id="diddyCamImg"    src="" alt="" style="display:none">
       <!-- MADURO — covers whole feed -->
       <img class="maduro-on-cam"   id="maduroCamImg"   src="Images/MaduroCamera.png" alt="">
       <!-- MADURO disabled overlay -->
@@ -657,7 +686,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
         <div class="maduro-err-bar"><div class="maduro-err-bar-fill" id="maduroErrFill"></div></div>
         <div class="maduro-err-sub">HERVERBINDING IN <span id="maduroReconnectSec">20</span>s…</div>
       </div>
-      <!-- ATTACK FLASH OVERLAY — Chapo / Mark pre-jumpscare -->
+      <!-- ATTACK FLASH OVERLAY -->
       <div id="attackFlashOverlay">
         <img id="attackFlashImg" src="" alt="">
         <div class="flash-static"></div>
@@ -725,11 +754,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 
 <script>
 /* ================================================================
-   ONE NIGHT AT MEESTER GIJS  –  v5.1
+   ONE NIGHT AT MEESTER GIJS  –  v6.0
    Changes:
-   - Chapo kill timer increased to 6000ms (6 seconds)
-   - Attack flash overlay for Chapo & Mark before jumpscare
-   - Door buttons enlarged
+   - Added Diddy (hard mode): moves like Gijs, ignores doors,
+     camera ALARM sends him back to CAM 1
+   - Added Camera ALARM button (20s cooldown):
+     on Chapo cam → resets Chapo to phase 1
+     on Diddy cam → sends Diddy back to CAM 1
+     plays CameraAlarm.mp3
+   - Removed Chapo & Mark attack-flash camera jumpscares
+   - Reworked Chapo: immune to doors, alarm resets him to phase 1
    ================================================================ */
 
 const FILES = {
@@ -749,6 +783,7 @@ const FILES = {
   vent:         'Audio/Vent.mp3',
   markAudio:    'Audio/Mark.mp3',
   shock:        'Audio/Shock.mp3',
+  cameraAlarm:  'Audio/CameraAlarm.mp3',
   gijsCam:      'Images/GijsCamera.png',
   gijsJS:       'Images/GijsJumpscare.png',
   patrickJS:    'Images/PatrickJumpscare.png',
@@ -764,6 +799,8 @@ const FILES = {
   markJS:       'Images/MarkJumpscare.png',
   maduroCam:    'Images/MaduroCamera.png',
   maduroJS:     'Images/MaduroJumpscare.png',
+  diddyCam:     'Images/DiddyCamera.png',
+  diddyJS:      'Images/DiddyJumpscare.png',
   camBg0:       'Images/StookKamer.png',
   camBg1:       'Images/VoorraadKamer.png',
   camBg2:       'Images/KlasLokaal.png',
@@ -794,10 +831,11 @@ const MB_DRAIN_SCALE     = 0.3;
 const MB_WIND_RATE       = 5.5;
 const MUSIC_CAM_ID       = 5;
 
-// ── CHAPO: 6 second kill window (was 3000ms) ──
+// ── CHAPO: 6 second kill window, immune to doors ──
 const CHAPO_KILL_DELAY_MS = 6000;
-// ── ATTACK FLASH duration before the actual jumpscare hits ──
-const ATTACK_FLASH_MS     = 2000;
+
+// ── ALARM cooldown ──
+const ALARM_CD_S         = 20;
 
 // Maduro
 const MADURO_APPEAR_INTERVAL = 2000;
@@ -814,6 +852,10 @@ const JEFFREY_SWITCH_S   = 50;
 const CHAPO_CAM_ID       = 3;
 const CHAPO_ATTACK_S     = 60;
 const CHAPO_SPRITES      = 3;
+
+// Diddy — moves like Gijs, different path
+const DIDDY_MOVE_IVAL    = [26000,20000,14000,10000,7000,4500];
+const DIDDY_ALLOWED_CAMS = [0,1,2,3,4];
 
 /* ── CAMERAS ── */
 const CAMS = [
@@ -867,24 +909,36 @@ function mkState(){
     jeffreyPos:JEFFREY_START_POS,
     jeffreyTimer:JEFFREY_SWITCH_S,
     jeffreyActive:hard,
-    // Chapo
+    // Chapo — now immune to doors
     chapoTimer:CHAPO_ATTACK_S,
     chapoSprite:0,
     chapoAlarm:false,
     chapoActive:hard,
     chapoKillTimer:null,
+    // Diddy
+    diddyPos:POS.C0,
+    diddyMoveTimer:null,
+    diddyActive:hard,
+    diddyPath:null,
+    // Camera Alarm
+    alarmReady:false,
+    alarmCD:ALARM_CD_S,
+    alarmCDTimer:null,
+    // Camera state
     camOpen:false,curCam:0,
+    // Lure
     lureReady:false,lureCD:LURE_CD_S,lureCDTimer:null,
     dead:false,won:false,
+    // Mark
     markInVent:false,
     markAppearTimer:null,
     markKillTimer:null,
     markLeaveTimer:null,
     markCheckInterval:null,
+    // Fire/misc
     firePtcls:[],fireOn:false,fireAnim:null,
     tickTimer:null,timeTimer:null,fireTimer:null,
     glitchLoopTimer:null,
-    // Attack flash
     attackFlashTimer:null,
   };
 }
@@ -908,6 +962,7 @@ function initAudio(){
     vent:         [FILES.vent,         false, .85],
     markAudio:    [FILES.markAudio,    false, .75],
     shock:        [FILES.shock,        false, .95],
+    cameraAlarm:  [FILES.cameraAlarm,  false, .9 ],
   }).forEach(([k,[src,loop,vol]])=>{
     SFX[k]=new Audio(src);SFX[k].loop=loop;SFX[k].volume=vol;
   });
@@ -928,7 +983,7 @@ function showAttackFlash(imgSrc, onDone){
     overlay.classList.remove('active');
     img.src = '';
     onDone();
-  }, ATTACK_FLASH_MS);
+  }, 2000);
 }
 
 function hideAttackFlash(){
@@ -1132,6 +1187,7 @@ function buildCamStrip(){
       <div class="ct-chapodot" id="cpd${c.id}"></div>
       <div class="ct-tomdot${c.id===MUSIC_CAM_ID?' on':''}" id="td${c.id}"></div>
       <div class="ct-madurodot" id="cpmd${c.id}"></div>
+      <div class="ct-diddydot" id="dd${c.id}"></div>
       <div class="ct-disabled-overlay" id="ctdis${c.id}"><span>OFFLINE</span><span style="font-size:.5em;color:#330000;letter-spacing:2px">MADURO</span></div>`;
     el.onclick=()=>switchCam(c.id);
     strip.appendChild(el);
@@ -1169,6 +1225,7 @@ function switchCam(id){
   if(SFX.muziek) SFX.muziek.volume=id===MUSIC_CAM_ID?0.55:0.15;
   renderCamFeed();
   updateLureUI();
+  updateAlarmUI();
 }
 
 function renderCamFeed(){
@@ -1179,7 +1236,7 @@ function renderCamFeed(){
   disOv.classList.toggle('active',disabled);
 
   if(disabled){
-    ['monsterCamImg','hoboCamImg','jeffreyCamImg','chapoCamImg','tomCamImg','maduroCamImg'].forEach(i=>
+    ['monsterCamImg','hoboCamImg','jeffreyCamImg','chapoCamImg','tomCamImg','maduroCamImg','diddyCamImg'].forEach(i=>
       document.getElementById(i).style.display='none');
     return;
   }
@@ -1190,6 +1247,7 @@ function renderCamFeed(){
   const chapoHere  = G.chapoActive&&id===CHAPO_CAM_ID&&!G.chapoAlarm;
   const tomHere    = id===MUSIC_CAM_ID;
   const maduroHere = G.maduroPos===id;
+  const diddyHere  = G.diddyActive&&G.diddyPos===id&&id!==MUSIC_CAM_ID;
 
   const cv=document.getElementById('camCanvas');
   cv.width=cv.offsetWidth||800;cv.height=cv.offsetHeight||400;
@@ -1212,6 +1270,10 @@ function renderCamFeed(){
   tomImg.style.display=tomHere?'block':'none';
   if(tomHere){tomImg.src=FILES.tomCam;applyTomStyle(tomImg,G.musicBox);}
 
+  const diddyImg=document.getElementById('diddyCamImg');
+  diddyImg.style.display=diddyHere?'block':'none';
+  if(diddyHere) diddyImg.src=FILES.diddyCam;
+
   const maduroImg=document.getElementById('maduroCamImg');
   maduroImg.style.display=maduroHere?'block':'none';
 
@@ -1219,7 +1281,7 @@ function renderCamFeed(){
   if(tomHere){const danger=Math.max(0,(100-G.musicBox)/100);overlay.style.opacity=String(Math.pow(danger,1.4)*0.9);}
   else overlay.style.opacity='0';
 
-  document.getElementById('camMain').classList.toggle('cam-active-static',gijsHere||hoboHere||jeffreyHere);
+  document.getElementById('camMain').classList.toggle('cam-active-static',gijsHere||hoboHere||jeffreyHere||diddyHere);
   document.getElementById('camTs').textContent=new Date().toLocaleTimeString('nl-NL');
 }
 
@@ -1264,12 +1326,16 @@ function refreshMonsterDots(){
     }
     const cpmd=document.getElementById('cpmd'+c.id);
     if(cpmd) cpmd.classList.toggle('on',G.maduroPos===c.id);
+    const dd=document.getElementById('dd'+c.id);
+    if(dd) dd.classList.toggle('on',G.diddyActive&&G.diddyPos===c.id&&c.id!==MUSIC_CAM_ID);
     const ctdis=document.getElementById('ctdis'+c.id);
     if(ctdis) ctdis.classList.toggle('active',isCamDisabled(c.id));
     const thumb=document.getElementById('ct'+c.id);
     if(thumb){
       if(isCamDisabled(c.id)) thumb.classList.add('cam-maduro-warn');
       else thumb.classList.remove('cam-maduro-warn');
+      if(G.diddyActive&&G.diddyPos===c.id&&c.id!==MUSIC_CAM_ID) thumb.classList.add('cam-diddy-warn');
+      else thumb.classList.remove('cam-diddy-warn');
     }
   });
 
@@ -1297,6 +1363,102 @@ function refreshMonsterDots(){
   if(dotJ&&G.jeffreyActive) dotJ.className='hud-status-dot warn';
   const dotC=document.getElementById('dotChapo');
   if(dotC&&G.chapoActive) dotC.className='hud-status-dot'+(G.chapoAlarm?' crit':G.chapoTimer<30?' warn':' on');
+  const dotD=document.getElementById('dotDiddy');
+  if(dotD&&G.diddyActive){
+    dotD.className='hud-status-dot';
+    if(G.diddyPos>=POS.LD) dotD.classList.add('crit');
+    else dotD.classList.add('warn');
+  }
+}
+
+/* ════ CAMERA ALARM ════ */
+function alarmTargetOnCam(){
+  if(!G.camOpen||G.dead||G.won) return false;
+  const id=G.curCam;
+  // Chapo is on cam 3 and active
+  if(G.chapoActive&&id===CHAPO_CAM_ID) return true;
+  // Diddy is on this cam
+  if(G.diddyActive&&G.diddyPos===id&&id!==MUSIC_CAM_ID) return true;
+  return false;
+}
+
+function updateAlarmUI(){
+  if(!G.camOpen) return;
+  const btn=document.getElementById('alarmCamBtn');
+  const lbl=document.getElementById('alarmCdLbl');
+  if(!btn||!lbl) return;
+  const hasTarget=alarmTargetOnCam();
+  if(G.alarmReady){
+    btn.disabled=false;
+    btn.className='alarm-cam-btn'+(hasTarget?' target':' ready');
+    btn.textContent=hasTarget?'🚨 ALARM — VUUR!':'🚨 ALARM';
+    lbl.textContent='KLAAR';
+    lbl.className='alarm-cd-lbl hot';
+  } else {
+    btn.disabled=true;
+    btn.className='alarm-cam-btn';
+    btn.textContent='🚨 ALARM';
+    const s=Math.ceil(G.alarmCD);
+    lbl.textContent=s>0?`CD: ${s}s`:'--';
+    lbl.className='alarm-cd-lbl';
+  }
+}
+
+function useCameraAlarm(){
+  if(!G.alarmReady||G.dead||G.won) return;
+  play('cameraAlarm');
+  let used=false;
+
+  // Reset Chapo if on cam 3
+  if(G.chapoActive&&G.curCam===CHAPO_CAM_ID&&!G.chapoAlarm){
+    resetChapo();
+    used=true;
+  }
+  // Reset Chapo if chapoAlarm is firing
+  if(G.chapoActive&&G.chapoAlarm){
+    resetChapo();
+    used=true;
+  }
+  // Reset Diddy if on current cam
+  if(G.diddyActive&&G.diddyPos===G.curCam&&G.curCam!==MUSIC_CAM_ID){
+    resetDiddy();
+    used=true;
+  }
+
+  // Start cooldown
+  G.alarmReady=false;
+  G.alarmCD=ALARM_CD_S;
+  clearInterval(G.alarmCDTimer);
+  G.alarmCDTimer=setInterval(()=>{
+    G.alarmCD--;
+    if(G.alarmCD<=0){G.alarmReady=true;G.alarmCD=0;clearInterval(G.alarmCDTimer);}
+    updateAlarmUI();
+  },1000);
+  updateAlarmUI();
+  refreshMonsterDots();
+}
+
+function resetChapo(){
+  if(G.chapoKillTimer){clearTimeout(G.chapoKillTimer);G.chapoKillTimer=null;}
+  hideAttackFlash();
+  if(G.chapoAlarm){
+    stop('alarm');
+    document.getElementById('alarmOverlay').style.display='none';
+    G.chapoAlarm=false;
+  }
+  G.chapoTimer=CHAPO_ATTACK_S;
+  G.chapoSprite=0;
+  refreshMonsterDots();
+  if(G.camOpen) renderCamFeed();
+}
+
+function resetDiddy(){
+  if(G.diddyMoveTimer){clearTimeout(G.diddyMoveTimer);}
+  G.diddyPos=POS.C0;
+  G.diddyPath=null;
+  refreshMonsterDots();
+  if(G.camOpen) renderCamFeed();
+  scheduleDiddyMove();
 }
 
 /* ════ MADURO AI ════ */
@@ -1458,7 +1620,7 @@ function tickJeffrey(){
   }
 }
 
-/* ════ CHAPO AI ════ */
+/* ════ CHAPO AI — immune to doors ════ */
 function tickChapo(){
   if(!G.chapoActive||G.dead||G.won) return;
   if(G.chapoAlarm) return;
@@ -1477,36 +1639,50 @@ function triggerChapoAlarm(){
   document.getElementById('alarmOverlay').style.display='block';
   refreshMonsterDots();
   if(G.camOpen) renderCamFeed();
-  if(G.lfClosed&&G.rtClosed){checkChapoResolved();return;}
 
-  // ── Show attack flash on cam feed before the kill ──
-  if(G.camOpen){
-    showAttackFlash(FILES.chapoCam, ()=>{
-      if(!G.dead&&!G.won&&G.chapoAlarm) {
-        // If doors got closed during flash, resolve instead
-        if(G.lfClosed&&G.rtClosed){checkChapoResolved();}
-        else {triggerChapoJS();}
-      }
-    });
-  }
-
-  // ── 6 second kill timer (was 3000ms) ──
+  // Chapo ignores doors — kill after 6 seconds unless alarm is used
   G.chapoKillTimer=setTimeout(()=>{
-    hideAttackFlash();
     if(!G.dead&&!G.won&&G.chapoAlarm) triggerChapoJS();
   }, CHAPO_KILL_DELAY_MS);
 }
 
-function checkChapoResolved(){
-  if(!G.chapoAlarm||G.dead||G.won) return;
-  if(G.lfClosed&&G.rtClosed){
-    if(G.chapoKillTimer){clearTimeout(G.chapoKillTimer);G.chapoKillTimer=null;}
-    hideAttackFlash();
-    stop('alarm');
-    document.getElementById('alarmOverlay').style.display='none';
-    G.chapoAlarm=false;G.chapoTimer=CHAPO_ATTACK_S;G.chapoSprite=0;
-    refreshMonsterDots();
-    if(G.camOpen) renderCamFeed();
+/* ════ DIDDY AI ════ */
+function scheduleDiddyMove(){
+  if(G.diddyMoveTimer) clearTimeout(G.diddyMoveTimer);
+  if(G.dead||G.won||!G.diddyActive) return;
+  const intervals=DIDDY_MOVE_IVAL;
+  const base=intervals[Math.min(G.hour,5)];
+  const delay=base+Math.random()*3000-1000;
+  G.diddyMoveTimer=setTimeout(()=>{advanceDiddy();scheduleDiddyMove();},delay);
+}
+
+function advanceDiddy(){
+  if(G.dead||G.won||!G.diddyActive) return;
+  if(G.diddyPos===POS.LD||G.diddyPos===POS.RD){
+    // Diddy ignores doors — kill immediately
+    triggerDiddyJS();
+    return;
+  }
+  let np=G.diddyPos;
+  // Mirror Gijs path
+  if(G.diddyPos===POS.C0) np=POS.C1;
+  else if(G.diddyPos===POS.C1) np=POS.C2;
+  else if(G.diddyPos===POS.C2){
+    if(!G.diddyPath) G.diddyPath=Math.random()<.5?'left':'right';
+    np=G.diddyPath==='left'?POS.C3:POS.C4;
+    G.diddyPath=null;
+  }
+  else if(G.diddyPos===POS.C3) np=POS.LD;
+  else if(G.diddyPos===POS.C4) np=POS.RD;
+  G.diddyPos=np;
+  refreshMonsterDots();
+  if(G.camOpen) renderCamFeed();
+  updateAlarmUI();
+  // If Diddy reached a door position → kill (doors don't stop him)
+  if(np===POS.LD||np===POS.RD){
+    G.diddyMoveTimer=setTimeout(()=>{
+      if(!G.dead&&!G.won) triggerDiddyJS();
+    }, 2500);
   }
 }
 
@@ -1529,14 +1705,9 @@ function markAppear(){
   const img=document.getElementById('markVentImg');
   img.classList.add('mark-visible');
 
-  // ── Show attack flash on cam if player is watching ──
   G.markAppearTimer=setTimeout(()=>{
     if(!G.dead&&!G.won&&G.markInVent&&!G.ventClosed){
       img.classList.add('mark-urgent');
-      // Flash Mark on camera if cameras are open
-      if(G.camOpen){
-        showAttackFlash(FILES.markVent, ()=>{});
-      }
     }
   },5000);
 
@@ -1607,6 +1778,7 @@ function toggleCam(){
   }
   if(G.camOpen) switchCam(G.curCam);
   updateLureUI();
+  updateAlarmUI();
 }
 
 /* ════ DOOR LOGIC ════ */
@@ -1628,7 +1800,6 @@ function toggleDoor(side){
     else{if(G.mPos===POS.RD) armDoorTimer();}
   }
   refreshDoorLights();
-  if(G.chapoAlarm) checkChapoResolved();
 }
 
 function refreshDoorLights(){
@@ -1785,6 +1956,7 @@ function gameTick(){
   tickChapo();
   tickMaduro();
   maybeGlitch();
+  updateAlarmUI();
 }
 
 function updateO2UI(){
@@ -1826,12 +1998,14 @@ function maybeGlitch(){
   const gijsNear=[POS.LD,POS.RD].includes(G.mPos);
   const hoboOnCam=G.hoboPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
   const jeffOnCam=G.jeffreyActive&&G.jeffreyPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
+  const diddyOnCam=G.diddyActive&&G.diddyPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
   const musicLow=G.curCam===MUSIC_CAM_ID&&G.musicBox<40;
   let chance=0.006;
   if(gijsOnCam) chance+=0.035;
   if(gijsNear)  chance+=0.02;
   if(hoboOnCam) chance+=0.025;
   if(jeffOnCam) chance+=0.03;
+  if(diddyOnCam) chance+=0.03;
   if(musicLow)  chance+=0.04*(1-G.musicBox/40);
   if(Math.random()<chance) fireGlitch();
   if(gijsNear&&Math.random()<0.008) fireFullScreenGlitch();
@@ -1934,7 +2108,8 @@ function triggerHoboJS(){doJumpscare(FILES.hoboGijsJS,'Je lokte het verkeerde mo
 function triggerTomJS(){stopWindUp();doJumpscare(FILES.tomJS,'De muziek stopte.<br><em>"...I\'ve been waiting so long to come out."</em>');}
 function triggerJeffreyJS(){doJumpscare(FILES.jeffreyJS,'Jeffrey heeft je gevonden.<br><em>"De deuren houden mij niet tegen."</em>');}
 function triggerMarkJS(){if(G.dead) return;markLeave();doJumpscare(FILES.markJS,'Mark kwam uit de ventilatie.<br><em>"Je had de schacht moeten sluiten."</em>');}
-function triggerChapoJS(){if(G.dead) return;stop('alarm');doJumpscare(FILES.chapoJS,'Chapo heeft aangevallen.<br><em>"Jij had beide deuren moeten sluiten."</em>');}
+function triggerChapoJS(){if(G.dead) return;stop('alarm');doJumpscare(FILES.chapoJS,'Chapo heeft aangevallen.<br><em>"Deuren? Dat is niets voor mij."</em>');}
+function triggerDiddyJS(){if(G.dead) return;doJumpscare(FILES.diddyJS,'Diddy heeft je gevonden.<br><em>"Je had het alarm moeten gebruiken."</em>');}
 
 function doFlash(cb){
   const el=document.getElementById('flashEl');
@@ -1954,7 +2129,7 @@ function killTimers(){
   [G.tickTimer,G.timeTimer,G.mMoveTimer,G.mDoorTimer,G.mRetreatTimer,
    G.fireTimer,G.lureCDTimer,G.hoboMoveTimer,G.chapoKillTimer,
    G.markAppearTimer,G.markKillTimer,G.markLeaveTimer,G.markCheckInterval,
-   G.maduroSpawnTimer,G.attackFlashTimer
+   G.maduroSpawnTimer,G.attackFlashTimer,G.diddyMoveTimer,G.alarmCDTimer
   ].forEach(t=>{if(t)try{clearInterval(t);clearTimeout(t);}catch(e){}});
   if(glitchTimer){clearTimeout(glitchTimer);glitchTimer=null;}
   glitchActive=false;
@@ -2002,6 +2177,8 @@ function startGame(){
   document.getElementById('jeffreyLabel').style.display=isHard?'':'none';
   document.getElementById('dotChapo').style.display=isHard?'':'none';
   document.getElementById('chapoLabel').style.display=isHard?'':'none';
+  document.getElementById('dotDiddy').style.display=isHard?'':'none';
+  document.getElementById('diddyLabel').style.display=isHard?'':'none';
   document.getElementById('nightModeLbl').textContent=isHard?'Nacht 1 · HARD MODE · Kelder Detentie':'Nacht 1 · Kelder Detentie';
 
   initAudio();play('ambience');
@@ -2015,8 +2192,14 @@ function startGame(){
   updateLureUI();
   updateVentUI();
 
+  // Lure cooldown
   G.lureCD=LURE_CD_S;
   G.lureCDTimer=setInterval(()=>{G.lureCD--;if(G.lureCD<=0){G.lureReady=true;G.lureCD=0;clearInterval(G.lureCDTimer);}updateLureUI();},1000);
+
+  // Alarm — starts ready
+  G.alarmReady=true;
+  G.alarmCD=0;
+  updateAlarmUI();
 
   G.tickTimer=setInterval(gameTick,TICK_MS);
   G.timeTimer=setInterval(tickTime,250);
@@ -2031,6 +2214,10 @@ function startGame(){
     G.jeffreyStep=0;
     G.jeffreyPos=JEFFREY_PATH[0];
     G.jeffreyTimer=JEFFREY_SWITCH_S;
+    // Start Diddy
+    G.diddyPos=POS.C0;
+    G.diddyPath=null;
+    setTimeout(scheduleDiddyMove, 8000); // Slight delay before Diddy starts
     refreshMonsterDots();
   }
 }
@@ -2068,6 +2255,7 @@ function animateStartBg(){
 /* ── KEYBOARD ── */
 window.addEventListener('keydown',e=>{
   if((e.key==='c'||e.key==='C')&&G&&G.running) toggleCam();
+  if((e.key==='a'||e.key==='A')&&G&&G.running&&G.camOpen) useCameraAlarm();
 });
 
 /* ── RESIZE ── */
