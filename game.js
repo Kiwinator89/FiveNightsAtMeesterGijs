@@ -1421,46 +1421,161 @@ function tickMusicBox(){
    GLITCH
 ══════════════════════════════════════════ */
 function maybeGlitch(){
-  if(G.dead||G.won||!G.camOpen||glitchActive) return;
-  const gijsOnCam=G.mPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
-  const gijsNear=[POS.LD,POS.RD].includes(G.mPos);
-  const hoboOnCam=G.hoboPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
-  const jeffOnCam=G.jeffreyActive&&G.jeffreyPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
-  const diddyOnCam=G.diddyActive&&G.diddyPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
-  const musicLow=G.curCam===MUSIC_CAM_ID&&G.musicBox<40;
-  let chance=0.006;
-  if(gijsOnCam) chance+=0.035;if(gijsNear) chance+=0.02;if(hoboOnCam) chance+=0.025;
-  if(jeffOnCam) chance+=0.03;if(diddyOnCam) chance+=0.03;if(musicLow) chance+=0.04*(1-G.musicBox/40);
+  if(G.dead||G.won||glitchActive) return;
+
+  // Ambient office glitches — altijd actief, ook zonder camera
+  const hour = G.hour||0;
+  const ambientChance = 0.004 + hour*0.002;
+  if(Math.random()<ambientChance) fireAmbientGlitch();
+
+  // Camera glitches — alleen als camera open is
+  if(!G.camOpen) return;
+  const gijsOnCam  = G.mPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
+  const gijsNear   = [POS.LD,POS.RD].includes(G.mPos);
+  const hoboOnCam  = G.hoboPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
+  const jeffOnCam  = G.jeffreyActive&&G.jeffreyPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
+  const diddyOnCam = G.diddyActive&&G.diddyPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;
+  const musicLow   = G.curCam===MUSIC_CAM_ID&&G.musicBox<40;
+  let chance = 0.012;
+  if(gijsOnCam)  chance+=0.055; if(gijsNear)   chance+=0.035;
+  if(hoboOnCam)  chance+=0.040; if(jeffOnCam)   chance+=0.045;
+  if(diddyOnCam) chance+=0.045; if(musicLow)    chance+=0.06*(1-G.musicBox/40);
+  chance += hour*0.004;
   if(Math.random()<chance) fireGlitch();
-  if(gijsNear&&Math.random()<0.008) fireFullScreenGlitch();
+  if((gijsNear||gijsOnCam)&&Math.random()<0.018) fireFullScreenGlitch();
 }
 
 function fireGlitch(){
   glitchActive=true;
   const camCanvas=document.getElementById('camCanvas');
   const camMain=document.getElementById('camMain');
-  const types=['glitch-tear','glitch-rgb','glitch-shake'];
+  const types=['glitch-tear','glitch-rgb','glitch-shake','glitch-slice','glitch-invert','glitch-bleed','glitch-stutter','glitch-zap'];
   const type=types[Math.floor(Math.random()*types.length)];
   camCanvas.classList.add(type);camMain.classList.add('has-glitch');
-  if(type==='glitch-tear'&&Math.random()<0.5){
+
+  // Tear bands
+  if(Math.random()<0.55){
     const band=document.getElementById('glitchTearBand');
-    band.style.top=Math.floor(Math.random()*100)+'%';band.style.display='block';
-    band.style.transform=`translateX(${-15+Math.random()*30}px)`;
+    band.style.top=Math.floor(Math.random()*100)+'%';
+    band.style.height=(2+Math.random()*16)+'px';
+    band.style.display='block';
+    band.style.transform=`translateX(${-20+Math.random()*40}px)`;
   }
-  const duration=100+Math.random()*200;
+
+  // Extra coloured bands
+  ['glitchBandR','glitchBandC','glitchBandW'].forEach(id=>{
+    if(Math.random()<0.4){
+      const b=document.getElementById(id);
+      b.style.top=Math.floor(Math.random()*100)+'%';
+      b.style.display='block';
+      b.style.transform=`translateX(${-30+Math.random()*60}px)`;
+      setTimeout(()=>{b.style.display='none';},80+Math.random()*120);
+    }
+  });
+
+  // Scan artifact line
+  if(Math.random()<0.3){
+    const sa=document.getElementById('scanArtifact');
+    sa.style.top=Math.floor(Math.random()*100)+'%';
+    sa.style.display='block';
+    setTimeout(()=>{sa.style.display='none';},50+Math.random()*100);
+  }
+
+  // Ambient HUD glitch
+  if(Math.random()<0.25){
+    const hud=document.getElementById('hud');
+    hud.classList.add('hud-glitching');
+    setTimeout(()=>hud.classList.remove('hud-glitching'),220);
+  }
+
+  // Office canvas screen tear
+  if(Math.random()<0.2){
+    const oc=document.getElementById('officeCanvas');
+    oc.classList.add('screen-tearing');
+    setTimeout(()=>oc.classList.remove('screen-tearing'),200);
+  }
+
+  const duration=60+Math.random()*300;
   glitchTimer=setTimeout(()=>{
-    camCanvas.classList.remove('glitch-tear','glitch-rgb','glitch-shake');
+    camCanvas.classList.remove('glitch-tear','glitch-rgb','glitch-shake','glitch-slice','glitch-invert','glitch-bleed','glitch-stutter','glitch-zap');
     camMain.classList.remove('has-glitch');
     document.getElementById('glitchTearBand').style.display='none';
     glitchActive=false;
-    if(Math.random()<0.3) setTimeout(fireGlitch,80+Math.random()*150);
+    // Agressievere refire kansen
+    const refire=Math.random();
+    if(refire<0.18)       setTimeout(fireGlitch, 20+Math.random()*40);
+    else if(refire<0.42)  setTimeout(fireGlitch,80+Math.random()*150);
+    else if(refire<0.55)  setTimeout(()=>{fireGlitch();setTimeout(fireGlitch,60+Math.random()*80);},120);
   },duration);
 }
 
 function fireFullScreenGlitch(){
   const flash=document.getElementById('flashEl');
-  flash.style.background='rgba(0,255,80,0.04)';flash.style.opacity='1';
-  setTimeout(()=>{flash.style.opacity='0';flash.style.background='#fff';},60);
+  const type=Math.floor(Math.random()*5);
+  if(type===0){flash.style.background='rgba(0,255,80,0.05)';flash.style.opacity='1';setTimeout(()=>{flash.style.opacity='0';flash.style.background='#fff';},55);}
+  else if(type===1){flash.style.background='rgba(255,0,60,0.08)';flash.style.opacity='1';setTimeout(()=>{flash.style.opacity='0';flash.style.background='#fff';},40);}
+  else if(type===2){flash.style.background='rgba(0,180,255,0.06)';flash.style.opacity='1';setTimeout(()=>{flash.style.opacity='0';flash.style.background='#fff';},70);}
+  else if(type===3){
+    // Dubbele flash
+    flash.style.background='rgba(255,255,255,0.12)';flash.style.opacity='1';
+    setTimeout(()=>{flash.style.opacity='0';},30);
+    setTimeout(()=>{flash.style.background='rgba(255,0,0,0.08)';flash.style.opacity='1';},60);
+    setTimeout(()=>{flash.style.opacity='0';flash.style.background='#fff';},100);
+  } else {
+    // Screen-wide tear
+    const gs=document.getElementById('gameScreen');
+    gs.classList.add('screen-tearing');
+    setTimeout(()=>gs.classList.remove('screen-tearing'),180);
+  }
+}
+
+/* Ambient glitch — speelt op het kantoor zelf (geen camera nodig) */
+function fireAmbientGlitch(){
+  const roll=Math.random();
+  if(roll<0.30){
+    // HUD flicker
+    const hud=document.getElementById('hud');
+    hud.classList.add('hud-glitching');
+    setTimeout(()=>hud.classList.remove('hud-glitching'),180+Math.random()*120);
+  } else if(roll<0.52){
+    // Office canvas tear
+    const oc=document.getElementById('officeCanvas');
+    oc.classList.add('screen-tearing');
+    setTimeout(()=>oc.classList.remove('screen-tearing'),120+Math.random()*120);
+  } else if(roll<0.65){
+    // Rode chroom aberratie over hele scherm
+    const flash=document.getElementById('flashEl');
+    flash.style.background='rgba(255,0,40,0.04)';flash.style.opacity='1';
+    setTimeout(()=>{flash.style.opacity='0';flash.style.background='#fff';},35+Math.random()*40);
+  } else if(roll<0.76){
+    // Scan artifact lijn
+    const sa=document.getElementById('scanArtifact');
+    sa.style.top=Math.floor(Math.random()*100)+'%';sa.style.display='block';
+    setTimeout(()=>{sa.style.display='none';},40+Math.random()*80);
+  } else if(roll<0.84){
+    // Vignette pulse
+    const vg=document.querySelector('.vignette');
+    if(vg){vg.style.transition='opacity .05s';vg.style.opacity='0.0';setTimeout(()=>{vg.style.opacity='';vg.style.transition='';},80);}
+  } else if(roll<0.91){
+    // Meerdere tear bands tegelijk
+    ['glitchBandR','glitchBandC','glitchBandW'].forEach(id=>{
+      if(Math.random()<0.7){
+        const b=document.getElementById(id);
+        b.style.top=Math.floor(Math.random()*100)+'%';b.style.display='block';
+        b.style.transform=`translateX(${-40+Math.random()*80}px)`;
+        setTimeout(()=>{b.style.display='none';},60+Math.random()*100);
+      }
+    });
+  } else {
+    // Tijdweergave glitch — laat de klok even flikkeren
+    const ht=document.getElementById('hudTime');
+    if(ht){
+      const orig=ht.textContent;
+      const fake=['??:?? AM','--:-- ??','6:66 AM','ERROR','12:0Ø AM'][Math.floor(Math.random()*5)];
+      ht.textContent=fake;ht.style.color='#ff0044';
+      setTimeout(()=>{ht.textContent=orig;ht.style.color='';},120+Math.random()*80);
+    }
+  }
 }
 
 /* ══════════════════════════════════════════
