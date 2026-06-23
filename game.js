@@ -1865,3 +1865,485 @@ window.addEventListener('load',()=>{
   Object.values(FILES).forEach(src=>{const i=new Image();i.src=src;});
   CAM_BG_KEYS.forEach((key,id)=>getCamBgImg(id,()=>{}));
 });
+
+/* ══════════════════════════════════════════
+   TUTORIAL SYSTEEM
+══════════════════════════════════════════ */
+
+let tutStep = 0;
+let tutDone = {}; // bijhouden welke acties voltooid zijn
+
+/* Definitie van alle tutorial-stappen */
+const TUT_STEPS = [
+  /* 0 — Welkom */
+  {
+    icon:'🎓',
+    title:'WELKOM, BEWAKER',
+    text:`Je bent de nieuwe nachtbewaker op de school van <strong>Meester Gijs</strong>. Je taak is simpel: <em>overleef tot 6:00 AM</em>.<br><br>
+    Maar je bent niet alleen. De leraren en andere figuren die overdag in het gebouw rondlopen… ze gedragen zich 's nachts anders.<br><br>
+    Deze tutorial leert je de drie belangrijkste overlevingstechnieken:<br>
+    • <strong>Camera's</strong> openen om vijanden te volgen<br>
+    • <strong>Deuren</strong> sluiten om aanvallen te stoppen<br>
+    • <strong>Jezelf verdedigen</strong> tegen elk type vijand`,
+    highlight:`<strong>GOED OM TE WETEN:</strong> In de tutorial kun je niet doodgaan. Vijanden zijn gepauzeerd. Oefen zonder gevaar.`,
+    action: null,
+  },
+  /* 1 — Camera openen */
+  {
+    icon:'📷',
+    title:'STAP 1 — CAMERA\'S OPENEN',
+    text:`Rechts bovenin zie je de knop <strong>📷 CAMERA'S [C]</strong>. Hiermee open je het beveiligingssysteem.<br><br>
+    In het camerascherm zie je <strong>6 kamers</strong> (CAM 1 t/m 6). Klik op een camera-thumbnail onderaan om te wisselen.<br><br>
+    De camera's zijn jouw ogen in het gebouw. Gebruik ze om te zien <strong>waar vijanden zich bevinden</strong> voordat ze bij jou zijn.`,
+    highlight:`<strong>TIP:</strong> Vijanden verschijnen als donkere figuren op de camera. Let op de gekleurde stipjes op de thumbnails — die geven aan of een vijand in die kamer is. <strong>Maar let op je zuurstof (O₂)</strong> — te lang de camera's open houdt O₂ verlaagt.`,
+    action: {
+      id: 'openCam',
+      label: '📷 OPEN DE CAMERA\'S',
+      hint: 'Klik op de knop hierboven rechts in het spelscherm, of druk [C]',
+      btnText: '▶ GA NAAR SPELSCHERM & OPEN CAMERA\'S',
+    },
+  },
+  /* 2 — Camera wisselen */
+  {
+    icon:'🔍',
+    title:'STAP 2 — NAAR EEN ANDERE CAMERA GAAN',
+    text:`Nu je de camera's open hebt, zie je onderaan het camerascherm <strong>6 thumbnails</strong> — één voor elke kamer.<br><br>
+    Klik op een andere camera-thumbnail om van kamer te wisselen. Je kunt zo <strong>alle 6 locaties</strong> in de gaten houden.<br><br>
+    Bekijk tenminste <strong>3 verschillende cameras</strong> om verder te gaan.`,
+    highlight:`<strong>CAM 6 — MUZIEKKAMER:</strong> Hier zie je de Muziekdoos. Als de balk leeg raakt, wordt <strong>Tumor Tom</strong> wakker. Je kunt de doos opwinden door het knopje vast te houden.`,
+    action: {
+      id: 'switchCam',
+      label: 'BEZOEK 3 VERSCHILLENDE CAMERA\'S',
+      hint: 'Klik op de thumbnails onderaan het camerascherm',
+      btnText: '▶ GA NAAR SPELSCHERM & BEZOEK CAMERAS',
+      counter: true,
+      target: 3,
+    },
+  },
+  /* 3 — Camera sluiten & deur sluiten */
+  {
+    icon:'🚪',
+    title:'STAP 3 — DEUREN SLUITEN',
+    text:`Links en rechts van je kantoor zitten deuren. Als een vijand aan de deur staat, moet je die <strong>sluiten</strong> voordat ze binnenkomen.<br><br>
+    Druk op de <strong>DEUR</strong>-knop naast de deur om hem te sluiten. Het lampje wordt rood als de deur dicht is.<br><br>
+    <strong>Maar let op:</strong> Gesloten deuren verbruiken extra zuurstof (O₂). Hou ze niet langer dicht dan nodig.`,
+    highlight:`<strong>HOE WEET JE WANNEER?</strong> Meester Gijs en Hobo Gijs komen via de deuren. Als ze in <em>CAM 4 (Linker Gang)</em> of <em>CAM 5 (Rechter Gang)</em> staan, zijn ze dichtbij. Sluit dan de deur aan die kant!`,
+    action: {
+      id: 'closeDoor',
+      label: 'SLUIT EEN DEUR (LINKS OF RECHTS)',
+      hint: 'Klik op de DEUR-knop naast de linker of rechter deur',
+      btnText: '▶ GA NAAR SPELSCHERM & SLUIT EEN DEUR',
+    },
+  },
+  /* 4 — Verdedigen: Gijs (deur) */
+  {
+    icon:'👨‍🏫',
+    title:'VIJAND 1 — MEESTER GIJS',
+    text:`<strong>Meester Gijs</strong> is de eerste vijand. Hij beweegt van kamer naar kamer via de gangen, en probeert via <em>jouw deur</em> naar binnen te komen.<br><br>
+    <strong>Hoe verdedigen:</strong><br>
+    1. Houd de camera's in de gaten — volg hem via CAM 1 → 2 → 3 → 4 of 5<br>
+    2. Als hij in CAM 4 (Linker Gang) staat → sluit de <strong>LINKER DEUR</strong><br>
+    3. Als hij in CAM 5 (Rechter Gang) staat → sluit de <strong>RECHTER DEUR</strong><br>
+    4. Na een tijdje gaat hij terug — dan kun je de deur weer openen`,
+    highlight:`In de tutorial staat Gijs voor je deur. Sluit de juiste deur om hem buiten te houden!`,
+    action: {
+      id: 'defGijs',
+      label: 'VERDEDIG TEGEN MEESTER GIJS',
+      hint: 'Sluit de deur waar Gijs aan staat — het lichtje aan die kant brandt rood',
+      btnText: '▶ GIJS STAAT VOOR DE DEUR — SLUIT HEM BUITEN!',
+    },
+  },
+  /* 5 — Verdedigen: Jeffrey (lure) */
+  {
+    icon:'🚶',
+    title:'VIJAND 2 — JEFFREY',
+    text:`<strong>Jeffrey</strong> loopt continu door de gangen. Hij negeert deuren volledig — die werken <strong>niet</strong> tegen hem.<br><br>
+    <strong>Hoe verdedigen:</strong><br>
+    Gebruik de knop <em>🔊 LOKKEN</em> om een geluid af te spelen dat Jeffrey afleidt en terugdrijft.<br><br>
+    De LOKKEN-knop heeft een <strong>cooldown van 30 seconden</strong> — gebruik hem op het juiste moment, niet te vroeg.`,
+    highlight:`<strong>WANNEER LOKKEN?</strong> Als Jeffrey dicht bij je kantoor is (CAM 4 of CAM 5), activeer dan LOKKEN. Hij loopt terug naar de verste kamer.`,
+    action: {
+      id: 'defJeffrey',
+      label: 'GEBRUIK LOKKEN TEGEN JEFFREY',
+      hint: 'Druk op de 🔊 LOKKEN-knop in het HUD of in het camerascherm',
+      btnText: '▶ JEFFREY NADERT — GEBRUIK LOKKEN!',
+    },
+  },
+  /* 6 — Verdedigen: Chapo / Diddy (alarm) */
+  {
+    icon:'🚨',
+    title:'VIJAND 3 — CHAPO & DIDDY (ALARM)',
+    text:`<strong>Chapo</strong> en <strong>Diddy</strong> negeren deuren én de LOKKEN-knop. Alleen het <strong>🚨 ALARM</strong> stopt ze.<br><br>
+    <strong>Chapo:</strong> Verschijnt in CAM 4 (Linker Gang). Hij wordt langzaam helderder — als de timer 0 bereikt, valt hij aan. Open de camera's, ga naar CAM 4, en druk <strong>ALARM</strong>.<br><br>
+    <strong>Diddy:</strong> Beweegt door kamers. Als hij in beeld is op je actieve camera, druk dan <strong>ALARM</strong>.<br><br>
+    Het alarm heeft ook een <strong>cooldown van 20 seconden</strong>.`,
+    highlight:`<strong>SNEL REAGEREN:</strong> Het alarm-knopje licht <em>rood-oranje</em> op als Chapo of Diddy op de actieve camera te zien is. Dan staat er "ALARM — VUUR!" — druk dan meteen!`,
+    action: {
+      id: 'defChapo',
+      label: 'GEBRUIK HET ALARM',
+      hint: 'Open camera\'s → ga naar CAM 4 → druk 🚨 ALARM',
+      btnText: '▶ CHAPO IS OP CAM 4 — GEBRUIK HET ALARM!',
+    },
+  },
+  /* 7 — Klaar */
+  {
+    icon:'✅',
+    title:'TUTORIAL VOLTOOID!',
+    text:`Goed gedaan! Je kent nu alle basisvaardigheden:<br><br>
+    ✓ <strong>Camera's openen</strong> — volg vijanden via de 6 cameras<br>
+    ✓ <strong>Camera's wisselen</strong> — bekijk alle kamers<br>
+    ✓ <strong>Deuren sluiten</strong> — blokkeer Gijs en Hobo Gijs<br>
+    ✓ <strong>Meester Gijs verdedigen</strong> — deur sluiten op het juiste moment<br>
+    ✓ <strong>Jeffrey verdedigen</strong> — LOKKEN gebruiken<br>
+    ✓ <strong>Chapo/Diddy verdedigen</strong> — ALARM gebruiken<br><br>
+    <strong>Extra tips voor het echte spel:</strong><br>
+    • Zuurstof (O₂) daalt als deuren dicht zijn of camera's open staan — balanceer dit<br>
+    • Tumor Tom (CAM 6) vraagt dat je de muziekdoos opwindt — houd dat in de gaten<br>
+    • Mark Rutte kruipt door de ventilatieschacht — sluit het vent als hij erin zit<br>
+    • Maduro: kijk niet te lang naar één camera — hij stoort het signaal`,
+    highlight:`<strong>Klaar om Nacht 1 te proberen?</strong> Begin rustig — Nacht 1 heeft alleen Gijs en Hobo Gijs. Bouw het op!`,
+    action: null,
+    isLast: true,
+  },
+];
+
+/* Tutorial simulatie-variabelen */
+let tutSimActive = false;
+let tutSimState  = {}; // bijhouden wat de speler heeft gedaan in de sim
+let tutCamVisited = new Set();
+let tutSimGame   = null; // nep-G object voor de sim
+
+/* ── Tutorial starten ── */
+function startTutorial(){
+  tutStep = 0;
+  tutDone = {};
+  tutCamVisited = new Set();
+  tutSimActive = false;
+  stopMenuMusic();
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('tutorialScreen').style.display = 'flex';
+  renderTutStep();
+}
+
+function closeTutorial(){
+  tutSimActive = false;
+  exitTutSim();
+  document.getElementById('tutorialScreen').style.display = 'none';
+  document.getElementById('startScreen').style.display = 'flex';
+  menuAudio.play().catch(()=>{});
+}
+
+/* ── Stap renderen ── */
+function renderTutStep(){
+  const step = TUT_STEPS[tutStep];
+  const total = TUT_STEPS.length;
+
+  // Stap label
+  document.getElementById('tutStepLbl').textContent = `STAP ${tutStep+1} / ${total}`;
+
+  // Progress dots
+  const dotsEl = document.getElementById('tutDots');
+  dotsEl.innerHTML = '';
+  TUT_STEPS.forEach((_,i)=>{
+    const d = document.createElement('div');
+    d.className = 'tut-prog-dot' + (i < tutStep ? ' done' : i === tutStep ? ' active' : '');
+    dotsEl.appendChild(d);
+  });
+
+  // Nav knoppen
+  const prevBtn = document.getElementById('tutPrevBtn');
+  const nextBtn = document.getElementById('tutNextBtn');
+  prevBtn.disabled = (tutStep === 0);
+  if(step.isLast){
+    nextBtn.textContent = '✓ TERUG NAAR MENU';
+    nextBtn.className = 'tut-nav-btn finish';
+    nextBtn.onclick = closeTutorial;
+  } else {
+    nextBtn.textContent = 'VERDER →';
+    nextBtn.className = 'tut-nav-btn';
+    nextBtn.onclick = tutNext;
+    // Blokkeer "verder" als actie vereist is en niet voltooid
+    nextBtn.disabled = !!(step.action && !tutDone[step.action.id]);
+  }
+
+  // Body inhoud
+  const body = document.getElementById('tutBody');
+  let html = `
+    <div class="tut-icon">${step.icon}</div>
+    <div class="tut-title">${step.title}</div>
+    <div class="tut-text">${step.text}</div>
+  `;
+  if(step.highlight){
+    html += `<div class="tut-highlight">${step.highlight}</div>`;
+  }
+  if(step.action){
+    const isDone = !!tutDone[step.action.id];
+    const countText = step.action.counter
+      ? ` (${Math.min(tutCamVisited.size, step.action.target)} / ${step.action.target})`
+      : '';
+    html += `
+      <div class="tut-action-zone">
+        <span class="tut-action-label">🎯 OPDRACHT${countText}</span>
+        <div class="tut-wait">${step.action.hint}</div>
+        <br>
+        <button class="tut-action-btn${isDone?' done':''}" id="tutActionBtn"
+          onclick="tutLaunchSim('${step.action.id}')"
+          ${isDone?'disabled':''}>
+          ${isDone ? '<span class="tut-check">✓</span> VOLTOOID!' : step.action.btnText}
+        </button>
+      </div>
+    `;
+  }
+  body.innerHTML = html;
+}
+
+function tutNext(){
+  const step = TUT_STEPS[tutStep];
+  if(step.action && !tutDone[step.action.id]) return; // geblokkeerd
+  if(tutStep < TUT_STEPS.length - 1){
+    tutStep++;
+    renderTutStep();
+  }
+}
+
+function tutPrev(){
+  if(tutStep > 0){ tutStep--; renderTutStep(); }
+}
+
+/* ── Tutorial simulatie ── */
+function tutLaunchSim(actionId){
+  tutSimActive = true;
+  tutSimState  = {actionId};
+
+  // Zet spelscherm op als nep-tutorial-sim
+  const gs = document.getElementById('gameScreen');
+  const ts = document.getElementById('tutorialScreen');
+  ts.style.display = 'none';
+
+  // Initialiseer een nep G-state zodat het spelscherm werkt, vijanden bewegen NIET
+  selectedNight = 1;
+  G = mkState();
+  G.nightStart = Date.now();
+  G.running    = true;
+  G.tutorialMode = true; // speciaal vlag — geen dood mogelijk
+
+  // Pas config aan op basis van actie
+  if(actionId === 'defJeffrey'){ G.jeffreyActive = true; G.jeffreyStep = 0; G.jeffreyPos = POS.C4; }
+  if(actionId === 'defChapo')  { G.chapoActive = true; G.chapoTimer = 45; G.chapoSprite = 1; G.chapoPos = CHAPO_CAM_ID; }
+  if(actionId === 'defGijs')   { G.mPos = POS.LD; /* Gijs staat voor linker deur */ }
+
+  ['startScreen','deathScreen','winScreen'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('jsScreen').style.display='none';
+  gs.style.display='block';
+  document.getElementById('camOverlay').style.display='none';
+  document.getElementById('camToggleBtn').classList.remove('active');
+  document.getElementById('flashEl').style.opacity='0';
+  document.getElementById('flashEl').style.background='#fff';
+  document.getElementById('fireCanvas').style.display='none';
+  document.getElementById('musicBoxPanel').style.display='none';
+  document.getElementById('alarmOverlay').style.display='none';
+  document.getElementById('maduroDisabledOverlay').classList.remove('active');
+  document.getElementById('maduroCamImg').style.display='none';
+  document.getElementById('attackFlashOverlay').classList.remove('active');
+  document.getElementById('attackFlashImg').src='';
+  const sgImg=document.getElementById('shadowGijsOfficeImg');
+  sgImg.style.display='none';sgImg.style.opacity='';
+
+  // Deuren reset
+  ['dpL','dpR'].forEach(id=>document.getElementById(id).classList.remove('shut'));
+  ['dbL','dbR'].forEach(id=>{const b=document.getElementById(id);b.textContent='DEUR';b.classList.remove('on');});
+  ['dlL','dlR'].forEach(id=>document.getElementById(id).className='d-light');
+  document.getElementById('ventGrate').classList.remove('shut');
+  document.getElementById('ventBtn').classList.remove('shut');
+  document.getElementById('ventBtn').querySelector('.vent-label').textContent='SLUIT VENT';
+  document.getElementById('ventLight').classList.remove('active');
+  document.getElementById('markVentImg').classList.remove('mark-visible','mark-urgent');
+  document.getElementById('ventOxygenWarning').classList.remove('active');
+  G.ventClosed=false;
+
+  // HUD aanpassen
+  G.cfg.jeffreyActive = (actionId==='defJeffrey');
+  G.cfg.chapoActive   = (actionId==='defChapo');
+  G.cfg.diddyActive   = false;
+  G.cfg.tomActive     = false;
+  G.cfg.markRutteActive=false;
+  G.cfg.gijsActive    = true;
+  document.getElementById('dotJeffrey').style.display = G.cfg.jeffreyActive?'':'none';
+  document.getElementById('jeffreyLabel').style.display= G.cfg.jeffreyActive?'':'none';
+  document.getElementById('dotChapo').style.display    = G.cfg.chapoActive?'':'none';
+  document.getElementById('chapoLabel').style.display  = G.cfg.chapoActive?'':'none';
+  document.getElementById('dotDiddy').style.display    = 'none';
+  document.getElementById('diddyLabel').style.display  = 'none';
+  document.getElementById('nightModeLbl').textContent  = '🎓 TUTORIAL MODUS — GEEN DOOD';
+
+  initAudio();
+
+  drawOffice();buildCamStrip();refreshMonsterDots();updateO2UI();updateLureUI();
+  G.alarmReady=true;G.alarmCD=0;updateAlarmUI();
+
+  // Lure direct beschikbaar in tutorial
+  G.lureReady=true;G.lureCD=0;updateLureUI();
+
+  // Timer voor O2 uitzetten in tutorial (geen gevaar)
+  // Tick timer laten draaien maar O2-drain uitzetten via tutorialMode vlag
+  G.tickTimer=setInterval(tutGameTick, TICK_MS);
+  G.timeTimer=setInterval(tickTime, 250);
+
+  // Toon instructie-overlay bovenaan
+  showTutInGameHint(actionId);
+}
+
+/* Vereenvoudigde tick voor tutorial — geen dood, geen vijand-beweging */
+function tutGameTick(){
+  if(!G||!G.tutorialMode) return;
+  // O2 niet verlagen
+  updateO2UI();
+  // Camera alarm UI bijwerken als cam open
+  if(G.camOpen){ updateAlarmUI(); refreshMonsterDots(); renderCamFeed(); }
+}
+
+function showTutInGameHint(actionId){
+  // Verwijder eerder hint-overlay
+  const old = document.getElementById('tutInGameHint');
+  if(old) old.remove();
+
+  const hints = {
+    openCam:   '📷 OPEN DE CAMERA\'S — klik op de knop rechtsboven of druk [C]',
+    switchCam: '🔍 WISSEL VAN CAMERA — klik op de thumbnails onderaan het camerascherm',
+    closeDoor: '🚪 SLUIT EEN DEUR — klik op de DEUR-knop links of rechts',
+    defGijs:   '👨‍🏫 GIJS STAAT VOOR DE LINKER DEUR — sluit de LINKER deur!',
+    defJeffrey:'🔊 GEBRUIK LOKKEN — klik op 🔊 LOKKEN in het HUD rechtsboven',
+    defChapo:  '🚨 OPEN CAMERA\'S → ga naar CAM 4 → druk 🚨 ALARM',
+  };
+  const div = document.createElement('div');
+  div.id = 'tutInGameHint';
+  div.style.cssText = `
+    position:fixed;top:0;left:0;right:0;z-index:500;
+    background:rgba(0,40,15,0.92);
+    border-bottom:2px solid #22aa55;
+    padding:10px 16px;
+    display:flex;align-items:center;justify-content:space-between;
+    font-family:'Share Tech Mono',monospace;
+    font-size:clamp(.55rem,1.1vw,.72rem);
+    color:#33dd66;letter-spacing:2px;
+  `;
+  div.innerHTML = `
+    <span>🎓 TUTORIAL &nbsp;|&nbsp; ${hints[actionId]||''}</span>
+    <button onclick="exitTutSim()" style="background:transparent;border:1px solid #226633;color:#226633;padding:4px 12px;font-family:'Share Tech Mono',monospace;font-size:.55rem;letter-spacing:2px;cursor:pointer;">✕ TERUG</button>
+  `;
+  document.body.appendChild(div);
+}
+
+function exitTutSim(){
+  const hint = document.getElementById('tutInGameHint');
+  if(hint) hint.remove();
+  killTimers();
+  stopAll();
+  G={};
+  document.getElementById('gameScreen').style.display='none';
+  document.getElementById('tutorialScreen').style.display='flex';
+  tutSimActive=false;
+  renderTutStep();
+}
+
+/* ── Hooks in bestaande functies voor tutorial-detectie ── */
+
+/* Detecteer camera openen */
+const _origToggleCam = typeof toggleCam === 'function' ? toggleCam : null;
+// We patchen toggleCam, toggleDoor, useLure, useCameraAlarm hieronder via wrappers
+
+function _tutCheckAction(actionId, extraCheck){
+  if(!G||!G.tutorialMode||!tutSimActive) return;
+  if(tutSimState.actionId !== actionId) return;
+  if(extraCheck !== undefined && !extraCheck) return;
+  tutMarkDone(actionId);
+}
+
+function tutMarkDone(actionId){
+  if(tutDone[actionId]) return;
+  tutDone[actionId] = true;
+  // Kleine visuele bevestiging
+  const hint = document.getElementById('tutInGameHint');
+  if(hint){
+    hint.style.background='rgba(0,80,30,0.95)';
+    hint.style.borderBottomColor='#44ff77';
+    hint.querySelector('span').textContent='✅ OPDRACHT VOLTOOID! Klik op TERUG om verder te gaan.';
+  }
+}
+
+/* Patch toggleCam */
+const _real_toggleCam = window.toggleCam;
+window.toggleCam = function(){
+  if(typeof _real_toggleCam==='function') _real_toggleCam();
+  // Tutorial: stap openCam
+  if(G&&G.tutorialMode&&G.camOpen){
+    _tutCheckAction('openCam', true);
+  }
+};
+
+/* Patch switchCam */
+const _real_switchCam = window.switchCam;
+window.switchCam = function(id){
+  if(typeof _real_switchCam==='function') _real_switchCam(id);
+  if(G&&G.tutorialMode&&tutSimActive&&tutSimState.actionId==='switchCam'){
+    tutCamVisited.add(id);
+    // Update counter in hint
+    const hint = document.getElementById('tutInGameHint');
+    const step = TUT_STEPS[tutStep];
+    if(hint&&step&&step.action&&step.action.counter){
+      const n = Math.min(tutCamVisited.size, step.action.target);
+      hint.querySelector('span').textContent =
+        `🎓 TUTORIAL | 🔍 BEZOEK CAMERAS (${n}/${step.action.target}) — klik op de thumbnails`;
+    }
+    if(tutCamVisited.size >= 3){
+      _tutCheckAction('switchCam', true);
+    }
+  }
+};
+
+/* Patch toggleDoor */
+const _real_toggleDoor = window.toggleDoor;
+window.toggleDoor = function(side){
+  if(typeof _real_toggleDoor==='function') _real_toggleDoor(side);
+  if(G&&G.tutorialMode){
+    _tutCheckAction('closeDoor', true);
+    // defGijs: deur sluiten als Gijs bij de linker deur staat
+    if(tutSimState.actionId==='defGijs'){
+      const leftClosed  = document.getElementById('dpL')?.classList.contains('shut');
+      const rightClosed = document.getElementById('dpR')?.classList.contains('shut');
+      if(leftClosed || rightClosed) _tutCheckAction('defGijs', true);
+    }
+  }
+};
+
+/* Patch useLure */
+const _real_useLure = window.useLure;
+window.useLure = function(){
+  if(typeof _real_useLure==='function') _real_useLure();
+  if(G&&G.tutorialMode){
+    // In tutorial: lure altijd beschikbaar
+    G.lureReady=true;G.lureCD=0;
+    _tutCheckAction('defJeffrey', true);
+  }
+};
+
+/* Patch useCameraAlarm */
+const _real_useCameraAlarm = window.useCameraAlarm;
+window.useCameraAlarm = function(){
+  if(G&&G.tutorialMode){
+    // In tutorial: alarm altijd beschikbaar en nooit dood
+    G.alarmReady=true;G.alarmCD=0;
+    play('cameraAlarm');
+    _tutCheckAction('defChapo', true);
+    updateAlarmUI();
+    return;
+  }
+  if(typeof _real_useCameraAlarm==='function') _real_useCameraAlarm();
+};
+
+/* Blokkeer dood in tutorial-modus */
+const _real_doJumpscare = window.doJumpscare;
+window.doJumpscare = function(img, msg, type, bgImg){
+  if(G&&G.tutorialMode) return; // geen jumpscare in tutorial
+  if(typeof _real_doJumpscare==='function') _real_doJumpscare(img,msg,type,bgImg);
+};
