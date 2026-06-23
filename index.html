@@ -237,6 +237,141 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 @keyframes btnAnim{0%,100%{box-shadow:0 0 4px #22000022}50%{box-shadow:0 0 14px #44000044}}
 @keyframes btnAnimHard{0%,100%{box-shadow:0 0 4px #44110022}50%{box-shadow:0 0 16px #88220055}}
 
+/* ══ TUTORIAL MENU BUTTON ══ */
+.tutorial-menu-btn{
+  margin-top:10px;
+  background:transparent;border:1px solid #003322;
+  color:#115533;padding:10px 40px;
+  font-family:'VT323',monospace;font-size:clamp(.9rem,1.8vw,1.2rem);
+  letter-spacing:4px;text-transform:uppercase;cursor:pointer;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.tutorial-menu-btn:hover{border-color:#226644;color:#33bb77;box-shadow:0 0 14px #22664422;}
+
+/* ══ TUTORIAL SCHERM ══ */
+#tutorialScreen{
+  display:none;position:fixed;inset:0;z-index:250;
+  background:#000;flex-direction:column;align-items:center;justify-content:center;
+}
+#tutorialScreen::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,rgba(0,255,100,.015) 0px,rgba(0,255,100,.015) 1px,transparent 1px,transparent 3px);
+}
+.tut-wrap{
+  position:relative;z-index:2;
+  width:min(760px,95vw);
+  border:2px solid #114422;
+  background:#020a04;
+  box-shadow:0 0 40px rgba(0,200,80,.12);
+  display:flex;flex-direction:column;
+  max-height:90vh;overflow:hidden;
+}
+.tut-hdr{
+  padding:14px 20px;
+  border-bottom:1px solid #0a2a14;
+  display:flex;align-items:center;justify-content:space-between;
+  background:#030f05;
+}
+.tut-hdr-title{
+  font-family:'VT323',monospace;
+  font-size:clamp(1rem,2.2vw,1.4rem);
+  color:#33bb55;letter-spacing:6px;
+  text-shadow:0 0 12px #33bb5566;
+}
+.tut-step-lbl{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.55rem;color:#226633;letter-spacing:3px;
+}
+.tut-body{
+  padding:28px 28px 20px;
+  flex:1;overflow-y:auto;
+}
+.tut-icon{font-size:clamp(2rem,5vw,3.2rem);text-align:center;margin-bottom:14px;}
+.tut-title{
+  font-family:'VT323',monospace;
+  font-size:clamp(1.4rem,3vw,2rem);
+  color:#55dd88;letter-spacing:3px;
+  text-align:center;margin-bottom:16px;
+  text-shadow:0 0 16px #33aa6644;
+}
+.tut-text{
+  font-family:'Share Tech Mono',monospace;
+  font-size:clamp(.58rem,1.05vw,.72rem);
+  color:#557766;line-height:2;
+  margin-bottom:16px;
+}
+.tut-text strong{color:#88ddaa;}
+.tut-text em{color:#33bb55;font-style:normal;}
+.tut-highlight{
+  background:rgba(0,180,60,.07);
+  border:1px solid #114422;
+  border-left:3px solid #22aa55;
+  padding:10px 14px;margin:14px 0;
+  font-family:'Share Tech Mono',monospace;
+  font-size:clamp(.55rem,1vw,.68rem);
+  color:#449966;line-height:1.9;
+}
+.tut-highlight strong{color:#66dd88;}
+.tut-action-zone{
+  margin:20px 0 10px;
+  padding:16px;
+  border:2px solid #1a5533;
+  background:rgba(0,60,20,.25);
+  text-align:center;
+}
+.tut-action-label{
+  font-family:'VT323',monospace;
+  font-size:clamp(1rem,2vw,1.3rem);
+  color:#44cc66;letter-spacing:4px;
+  margin-bottom:10px;
+  display:block;
+}
+.tut-action-btn{
+  background:rgba(0,80,30,.6);
+  border:2px solid #22aa55;
+  color:#44dd77;
+  font-family:'VT323',monospace;
+  font-size:clamp(1rem,2vw,1.3rem);
+  letter-spacing:4px;padding:12px 30px;
+  cursor:pointer;transition:all .2s;
+  margin:4px;
+}
+.tut-action-btn:hover{background:rgba(0,140,50,.7);border-color:#55ee88;color:#aaffcc;box-shadow:0 0 16px #22aa5544;}
+.tut-action-btn:disabled{border-color:#0a2a14;color:#0a2a14;cursor:not-allowed;background:transparent;}
+.tut-action-btn.done{border-color:#11aa44;color:#22cc55;background:rgba(0,60,20,.4);}
+.tut-check{color:#22ff77;margin-right:6px;}
+.tut-wait{color:#446655;font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:2px;margin-top:8px;}
+.tut-progress{
+  display:flex;gap:6px;padding:14px 20px;
+  border-top:1px solid #0a2a14;background:#020a04;
+  align-items:center;justify-content:space-between;
+}
+.tut-prog-dots{display:flex;gap:5px;}
+.tut-prog-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:#0a2a14;border:1px solid #114422;
+  transition:all .3s;
+}
+.tut-prog-dot.done{background:#22aa55;box-shadow:0 0 6px #22aa5566;}
+.tut-prog-dot.active{background:#44dd77;box-shadow:0 0 10px #44dd7788;animation:tutDotPulse 1s ease-in-out infinite;}
+@keyframes tutDotPulse{0%,100%{box-shadow:0 0 6px #44dd7766}50%{box-shadow:0 0 14px #44dd77cc}}
+.tut-nav-btns{display:flex;gap:8px;}
+.tut-nav-btn{
+  background:transparent;border:1px solid #114422;
+  color:#226633;padding:8px 18px;
+  font-family:'VT323',monospace;font-size:clamp(.9rem,1.8vw,1.1rem);
+  letter-spacing:3px;cursor:pointer;transition:all .2s;
+}
+.tut-nav-btn:hover:not(:disabled){border-color:#33aa55;color:#44cc66;}
+.tut-nav-btn:disabled{border-color:#051008;color:#051008;cursor:not-allowed;}
+.tut-nav-btn.finish{border-color:#33aa55;color:#33aa55;}
+.tut-nav-btn.finish:hover{background:#33aa5522;color:#55dd77;}
+.tut-sim-overlay{
+  position:fixed;inset:0;z-index:260;
+  background:#000;
+  display:none;
+}
+
 /* ══ GAME ══ */
 #gameScreen{display:none;position:absolute;inset:0;overflow:hidden}
 #officeCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -862,10 +997,34 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
       </div>
 
       <button class="start-btn" id="startBtn" disabled>SELECTEER EEN NACHT</button>
+      <button class="tutorial-menu-btn" onclick="startTutorial()">📖 TUTORIAL — HOE WERKT HET?</button>
       <div class="start-hint">koptelefoon aanbevolen · gebruik camera's en deuren om te overleven · F11 voor volledig scherm</div>
     </div>
   </div>
 </div>
+
+<!-- ════ TUTORIAL SCHERM ════ -->
+<div id="tutorialScreen">
+  <div class="tut-wrap">
+    <div class="tut-hdr">
+      <span class="tut-hdr-title">📖 TUTORIAL — BEVEILIGINGSSYSTEEM</span>
+      <span class="tut-step-lbl" id="tutStepLbl">STAP 1 / 7</span>
+    </div>
+    <div class="tut-body" id="tutBody">
+      <!-- Gevuld door JS -->
+    </div>
+    <div class="tut-progress">
+      <div class="tut-prog-dots" id="tutDots"></div>
+      <div class="tut-nav-btns">
+        <button class="tut-nav-btn" id="tutPrevBtn" onclick="tutPrev()" disabled>← TERUG</button>
+        <button class="tut-nav-btn" id="tutNextBtn" onclick="tutNext()">VERDER →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tutorial simulatie overlay (volledig scherm game sim) -->
+<div class="tut-sim-overlay" id="tutSimOverlay"></div>
 
 <!-- ════ SPELSCHERM ════ -->
 <div id="gameScreen">
