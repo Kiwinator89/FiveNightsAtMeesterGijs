@@ -225,7 +225,7 @@ function buildCustomNightConfig(){
 const NIGHT_CONFIGS = {
   1: {
     label:'Nacht 1 · De Kelder',
-    lore:'Je haalde een <strong>1</strong> voor het Engels proefwerk. Meester Gijs sloot je op in zijn <strong>kelder</strong>. Overleef tot <strong>6:00 AM</strong>.',
+    lore:'Je haalde een <strong>1</strong> voor het Engels proefwerk. Meester Gijs sloot je op in zijn <strong>martelkelder</strong>. Overleef tot <strong>6:00 AM</strong>.',
     quote:'"You will stay here until sunrise."',
     warn:'⚠ Sluit deuren als Gijs nadert. ⚠ Zuurstof schaars bij gesloten deuren.',
     gijsActive:true, hoboActive:true, tomActive:false, markRutteActive:false,
