@@ -686,7 +686,28 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 @keyframes jsIn{from{transform:scale(1.2)}to{transform:scale(1)}}
 
 /* ══ DOOD SCHERM ══ */
-#deathScreen{display:none;position:absolute;inset:0;z-index:140;background:radial-gradient(ellipse at center,#0c0000,#000);flex-direction:column;align-items:center;justify-content:center}
+#deathScreen{display:none;position:absolute;inset:0;z-index:140;background:linear-gradient(rgba(0,0,0,.62),rgba(0,0,0,.62)),url('Images/GameOver.png') center/cover no-repeat;flex-direction:column;align-items:center;justify-content:center}
+#deathKillerImg.glitching{will-change:transform,filter,opacity}
+.glitch-line{position:absolute;left:0;width:100%;height:2px;background:rgba(255,255,255,.5);mix-blend-mode:screen;pointer-events:none}
+
+/* ══ MEESTER GIJS AANBOD ══ */
+#gijsOfferScreen{display:none;position:fixed;inset:0;z-index:260;background:radial-gradient(ellipse at center,#160006,#000);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.offer-box{max-width:min(560px,88vw);border:1px solid #440000;border-top:2px solid #880000;background:rgba(10,0,0,.85);padding:34px 30px;box-shadow:0 0 40px rgba(150,0,0,.25)}
+.offer-title{font-family:'Creepster',cursive;color:#cc0000;font-size:clamp(1.4rem,3vw,2.1rem);text-shadow:0 0 20px #ff0000aa;margin-bottom:18px;letter-spacing:2px}
+.offer-text{color:#aa7777;font-size:clamp(.7rem,1.2vw,.85rem);line-height:1.9;white-space:pre-line;margin-bottom:26px}
+.offer-btn-row{display:flex;gap:16px;justify-content:center}
+.offer-btn{background:transparent;border:1px solid #440000;color:#aa2222;padding:10px 30px;font-family:'Share Tech Mono',monospace;letter-spacing:4px;text-transform:uppercase;cursor:pointer;font-size:clamp(.6rem,1vw,.75rem);transition:all .2s}
+.offer-btn:hover{background:rgba(120,0,0,.3);border-color:#aa0000;color:#ff4444;box-shadow:0 0 18px rgba(150,0,0,.4)}
+
+/* ══ TUMOR TERROR MINIGAME ══ */
+#tumorTerrorScreen{display:none;position:fixed;inset:0;z-index:270;background:#000;flex-direction:column;align-items:center;justify-content:center}
+#ttHud{position:absolute;top:14px;left:0;right:0;display:flex;justify-content:center;gap:40px;font-family:'Share Tech Mono',monospace;color:#cc6666;letter-spacing:3px;font-size:clamp(.6rem,1.2vw,.85rem);z-index:2}
+#ttCanvas{background:#0a0510;box-shadow:0 0 40px rgba(120,0,0,.3);max-width:96vw;max-height:82vh}
+#ttHint{position:absolute;bottom:14px;color:#664444;font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:2px}
+
+/* ══ GEHEIME AFBEELDING ══ */
+#gijsSecretScreen{display:none;position:fixed;inset:0;z-index:400;background:#000;align-items:center;justify-content:center}
+#gijsSecretScreen img{width:100%;height:100%;object-fit:cover}
 .death-title{font-family:'Creepster',cursive;font-size:clamp(2.5rem,7vw,5rem);color:#880000;text-shadow:0 0 40px #ff0000;letter-spacing:4px;margin-bottom:10px;animation:deathPulse 1.5s infinite}
 @keyframes deathPulse{0%,100%{text-shadow:0 0 30px #ff000066}50%{text-shadow:0 0 60px #ff0000aa}}
 .death-cause{color:#4a3030;font-size:clamp(.7rem,1.3vw,.88rem);max-width:440px;text-align:center;line-height:1.8;margin-bottom:32px}
@@ -1267,6 +1288,32 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   </div>
   <button class="retry-btn" style="border-color:#1a4a1a;color:#226622" onclick="restartGame()">↩ SPEEL OPNIEUW</button>
 </div>
+
+<!-- ════ MEESTER GIJS AANBOD ════ -->
+<div id="gijsOfferScreen">
+  <div class="offer-box">
+    <div class="offer-title">EEN OFFER…</div>
+    <div class="offer-text">Meester Gijs heeft een offer voor je.
+
+Speel met Tumor Tom en hij laat volgende nacht extra frisse lucht binnen.
+
+Accepteer je het?</div>
+    <div class="offer-btn-row">
+      <button class="offer-btn" onclick="offerAnswer(true)">Ja</button>
+      <button class="offer-btn" onclick="offerAnswer(false)">Nee</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TUMOR TERROR MINIGAME ════ -->
+<div id="tumorTerrorScreen">
+  <div id="ttHud"><span id="ttTimer">30s</span><span>BEREIK DE UITGANG</span></div>
+  <canvas id="ttCanvas" width="900" height="380"></canvas>
+  <div id="ttHint">WASD / PIJLTJES = BEWEGEN &nbsp;·&nbsp; SPATIE = SPRINGEN</div>
+</div>
+
+<!-- ════ GEHEIME AFBEELDING ════ -->
+<div id="gijsSecretScreen"><img src="Images/GijsSecret.png" alt=""></div>
 
 <!-- ════ GAME SCRIPT ════ -->
 <script src="game.js"></script>
