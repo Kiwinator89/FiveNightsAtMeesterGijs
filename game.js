@@ -1833,12 +1833,15 @@ let introPlayed=false;
 
 function beginNightFlow(){
   if(!selectedNight) return;
-  if(selectedNight===5){
-    document.getElementById('startScreen').style.display='none';
-    document.getElementById('gijsOfferScreen').style.display='flex';
-    return;
-  }
+  if(selectedNight===5){ showGijsOffer(); return; }
   proceedIntoNight();
+}
+
+function showGijsOffer(){
+  ['startScreen','nightCompleteScreen','nightIntroScreen','tapeScreen','introScreen'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  document.getElementById('gijsOfferScreen').style.display='flex';
 }
 
 function proceedIntoNight(){
@@ -1960,8 +1963,8 @@ let pendingO2Bonus=false;
 function ncNextNight(){
   document.getElementById('nightCompleteScreen').style.display='none';
   selectedNight=Math.min(5,selectedNight+1);
-  const chance = selectedNight===5 ? 1 : 0.4;
-  if(Math.random()<chance){
+  if(selectedNight===5){ showGijsOffer(); return; }
+  if(Math.random()<0.4){
     document.getElementById('gijsOfferScreen').style.display='flex';
   } else {
     proceedIntoNight();
