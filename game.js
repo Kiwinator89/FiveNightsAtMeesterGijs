@@ -57,8 +57,6 @@ const FILES = {
   slechtCijfer: 'Images/SlechtCijfer.png',
   gameOverBg:   'Images/GameOver.png',
   gijsSecret:   'Images/GijsSecret.png',
-  tumorTomJS:   'Images/TumorTomJumpscare.png',
-  minigameMusic:'Audio/Minigame.mp3',
 };
 const RANDOM_AUDIO = Array.from({length:9},(_,i)=>`RandomAudio/RandomAudio${i+1}.mp3`);
 
@@ -476,8 +474,6 @@ function initAudio(){
     fiveAM:       [FILES.fiveAM,       false, 1.0],
     gameOver:     [FILES.gameOver,     false, .9 ],
     meesterGijsWin:[FILES.meesterGijsWin, false, .85],
-    tumorTomJS:   [FILES.jumpscare,     false, 1  ],
-    minigameMusic:[FILES.minigameMusic, true,  .55],
   }).forEach(([k,[src,loop,vol]])=>{
     SFX[k]=new Audio(src);SFX[k].loop=loop;SFX[k].volume=vol;
   });
@@ -908,7 +904,7 @@ function useCameraAlarm(){
   if(G.chapoActive&&G.curCam===CHAPO_CAM_ID&&!G.chapoAlarm) resetChapo();
   if(G.chapoActive&&G.chapoAlarm) resetChapo();
   if(G.diddyActive&&G.diddyPos===G.curCam&&G.curCam!==MUSIC_CAM_ID) resetDiddy();
-  G.alarmReady=false;G.alarmCD=ALARM_CD_S;
+  G.alarmReady=false;G.alarmCD=Math.max(0,ALARM_CD_S-(G.alarmCdReduction||0));
   clearInterval(G.alarmCDTimer);
   G.alarmCDTimer=setInterval(()=>{
     G.alarmCD--;
@@ -1262,7 +1258,7 @@ function scheduleMoveTimer(){
   const intervals=G.cfg.moveIval;
   const base=intervals[Math.min(G.hour,5)];
   if(base===Infinity) return;
-  const delay=base+Math.random()*4000-1500;
+  const delay=(base+Math.random()*4000-1500)*(G.gijsSpeedMult||1);
   G.mMoveTimer=setTimeout(()=>{advanceMonster();scheduleMoveTimer();},delay);
 }
 
@@ -1354,10 +1350,16 @@ function inLureRange(){
 function hoboOnCurrentCam(){return G.camOpen&&G.hoboPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;}
 
 function updateLureUI(){
-  const ready=G.lureReady,range=inLureRange();
   const hudBtn=document.getElementById('lureBtnHud');
   const camBtn=document.getElementById('lureBtnCam');
   const cd=document.getElementById('lureCd');
+  if(G.lureDisabled){
+    hudBtn.disabled=true;hudBtn.className='lure-btn';hudBtn.textContent='🔇 UITGESCHAKELD';
+    camBtn.disabled=true;camBtn.className='lure-btn';camBtn.textContent='🔇 UITGESCHAKELD';
+    cd.textContent='Geluidssysteem uitgezet — raampje geopend';cd.className='lure-cd';
+    return;
+  }
+  const ready=G.lureReady,range=inLureRange();
   if(ready){
     hudBtn.disabled=!range;hudBtn.className='lure-btn'+(range?' ready':'');
     camBtn.disabled=!range;camBtn.className='lure-btn'+(range?' ready':'');
@@ -1374,7 +1376,7 @@ function updateLureUI(){
 }
 
 function useLure(){
-  if(!G.lureReady||!inLureRange()||G.dead||G.won) return;
+  if(G.lureDisabled||!G.lureReady||!inLureRange()||G.dead||G.won) return;
   if(hoboOnCurrentCam()&&G.cfg.hoboActive){triggerHoboJS();return;}
   play('lure');
   if(G.diddyActive&&G.diddyPos===G.curCam&&G.curCam!==MUSIC_CAM_ID){
@@ -1480,7 +1482,7 @@ function tickMusicBox(){
   if(G.isWindingUp&&G.camOpen&&G.curCam===MUSIC_CAM_ID){
     G.musicBox=Math.min(100,G.musicBox+MB_WIND_RATE);
   } else {
-    const drain=MB_DRAIN_BASE+MB_DRAIN_SCALE*Math.min(G.hour,5);
+    const drain=(MB_DRAIN_BASE+MB_DRAIN_SCALE*Math.min(G.hour,5))*(G.mbDrainMult||1);
     G.musicBox=Math.max(0,G.musicBox-drain);
     if(G.musicBox<=0) triggerTomJS();
   }
@@ -1841,7 +1843,7 @@ function showGijsOffer(){
   ['startScreen','nightCompleteScreen','nightIntroScreen','tapeScreen','introScreen'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.style.display='none';
   });
-  document.getElementById('gijsOfferScreen').style.display='flex';
+  triggerGijsOfferScreen();
 }
 
 function proceedIntoNight(){
@@ -1958,137 +1960,74 @@ function ncGoMenu(){
   restartGame();
 }
 
-let pendingO2Bonus=false;
+let pendingOffer={};
 
 function ncNextNight(){
   document.getElementById('nightCompleteScreen').style.display='none';
   selectedNight=Math.min(5,selectedNight+1);
   if(selectedNight===5){ showGijsOffer(); return; }
   if(Math.random()<0.4){
-    document.getElementById('gijsOfferScreen').style.display='flex';
+    triggerGijsOfferScreen();
   } else {
     proceedIntoNight();
   }
 }
 
+/* ══════════════════════════════════════════
+   MEESTER GIJS' OFFERS
+══════════════════════════════════════════ */
+const GIJS_OFFERS = [
+  { text:`Meester Gijs heeft een offer voor je.
+
+Speel deze nacht extra veel met Tumor Tom en hij laat extra zuurstof binnen.
+
+Accepteer je het?`,
+    apply(){ pendingOffer.o2Bonus=15; pendingOffer.mbDrainMult=1.2; } },
+  { text:`Meester Gijs heeft een offer voor je.
+
+In ruil voor 10% van je zuurstof repareert hij het alarm, waardoor het 5 seconden minder lang duurt om te gebruiken.
+
+Accepteer je het?`,
+    apply(){ pendingOffer.o2Bonus=-10; pendingOffer.alarmCdReduction=5; } },
+  { text:`Meester Gijs heeft een offer voor je.
+
+Hobo Gijs is dol op stilte. Als je deze nacht het geluidssysteem uitzet, zet hij een raampje voor je open waardoor je 10% extra zuurstof krijgt.
+
+Accepteer je het?`,
+    apply(){ pendingOffer.lureDisabled=true; pendingOffer.o2Bonus=10; } },
+  { text:`Meester Gijs heeft een offer voor je.
+
+De schimmels raken in paniek. De schimmels raken in paniek. De schimmels raken in paniek. De schimmels raken in paniek. De schimmels raken in paniek. De schimmels raken in paniek.
+
+Accepteer je het?`,
+    apply(){ pendingOffer.o2Bonus=30; pendingOffer.gijsSpeedMult=0.5; } },
+];
+let currentOffer=null;
+
+function triggerGijsOfferScreen(){
+  currentOffer = GIJS_OFFERS[Math.floor(Math.random()*GIJS_OFFERS.length)];
+  document.getElementById('offerText').textContent = currentOffer.text;
+  document.getElementById('gijsOfferScreen').style.display='flex';
+}
+
 function offerAnswer(accepted){
   try{continueAudio.currentTime=0;continueAudio.play().catch(()=>{});}catch(e){}
   document.getElementById('gijsOfferScreen').style.display='none';
-  if(accepted){ startTumorTerror(); } else { proceedIntoNight(); }
-}
-
-/* ══════════════════════════════════════════
-   TUMOR TERROR — MINIGAME
-══════════════════════════════════════════ */
-let TT=null;
-function startTumorTerror(){
-  const cv=document.getElementById('ttCanvas'), ctx=cv.getContext('2d');
-  document.getElementById('tumorTerrorScreen').style.display='flex';
-  const GRAV=0.6, MOVE=3.6, JUMP=-11.5;
-  TT={
-    ctx,cv,keys:{},
-    x:30,y:280,vx:0,vy:0,w:22,h:30,onGround:false,
-    start:Date.now(),timeLeft:30,dead:false,
-    platforms:[
-      {x:0,y:340,w:900,h:20},
-      {x:120,y:280,w:90,h:14},
-      {x:270,y:230,w:80,h:14},
-      {x:410,y:280,w:70,h:14},
-      {x:520,y:220,w:90,h:14},
-      {x:660,y:270,w:70,h:14},
-      {x:780,y:340,w:120,h:20}
-    ],
-    gaps:[{x:0,x2:120},{x:210,x2:270},{x:350,x2:410},{x:480,x2:520},{x:610,x2:660},{x:730,x2:780}],
-    mover:{x:500,y:206,w:18,h:14,dir:1,min:410,max:600,speed:2.2},
-    exit:{x:840,y:300,w:40,h:40}
-  };
-  window.addEventListener('keydown',ttKeyDown);
-  window.addEventListener('keyup',ttKeyUp);
-  play('minigameMusic');
-  TT.timerInterval=setInterval(()=>{
-    TT.timeLeft--;
-    document.getElementById('ttTimer').textContent=TT.timeLeft+'s';
-    if(TT.timeLeft<=0) ttEnd(false);
-  },1000);
-  TT.raf=requestAnimationFrame(ttLoop);
-}
-function ttKeyDown(e){
-  if(!TT) return;
-  const k=e.key.toLowerCase();
-  if(['a','d','w','arrowleft','arrowright','arrowup',' '].includes(k)) e.preventDefault();
-  TT.keys[k]=true;
-}
-function ttKeyUp(e){ if(TT) TT.keys[e.key.toLowerCase()]=false; }
-function ttLoop(){
-  if(!TT||TT.dead) return;
-  const GRAV=0.6,MOVE=3.6,JUMP=-11.5,cv=TT.cv,ctx=TT.ctx;
-  if(TT.keys['a']||TT.keys['arrowleft']) TT.vx=-MOVE;
-  else if(TT.keys['d']||TT.keys['arrowright']) TT.vx=MOVE;
-  else TT.vx=0;
-  if((TT.keys['w']||TT.keys['arrowup']||TT.keys[' '])&&TT.onGround){TT.vy=JUMP;TT.onGround=false;}
-  TT.vy+=GRAV;
-  TT.x+=TT.vx;TT.y+=TT.vy;
-  TT.onGround=false;
-  TT.platforms.forEach(p=>{
-    if(TT.x+TT.w>p.x&&TT.x<p.x+p.w&&TT.y+TT.h>p.y&&TT.y+TT.h-TT.vy<=p.y+1&&TT.vy>=0){
-      TT.y=p.y-TT.h;TT.vy=0;TT.onGround=true;
-    }
-  });
-  TT.x=Math.max(0,Math.min(cv.width-TT.w,TT.x));
-  // Bewegend obstakel
-  const m=TT.mover;
-  m.x+=m.speed*m.dir;
-  if(m.x<m.min||m.x>m.max) m.dir*=-1;
-  if(TT.x<m.x+m.w&&TT.x+TT.w>m.x&&TT.y<m.y+m.h&&TT.y+TT.h>m.y){ ttEnd(false); return; }
-  // Val in een gat
-  if(TT.y>cv.height+40){ ttEnd(false); return; }
-  // Uitgang bereikt
-  if(TT.x+TT.w>TT.exit.x&&TT.y+TT.h>TT.exit.y){ ttEnd(true); return; }
-
-  ctx.clearRect(0,0,cv.width,cv.height);
-  ctx.fillStyle='#150a1e';ctx.fillRect(0,0,cv.width,cv.height);
-  ctx.fillStyle='#3a1030';
-  TT.platforms.forEach(p=>ctx.fillRect(p.x,p.y,p.w,p.h));
-  ctx.fillStyle='#661111';ctx.fillRect(m.x,m.y,m.w,m.h);
-  ctx.fillStyle='#22cc55';ctx.fillRect(TT.exit.x,TT.exit.y-40,TT.exit.w,80);
-  ctx.fillStyle='#ddccee';ctx.fillRect(TT.x,TT.y,TT.w,TT.h);
-  TT.raf=requestAnimationFrame(ttLoop);
-}
-function ttCleanup(){
-  window.removeEventListener('keydown',ttKeyDown);
-  window.removeEventListener('keyup',ttKeyUp);
-  if(TT&&TT.timerInterval) clearInterval(TT.timerInterval);
-  if(TT&&TT.raf) cancelAnimationFrame(TT.raf);
-  stop('minigameMusic');
-  document.getElementById('tumorTerrorScreen').style.display='none';
-}
-function ttEnd(won){
-  if(!TT||TT.dead) return;
-  TT.dead=true;
-  ttCleanup();
-  TT=null;
-  if(won){ pendingO2Bonus=true; proceedIntoNight(); }
-  else { tumorTerrorLose(); }
-}
-function tumorTerrorLose(){
-  document.getElementById('jsImg').src=FILES.tumorTomJS;
-  document.getElementById('jsScreen').style.display='flex';
-  play('tumorTomJS');
-  setTimeout(()=>{
-    document.getElementById('jsScreen').style.display='none';
-    document.getElementById('deathMsg').innerHTML='Tumor Tom kreeg je te pakken.<br><em>"Je had niet moeten toehappen op het offer..."</em>';
-    const wrap=document.getElementById('deathKillerWrap');
-    if(wrap) wrap.style.display='none';
-    play('gameOver');
-    document.getElementById('deathScreen').style.display='flex';
-  },1800);
+  if(accepted && currentOffer) currentOffer.apply();
+  currentOffer=null;
+  proceedIntoNight();
 }
 
 function startGame(){
   if(!selectedNight) return;
   stopMenuMusic();
   G=mkState();G.nightStart=Date.now();G.running=true;
-  if(pendingO2Bonus){G.o2=115;pendingO2Bonus=false;}
+  G.o2=Math.max(0,Math.min(150,100+(pendingOffer.o2Bonus||0)));
+  G.mbDrainMult=pendingOffer.mbDrainMult||1;
+  G.alarmCdReduction=pendingOffer.alarmCdReduction||0;
+  G.gijsSpeedMult=pendingOffer.gijsSpeedMult||1;
+  G.lureDisabled=!!pendingOffer.lureDisabled;
+  pendingOffer={};
   glitchActive=false;
   stopKillerGlitch();
 
@@ -2181,6 +2120,8 @@ function restartGame(){
   stopAll();
   if(SFX.gameOver){SFX.gameOver.pause();SFX.gameOver.currentTime=0;}
   stopKillerGlitch();
+  pendingOffer={};currentOffer=null;
+  document.getElementById('gijsOfferScreen').style.display='none';
   ['deathScreen','winScreen','nightIntroScreen','tapeScreen','nightCompleteScreen'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('startScreen').style.display='flex';
   menuAudio.play().catch(()=>{});
