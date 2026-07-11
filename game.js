@@ -55,7 +55,12 @@ const FILES = {
   gameOver:     'Audio/GameOver.mp3',
   meesterGijsWin:'Audio/Meestergijs.mp3',
   slechtCijfer: 'Images/SlechtCijfer.png',
+  gameOverBg:   'Images/GameOver.png',
+  gijsSecret:   'Images/GijsSecret.png',
+  tumorTomJS:   'Images/TumorTomJumpscare.png',
+  minigameMusic:'Audio/Minigame.mp3',
 };
+const RANDOM_AUDIO = Array.from({length:9},(_,i)=>`RandomAudio/RandomAudio${i+1}.mp3`);
 
 const INTRO_TEXT = `Je hebt een ÉÉN gekregen voor je Engels proefwerk. Hoe heb je dat nou weer voor elkaar gekregen! Meester Gijs heeft je opgesloten in zijn martelkelder. Overleef 5 nachten en je zult vergeven worden.`;
 const FINAL_END_TEXT = `Je hebt alles doorstaan. Je bent nu eindelijk vrij.\nJe hebt Meester Gijs overleefd, maar je zult de rest van je leven getraumatiseerd zijn.\nDe politie is langs gekomen nadat ze vreemde geluiden hoorden.\nIn de kelder hebben ze een luik aangetroffen met honderden lijken.\nDe politie heeft echter geen bewijs gevonden dat naar Meester Gijs leidt.\nHij geeft nog steeds les op school, wachtend op zijn volgende slachtoffer.`;
@@ -180,6 +185,17 @@ menuAudio.volume = 0.5;
 
 function proceedToMenu(){
   document.getElementById('warnScreen').style.display='none';
+  if(Math.random()<0.02){
+    const s=document.getElementById('gijsSecretScreen');
+    s.style.display='flex';
+    setTimeout(()=>{
+      s.style.display='none';
+      document.getElementById('startScreen').style.display='flex';
+      menuAudio.play().catch(()=>{});
+      animateStartBg();
+    },5000);
+    return;
+  }
   document.getElementById('startScreen').style.display='flex';
   menuAudio.play().catch(()=>{});
   animateStartBg();
@@ -460,6 +476,8 @@ function initAudio(){
     fiveAM:       [FILES.fiveAM,       false, 1.0],
     gameOver:     [FILES.gameOver,     false, .9 ],
     meesterGijsWin:[FILES.meesterGijsWin, false, .85],
+    tumorTomJS:   [FILES.jumpscare,     false, 1  ],
+    minigameMusic:[FILES.minigameMusic, true,  .55],
   }).forEach(([k,[src,loop,vol]])=>{
     SFX[k]=new Audio(src);SFX[k].loop=loop;SFX[k].volume=vol;
   });
@@ -1689,6 +1707,7 @@ function showKillerOnDeathScreen(killerSrc){
   const img  = document.getElementById('deathKillerImg');
   if(!killerSrc || !wrap || !img){
     if(wrap) wrap.style.display='none';
+    stopKillerGlitch();
     return;
   }
   wrap.style.display='block';
@@ -1699,6 +1718,35 @@ function showKillerOnDeathScreen(killerSrc){
   // Force reflow voor animatie reset
   void img.offsetWidth;
   img.style.animation='killerReveal .6s ease-out forwards, killerBreath 3s .6s ease-in-out infinite';
+  startKillerGlitch(img);
+}
+
+/* Willekeurige glitch-effecten op de killer-afbeelding */
+let killerGlitchTimer=null;
+function startKillerGlitch(img){
+  stopKillerGlitch();
+  img.classList.add('glitching');
+  const tick=()=>{
+    if(Math.random()<0.55){
+      const dx=(Math.random()*30-15).toFixed(1);
+      const rot=(Math.random()*8-4).toFixed(1);
+      const scale=(0.94+Math.random()*0.14).toFixed(2);
+      const hue=Math.random()*40-20;
+      const bright=0.7+Math.random()*0.7;
+      img.style.transform=`translate(${dx}px,0) rotate(${rot}deg) scale(${scale})`;
+      img.style.filter=`brightness(${bright}) hue-rotate(${hue}deg) drop-shadow(${Math.random()>.5?2:-2}px 0 #ff0033) drop-shadow(${Math.random()>.5?-2:2}px 0 #00eaff)`;
+      img.style.opacity = Math.random()<0.12 ? '0.25' : '1';
+    } else {
+      img.style.transform='';img.style.filter='';img.style.opacity='1';
+    }
+    killerGlitchTimer=setTimeout(tick, 90+Math.random()*220);
+  };
+  tick();
+}
+function stopKillerGlitch(){
+  if(killerGlitchTimer){clearTimeout(killerGlitchTimer);killerGlitchTimer=null;}
+  const img=document.getElementById('deathKillerImg');
+  if(img){img.classList.remove('glitching');img.style.transform='';img.style.filter='';img.style.opacity='1';}
 }
 
 /* ══════════════════════════════════════════
@@ -1765,8 +1813,9 @@ function killTimers(){
    G.fireTimer,G.lureCDTimer,G.hoboMoveTimer,G.chapoKillTimer,
    G.markAppearTimer,G.markKillTimer,G.markLeaveTimer,G.markCheckInterval,
    G.maduroSpawnTimer,G.attackFlashTimer,G.diddyMoveTimer,G.alarmCDTimer,
-   G.shadowKillTimer,G.shadowCheckTimer
+   G.shadowKillTimer,G.shadowCheckTimer,G.randomAudioTimer
   ].forEach(t=>{if(t)try{clearInterval(t);clearTimeout(t);}catch(e){}});
+  if(G.randomAudioInst){try{G.randomAudioInst.pause();}catch(e){}G.randomAudioInst=null;}
   if(glitchTimer){clearTimeout(glitchTimer);glitchTimer=null;}
   glitchActive=false;G.fireOn=false;
   if(G.fireAnim) cancelAnimationFrame(G.fireAnim);
@@ -1896,17 +1945,139 @@ function ncGoMenu(){
   restartGame();
 }
 
+let pendingO2Bonus=false;
+
 function ncNextNight(){
   document.getElementById('nightCompleteScreen').style.display='none';
   selectedNight=Math.min(5,selectedNight+1);
-  beginNightFlow();
+  const chance = selectedNight===5 ? 1 : 0.4;
+  if(Math.random()<chance){
+    document.getElementById('gijsOfferScreen').style.display='flex';
+  } else {
+    beginNightFlow();
+  }
+}
+
+function offerAnswer(accepted){
+  try{continueAudio.currentTime=0;continueAudio.play().catch(()=>{});}catch(e){}
+  document.getElementById('gijsOfferScreen').style.display='none';
+  if(accepted){ startTumorTerror(); } else { beginNightFlow(); }
+}
+
+/* ══════════════════════════════════════════
+   TUMOR TERROR — MINIGAME
+══════════════════════════════════════════ */
+let TT=null;
+function startTumorTerror(){
+  const cv=document.getElementById('ttCanvas'), ctx=cv.getContext('2d');
+  document.getElementById('tumorTerrorScreen').style.display='flex';
+  const GRAV=0.6, MOVE=3.6, JUMP=-11.5;
+  TT={
+    ctx,cv,keys:{},
+    x:30,y:280,vx:0,vy:0,w:22,h:30,onGround:false,
+    start:Date.now(),timeLeft:30,dead:false,
+    platforms:[
+      {x:0,y:340,w:900,h:20},
+      {x:120,y:280,w:90,h:14},
+      {x:270,y:230,w:80,h:14},
+      {x:410,y:280,w:70,h:14},
+      {x:520,y:220,w:90,h:14},
+      {x:660,y:270,w:70,h:14},
+      {x:780,y:340,w:120,h:20}
+    ],
+    gaps:[{x:0,x2:120},{x:210,x2:270},{x:350,x2:410},{x:480,x2:520},{x:610,x2:660},{x:730,x2:780}],
+    mover:{x:500,y:206,w:18,h:14,dir:1,min:410,max:600,speed:2.2},
+    exit:{x:840,y:300,w:40,h:40}
+  };
+  window.addEventListener('keydown',ttKeyDown);
+  window.addEventListener('keyup',ttKeyUp);
+  play('minigameMusic');
+  TT.timerInterval=setInterval(()=>{
+    TT.timeLeft--;
+    document.getElementById('ttTimer').textContent=TT.timeLeft+'s';
+    if(TT.timeLeft<=0) ttEnd(false);
+  },1000);
+  TT.raf=requestAnimationFrame(ttLoop);
+}
+function ttKeyDown(e){
+  if(!TT) return;
+  const k=e.key.toLowerCase();
+  if(['a','d','w','arrowleft','arrowright','arrowup',' '].includes(k)) e.preventDefault();
+  TT.keys[k]=true;
+}
+function ttKeyUp(e){ if(TT) TT.keys[e.key.toLowerCase()]=false; }
+function ttLoop(){
+  if(!TT||TT.dead) return;
+  const GRAV=0.6,MOVE=3.6,JUMP=-11.5,cv=TT.cv,ctx=TT.ctx;
+  if(TT.keys['a']||TT.keys['arrowleft']) TT.vx=-MOVE;
+  else if(TT.keys['d']||TT.keys['arrowright']) TT.vx=MOVE;
+  else TT.vx=0;
+  if((TT.keys['w']||TT.keys['arrowup']||TT.keys[' '])&&TT.onGround){TT.vy=JUMP;TT.onGround=false;}
+  TT.vy+=GRAV;
+  TT.x+=TT.vx;TT.y+=TT.vy;
+  TT.onGround=false;
+  TT.platforms.forEach(p=>{
+    if(TT.x+TT.w>p.x&&TT.x<p.x+p.w&&TT.y+TT.h>p.y&&TT.y+TT.h-TT.vy<=p.y+1&&TT.vy>=0){
+      TT.y=p.y-TT.h;TT.vy=0;TT.onGround=true;
+    }
+  });
+  TT.x=Math.max(0,Math.min(cv.width-TT.w,TT.x));
+  // Bewegend obstakel
+  const m=TT.mover;
+  m.x+=m.speed*m.dir;
+  if(m.x<m.min||m.x>m.max) m.dir*=-1;
+  if(TT.x<m.x+m.w&&TT.x+TT.w>m.x&&TT.y<m.y+m.h&&TT.y+TT.h>m.y){ ttEnd(false); return; }
+  // Val in een gat
+  if(TT.y>cv.height+40){ ttEnd(false); return; }
+  // Uitgang bereikt
+  if(TT.x+TT.w>TT.exit.x&&TT.y+TT.h>TT.exit.y){ ttEnd(true); return; }
+
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#150a1e';ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#3a1030';
+  TT.platforms.forEach(p=>ctx.fillRect(p.x,p.y,p.w,p.h));
+  ctx.fillStyle='#661111';ctx.fillRect(m.x,m.y,m.w,m.h);
+  ctx.fillStyle='#22cc55';ctx.fillRect(TT.exit.x,TT.exit.y-40,TT.exit.w,80);
+  ctx.fillStyle='#ddccee';ctx.fillRect(TT.x,TT.y,TT.w,TT.h);
+  TT.raf=requestAnimationFrame(ttLoop);
+}
+function ttCleanup(){
+  window.removeEventListener('keydown',ttKeyDown);
+  window.removeEventListener('keyup',ttKeyUp);
+  if(TT&&TT.timerInterval) clearInterval(TT.timerInterval);
+  if(TT&&TT.raf) cancelAnimationFrame(TT.raf);
+  stop('minigameMusic');
+  document.getElementById('tumorTerrorScreen').style.display='none';
+}
+function ttEnd(won){
+  if(!TT||TT.dead) return;
+  TT.dead=true;
+  ttCleanup();
+  TT=null;
+  if(won){ pendingO2Bonus=true; beginNightFlow(); }
+  else { tumorTerrorLose(); }
+}
+function tumorTerrorLose(){
+  document.getElementById('jsImg').src=FILES.tumorTomJS;
+  document.getElementById('jsScreen').style.display='flex';
+  play('tumorTomJS');
+  setTimeout(()=>{
+    document.getElementById('jsScreen').style.display='none';
+    document.getElementById('deathMsg').innerHTML='Tumor Tom kreeg je te pakken.<br><em>"Je had niet moeten toehappen op het offer..."</em>';
+    const wrap=document.getElementById('deathKillerWrap');
+    if(wrap) wrap.style.display='none';
+    play('gameOver');
+    document.getElementById('deathScreen').style.display='flex';
+  },1800);
 }
 
 function startGame(){
   if(!selectedNight) return;
   stopMenuMusic();
   G=mkState();G.nightStart=Date.now();G.running=true;
+  if(pendingO2Bonus){G.o2=115;pendingO2Bonus=false;}
   glitchActive=false;
+  stopKillerGlitch();
 
   ['startScreen','deathScreen','winScreen','nightIntroScreen','tapeScreen','introScreen','nightCompleteScreen'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('jsScreen').style.display='none';
@@ -1969,6 +2140,17 @@ function startGame(){
   G.lureCDTimer=setInterval(()=>{G.lureCD--;if(G.lureCD<=0){G.lureReady=true;G.lureCD=0;clearInterval(G.lureCDTimer);}updateLureUI();},1000);
   G.alarmReady=true;G.alarmCD=0;updateAlarmUI();
 
+  // Willekeurige achtergrondgeluiden tijdens de nacht
+  G.randomAudioTimer=setInterval(()=>{
+    if(!G.running||G.dead||G.won) return;
+    if(G.randomAudioInst && !G.randomAudioInst.paused) return;
+    if(Math.random()<0.05){
+      const src=RANDOM_AUDIO[Math.floor(Math.random()*RANDOM_AUDIO.length)];
+      G.randomAudioInst=new Audio(src);G.randomAudioInst.volume=.7;
+      G.randomAudioInst.play().catch(()=>{});
+    }
+  },20000);
+
   // Timers starten
   G.tickTimer=setInterval(gameTick,TICK_MS);
   G.timeTimer=setInterval(tickTime,250);
@@ -1983,6 +2165,8 @@ function startGame(){
 }
 
 function restartGame(){
+  stop('gameOver');
+  stopKillerGlitch();
   ['deathScreen','winScreen','nightIntroScreen','tapeScreen','nightCompleteScreen'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('startScreen').style.display='flex';
   menuAudio.play().catch(()=>{});
