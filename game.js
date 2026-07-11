@@ -1833,6 +1833,16 @@ let introPlayed=false;
 
 function beginNightFlow(){
   if(!selectedNight) return;
+  if(selectedNight===5){
+    document.getElementById('startScreen').style.display='none';
+    document.getElementById('gijsOfferScreen').style.display='flex';
+    return;
+  }
+  proceedIntoNight();
+}
+
+function proceedIntoNight(){
+  if(!selectedNight) return;
   if(selectedNight===6){ startGame(); return; } // Custom Night: direct starten
   if(selectedNight===1 && !introPlayed){
     introPlayed=true;
@@ -1954,14 +1964,14 @@ function ncNextNight(){
   if(Math.random()<chance){
     document.getElementById('gijsOfferScreen').style.display='flex';
   } else {
-    beginNightFlow();
+    proceedIntoNight();
   }
 }
 
 function offerAnswer(accepted){
   try{continueAudio.currentTime=0;continueAudio.play().catch(()=>{});}catch(e){}
   document.getElementById('gijsOfferScreen').style.display='none';
-  if(accepted){ startTumorTerror(); } else { beginNightFlow(); }
+  if(accepted){ startTumorTerror(); } else { proceedIntoNight(); }
 }
 
 /* ══════════════════════════════════════════
@@ -2054,7 +2064,7 @@ function ttEnd(won){
   TT.dead=true;
   ttCleanup();
   TT=null;
-  if(won){ pendingO2Bonus=true; beginNightFlow(); }
+  if(won){ pendingO2Bonus=true; proceedIntoNight(); }
   else { tumorTerrorLose(); }
 }
 function tumorTerrorLose(){
@@ -2165,7 +2175,8 @@ function startGame(){
 }
 
 function restartGame(){
-  stop('gameOver');
+  stopAll();
+  if(SFX.gameOver){SFX.gameOver.pause();SFX.gameOver.currentTime=0;}
   stopKillerGlitch();
   ['deathScreen','winScreen','nightIntroScreen','tapeScreen','nightCompleteScreen'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('startScreen').style.display='flex';
