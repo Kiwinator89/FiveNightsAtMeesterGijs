@@ -1969,6 +1969,13 @@ function tapeContinueClick(){
         document.getElementById('tapeScreen').style.display='none';
         stopTapeAmbience();
         restartGame();
+      } else if(window._gijsTapeMode){
+        window._gijsTapeMode=false;
+        document.getElementById('tapeScreen').style.display='none';
+        stopTapeAmbience();
+        const hdr=document.getElementById('tapeHdr');
+        if(hdr){ hdr.textContent='◉ REC — NOODBERICHT'; hdr.className='tape-hdr'; }
+        document.getElementById('nightCompleteScreen').style.display='flex';
       } else {
         document.getElementById('tapeScreen').style.display='none';
         stopTapeAmbience();
@@ -1977,6 +1984,13 @@ function tapeContinueClick(){
     }
   })();
 }
+
+const GIJS_TAPES = {
+  1:`Ik heb alles wat ik ooit wou hebben in het leven. Ik heb geld, ik heb populariteit en ik ben eindelijk geliefd door mijn studenten. Het ging alleen niet zonder opofferingen. Ik moest een deal sluiten met een mysterieus figuur.`,
+  2:`Vrijdag moet de eerste klaar zijn. Ik heb de voorwaarden van het contract zwaar onderschat. Maar soms moet je een paar eitjes kraken om een omelet te maken...`,
+  3:`De kelder begint steeds erger te stinken elke week. Ik weet niet meer waar ik de lijken moet laten. Ik kies mijn opofferingen zeer zorgvuldig... Al de leerlingen die lage cijfers halen verdienen het. Dit zijn de meest waardeloze, ongemotiveerde mensen op de aardbol. Ze moeten spijt hebben dat ze mij zo hebben beledigd door niet op te letten tijdens mijn lessen!!!`,
+  4:`De laatste tijd heb ik heftige nachtmerries. Ze lijken bijna net echt, alsof ze bovennatuurlijk zijn. Elke droom begint hetzelfde. Ik word de muffe kelder ingetrokken en blijf daar totdat ik geen lucht meer binnen krijg. Daarna word ik het luik in getrokken en lig ik daar tussen al de weggerotte lichaamsdelen van de vorige. Een leerling is nu al voorbij donderdag gekomen. Als hij weet te ontsnappen wil ik niet weten wat mijn lot is.`,
+};
 
 /* ══════════════════════════════════════════
    NACHT VOLTOOID SCHERM
@@ -1987,6 +2001,31 @@ function showNightComplete(){
   document.getElementById('ncText').textContent = NIGHT_END_TEXTS[n] || 'Je hebt de nacht overleefd.';
   document.getElementById('ncNextBtn').style.display = n>=5 ? 'none' : '';
   document.getElementById('gameScreen').style.display='none';
+
+  /* Nacht 1-4: eerst GijsTape prompt tonen */
+  if(n>=1 && n<=4 && GIJS_TAPES[n]){
+    document.getElementById('gijsTapeScreen').style.display='flex';
+  } else {
+    document.getElementById('nightCompleteScreen').style.display='flex';
+  }
+}
+
+function gijsTapeJa(){
+  document.getElementById('gijsTapeScreen').style.display='none';
+  /* Speel de GijsTape via het bestaande cassette-systeem */
+  tapeSentences = splitSentences(GIJS_TAPES[selectedNight]);
+  tapeIdx=0;
+  try{tapeAmbienceAudio.currentTime=0;tapeAmbienceAudio.play().catch(()=>{});}catch(e){}
+  const hdr=document.getElementById('tapeHdr');
+  if(hdr){ hdr.textContent='◉ REC — MEESTER GIJS'; hdr.className='tape-hdr tape-hdr-gijs'; }
+  document.getElementById('tapeHint').style.display='none';
+  document.getElementById('tapeScreen').style.display='flex';
+  window._gijsTapeMode=true;
+  tapeShowSentence();
+}
+
+function gijsTapeNee(){
+  document.getElementById('gijsTapeScreen').style.display='none';
   document.getElementById('nightCompleteScreen').style.display='flex';
 }
 
@@ -2242,7 +2281,7 @@ function restartGame(){
   pendingOffer={};currentOffer=null;
   const offerScr=document.getElementById('gijsOfferScreen');
   if(offerScr) offerScr.style.display='none';
-  ['deathScreen','winScreen','nightIntroScreen','tapeScreen','nightCompleteScreen'].forEach(id=>{const el=document.getElementById(id); if(el) el.style.display='none';});
+  ['deathScreen','winScreen','nightIntroScreen','tapeScreen','nightCompleteScreen','gijsTapeScreen'].forEach(id=>{const el=document.getElementById(id); if(el) el.style.display='none';});
   document.getElementById('startScreen').style.display='flex';
   menuAudio.play().catch(()=>{});
   selectedNight=0;
