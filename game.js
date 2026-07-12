@@ -411,10 +411,12 @@ continueAudio.volume = 0.7;
 let glitchActive=false,glitchTimer=null;
 let fiveAMPlayed=false;
 
-function mkState(){
+function mkState(overrideCfg){
   const n = selectedNight;
   let cfg;
-  if(n===6){
+  if(overrideCfg){
+    cfg = overrideCfg;
+  } else if(n===6){
     cfg = buildCustomNightConfig();
   } else {
     cfg = {...NIGHT_CONFIGS[n||1]};
@@ -2288,6 +2290,13 @@ window.addEventListener('load',()=>{
   // Afbeeldingen en achtergronden pre-loaden
   Object.values(FILES).forEach(src=>{const i=new Image();i.src=src;});
   CAM_BG_KEYS.forEach((key,id)=>getCamBgImg(id,()=>{}));
+
+  // Nacht 6 (geheim niveau) assets ook alvast pre-loaden, zodat audio/afbeeldingen
+  // al gebufferd zijn tegen de tijd dat de speler het geheime niveau start.
+  Object.entries(N6).forEach(([key,src])=>{
+    if(/\.(png|jpg|jpeg|webp)$/i.test(src)){ const i=new Image(); i.src=src; }
+    else { const a=new Audio(); a.preload='auto'; a.src=src; }
+  });
 });
 
 /* ══════════════════════════════════════════
@@ -2309,6 +2318,10 @@ const N6 = {
 const SFX6 = {};
 
 function initAudio6(){
+  /* Ruim eventuele oude audio-elementen op voor we nieuwe aanmaken —
+     voorkomt dat oude instanties op de achtergrond blijven hangen/spelen
+     en voorkomt herhaalde laad-errors bij meerdere pogingen. */
+  Object.values(SFX6).forEach(a=>{ try{ a.pause(); a.src=''; }catch(e){} });
   const defs = {
     n6ambience: [N6.ambience, true,  .35],
     sneakyGolem:[N6.sneakyGolemSnd, false, 1.0],
@@ -2317,9 +2330,20 @@ function initAudio6(){
   };
   Object.entries(defs).forEach(([k,[src,loop,vol]])=>{
     SFX6[k]=new Audio(src);SFX6[k].loop=loop;SFX6[k].volume=vol;
+    SFX6[k].addEventListener('error',()=>{
+      console.warn(`[Nacht 6] Kon audiobestand niet laden: ${src} — controleer of het bestand bestaat en de naam exact overeenkomt (hoofdlettergevoelig).`);
+    });
   });
 }
-function play6(k){try{SFX6[k]&&(SFX6[k].currentTime=0,SFX6[k].play().catch(()=>{}))}catch(e){}}
+function play6(k){
+  try{
+    if(!SFX6[k]) return;
+    SFX6[k].currentTime=0;
+    SFX6[k].play().catch(err=>{
+      console.warn(`[Nacht 6] Afspelen geblokkeerd/mislukt voor "${k}":`, err.name||err);
+    });
+  }catch(e){}
+}
 function stop6(k){try{SFX6[k]&&(SFX6[k].pause(),SFX6[k].currentTime=0)}catch(e){}}
 function stopAll6(){Object.keys(SFX6).forEach(stop6);}
 
@@ -2349,7 +2373,7 @@ const VENT_CAM_ID = 6;
 const N6_CAMS_EXTRA = [{id:6,name:'VENT-CAM',room:'VENTILATIE'}];
 
 /* ══════════════════════════════════════════
-   GEHEIME KNOP VERSCHIJNT NA 10 SECONDEN
+   GEHEIME KNOP VERSCHIJNT NA 30 SECONDEN
 ══════════════════════════════════════════ */
 let _n6BtnTimer = null;
 
@@ -2360,7 +2384,7 @@ function scheduleNight6Button(){
     if(btn && document.getElementById('startScreen').style.display !== 'none'){
       btn.classList.add('visible');
     }
-  }, 10000);
+  }, 30000);
 }
 
 function hideNight6Button(){
@@ -2385,6 +2409,11 @@ function openNight6Menu(){
 
 function startNight6(){
   document.getElementById('night6MenuScreen').style.display='none';
+  /* Audio direct starten op de klik zelf (user-gesture), niet pas na de
+     intro-fade-sequentie — anders blokkeert de browser het autoplay-verzoek
+     stilletjes en speelt Night6Ambience.mp3 niet af. */
+  initAudio6();
+  play6('n6ambience');
   playNight6Intro();
 }
 
@@ -2416,7 +2445,6 @@ function playNight6Intro(){
    NACHT 6 GAMEPLAY
 ══════════════════════════════════════════ */
 function beginNight6Gameplay(){
-  initAudio6();
   N6State = mkN6State();
   N6State.running = true;
   N6State.nightStart = Date.now();
@@ -2478,9 +2506,8 @@ function beginNight6Gameplay(){
   /* Build camera strip with Ventilatie cam */
   buildN6CamStrip();
 
-  /* Audio */
+  /* Audio (hoofdgame-SFX, nodig voor deuren/voetstappen etc. tijdens Nacht 6) */
   initAudio();
-  play6('n6ambience');
 
   /* O2 */
   G.o2=100;
@@ -2520,8 +2547,7 @@ function mkN6GameState(){
     jeffreySwitch:JEFFREY_SWITCH_S, chapoAttack:CHAPO_ATTACK_S,
     diddyMoveIval:DIDDY_MOVE_IVAL_BASE, markInterval:9000,
   };
-  const state = mkState();
-  state.cfg = cfg;
+  const state = mkState(cfg);
   state.night = 'n6';
   return state;
 }
