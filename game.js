@@ -2289,3 +2289,789 @@ window.addEventListener('load',()=>{
   Object.values(FILES).forEach(src=>{const i=new Image();i.src=src;});
   CAM_BG_KEYS.forEach((key,id)=>getCamBgImg(id,()=>{}));
 });
+
+/* ══════════════════════════════════════════
+   NACHT 6 — GEHEIM NIVEAU
+══════════════════════════════════════════ */
+
+/* ── Assets ── */
+const N6 = {
+  ambience:       'Audio/Night6Ambience.mp3',
+  sneakyGolemSnd: 'Audio/SneakyGolem.mp3',
+  rockfall:       'Audio/Rockfall.mp3',
+  neefJS:         'Images/NeefJumpscare.png',
+  gijsCam2:       'Images/GijsCamera2.png',
+  gijsJS2:        'Images/GijsJumpscare2.png',
+  theEnd:         'Audio/TheEnd.mp3',
+  sgCam:          'Images/SneakyGolemCamera.png',
+  ventCam:        'Images/VentCamera.png',
+};
+const SFX6 = {};
+
+function initAudio6(){
+  const defs = {
+    n6ambience: [N6.ambience, true,  .35],
+    sneakyGolem:[N6.sneakyGolemSnd, false, 1.0],
+    rockfall:   [N6.rockfall, false, .95],
+    theEnd:     [N6.theEnd, false, .9],
+  };
+  Object.entries(defs).forEach(([k,[src,loop,vol]])=>{
+    SFX6[k]=new Audio(src);SFX6[k].loop=loop;SFX6[k].volume=vol;
+  });
+}
+function play6(k){try{SFX6[k]&&(SFX6[k].currentTime=0,SFX6[k].play().catch(()=>{}))}catch(e){}}
+function stop6(k){try{SFX6[k]&&(SFX6[k].pause(),SFX6[k].currentTime=0)}catch(e){}}
+function stopAll6(){Object.keys(SFX6).forEach(stop6);}
+
+/* ── Nacht 6 staat ── */
+let N6State = null;
+
+function mkN6State(){
+  return {
+    running:false, dead:false, won:false,
+    nightStart:0, hour:0,
+    /* enemies active flags */
+    jeffrey:false, maduro:false, schaduw:false, diddy:false, chapo:false, neef:false, sneakyGolem:false,
+    /* Neef AI */
+    neefOnVentCam:false, neefCountdown:null, neefCooldownTimer:null, neefAttacked:false,
+    /* SneakyGolem AI — same path as Gijs but uses N6State separately */
+    sgPos:-1, sgMoveTimer:null,
+    /* 6AM ending */
+    sixAMDone:false, endingTimer:null, endingActive:false,
+    /* own timers */
+    ambTimer:null, hourTimer:null,
+    enemyTimers:[],
+  };
+}
+
+/* ── Ventilatie Camera (id=6) ── */
+const VENT_CAM_ID = 6;
+const N6_CAMS_EXTRA = [{id:6,name:'VENT-CAM',room:'VENTILATIE'}];
+
+/* ══════════════════════════════════════════
+   GEHEIME KNOP VERSCHIJNT NA 10 SECONDEN
+══════════════════════════════════════════ */
+let _n6BtnTimer = null;
+
+function scheduleNight6Button(){
+  if(_n6BtnTimer) clearTimeout(_n6BtnTimer);
+  _n6BtnTimer = setTimeout(()=>{
+    const btn = document.getElementById('night6Btn');
+    if(btn && document.getElementById('startScreen').style.display !== 'none'){
+      btn.classList.add('visible');
+    }
+  }, 10000);
+}
+
+function hideNight6Button(){
+  const btn = document.getElementById('night6Btn');
+  if(btn){ btn.classList.remove('visible'); btn.style.display='none'; }
+  if(_n6BtnTimer){ clearTimeout(_n6BtnTimer); _n6BtnTimer=null; }
+}
+
+/* ══════════════════════════════════════════
+   NACHT 6 SECRET MENU
+══════════════════════════════════════════ */
+function openNight6Menu(){
+  /* stop menu music + ambience */
+  stopMenuMusic();
+  stopTapeAmbience();
+  /* hide all menu UI */
+  document.getElementById('startScreen').style.display='none';
+  hideNight6Button();
+  /* show secret menu */
+  document.getElementById('night6MenuScreen').style.display='flex';
+}
+
+function startNight6(){
+  document.getElementById('night6MenuScreen').style.display='none';
+  playNight6Intro();
+}
+
+/* ══════════════════════════════════════════
+   NACHT 6 INTRO TEKST FADE
+══════════════════════════════════════════ */
+function playNight6Intro(){
+  const scr  = document.getElementById('night6IntroScreen');
+  const el   = document.getElementById('night6IntroText');
+  scr.style.display='flex';
+  el.textContent = 'De schimmels hebben een nieuwe meester gevonden...';
+  el.style.opacity='0';
+  /* fade in */
+  requestAnimationFrame(()=>{
+    el.style.transition='opacity 2s';
+    el.style.opacity='1';
+    setTimeout(()=>{
+      /* fade out */
+      el.style.opacity='0';
+      setTimeout(()=>{
+        scr.style.display='none';
+        beginNight6Gameplay();
+      }, 2200);
+    }, 3000);
+  });
+}
+
+/* ══════════════════════════════════════════
+   NACHT 6 GAMEPLAY
+══════════════════════════════════════════ */
+function beginNight6Gameplay(){
+  initAudio6();
+  N6State = mkN6State();
+  N6State.running = true;
+  N6State.nightStart = Date.now();
+
+  /* selectedNight = special marker so existing systems don't conflict */
+  selectedNight = 'n6';
+
+  /* Use existing G for shared mechanics (doors, vent, o2, camera toggle etc.) */
+  G = mkN6GameState();
+  G.nightStart = N6State.nightStart;
+  G.running = true;
+
+  /* Show game screen */
+  ['startScreen','deathScreen','winScreen','nightIntroScreen','tapeScreen',
+   'introScreen','nightCompleteScreen','gijsOfferScreen',
+   'night6MenuScreen','night6IntroScreen'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  document.getElementById('jsScreen').style.display='none';
+  document.getElementById('gameScreen').style.display='block';
+  document.getElementById('camOverlay').style.display='none';
+  document.getElementById('camToggleBtn').classList.remove('active');
+  document.getElementById('flashEl').style.opacity='0';
+  document.getElementById('fireCanvas').style.display='none';
+  document.getElementById('glitchTearBand').style.display='none';
+  document.getElementById('musicBoxPanel').style.display='none';
+  document.getElementById('alarmOverlay').style.display='none';
+  document.getElementById('maduroDisabledOverlay').classList.remove('active');
+  document.getElementById('maduroCamImg').style.display='none';
+  document.getElementById('attackFlashOverlay').classList.remove('active');
+  document.getElementById('attackFlashImg').src='';
+  document.getElementById('shadowGijsOfficeImg').style.display='none';
+  const killerImg=document.getElementById('deathKillerImg');
+  if(killerImg){killerImg.style.display='none';killerImg.src='';}
+  const killerWrap=document.getElementById('deathKillerWrap');
+  if(killerWrap) killerWrap.style.display='none';
+
+  /* Reset ventilation & doors */
+  G.ventClosed=false;
+  ['ventGrate','ventBtn'].forEach(id=>{document.getElementById(id).classList.remove('shut');});
+  document.getElementById('ventBtn').querySelector('.vent-label').textContent='SLUIT VENT';
+  document.getElementById('ventLight').classList.remove('active');
+  document.getElementById('markVentImg').classList.remove('mark-visible','mark-urgent');
+  document.getElementById('ventOxygenWarning').classList.remove('active');
+  ['dpL','dpR'].forEach(id=>document.getElementById(id).classList.remove('shut'));
+  ['dbL','dbR'].forEach(id=>{const b=document.getElementById(id);b.textContent='DEUR';b.classList.remove('on');});
+  ['dlL','dlR'].forEach(id=>document.getElementById(id).className='d-light');
+
+  document.getElementById('nightModeLbl').textContent='Nacht 6 · De Vergeten Kelder';
+
+  /* HUD — hide non-N6 indicators */
+  ['dotJeffrey','jeffreyLabel','dotChapo','chapoLabel','dotDiddy','diddyLabel'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+
+  /* Darker office */
+  drawN6Office();
+
+  /* Build camera strip with Ventilatie cam */
+  buildN6CamStrip();
+
+  /* Audio */
+  initAudio();
+  play6('n6ambience');
+
+  /* O2 */
+  G.o2=100;
+  updateO2UI();
+  updateLureUI();
+  updateVentUI();
+  refreshMonsterDots();
+
+  /* Lure cooldown */
+  G.lureCD=LURE_CD_S;
+  G.lureCDTimer=setInterval(()=>{G.lureCD--;if(G.lureCD<=0){G.lureReady=true;G.lureCD=0;clearInterval(G.lureCDTimer);}updateLureUI();},1000);
+  G.alarmReady=true; G.alarmCD=0; updateAlarmUI();
+
+  /* Start initial enemies */
+  startN6Gijs();
+  startN6Hobo();
+  startN6Tom();
+  startN6Mark();
+
+  /* Tick timers */
+  G.tickTimer = setInterval(n6GameTick, TICK_MS);
+  G.timeTimer = setInterval(n6TickTime, 250);
+
+  /* Enemy schedule: 1 enemy per in-game hour */
+  scheduleN6Enemies();
+}
+
+/* ── mkN6GameState — G with N6 config ── */
+function mkN6GameState(){
+  const cfg = {
+    label:'Nacht 6 · De Vergeten Kelder',
+    gijsActive:true, hoboActive:true, tomActive:true, markRutteActive:true,
+    jeffreyActive:false, chapoActive:false, diddyActive:false,
+    maduroChance:0.04, shadowChance:0.003,
+    moveIval:[18000,13000,9000,6500,4500,3000],
+    hoboMinMs:3500, hoboMaxMs:13000,
+    jeffreySwitch:JEFFREY_SWITCH_S, chapoAttack:CHAPO_ATTACK_S,
+    diddyMoveIval:DIDDY_MOVE_IVAL_BASE, markInterval:9000,
+  };
+  const state = mkState();
+  state.cfg = cfg;
+  state.night = 'n6';
+  return state;
+}
+
+/* ══════════════════════════════════════════
+   NACHT 6 OFFICE (donkerder, schimmel)
+══════════════════════════════════════════ */
+function drawN6Office(){
+  const cv=document.getElementById('officeCanvas');
+  const W=cv.width=window.innerWidth;
+  const H=cv.height=window.innerHeight;
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+
+  const ceilH=H*.065;
+  ctx.fillStyle='#050508'; ctx.fillRect(0,0,W,ceilH);
+
+  /* Muur — donkerder */
+  const wallTop=ceilH, wallBot=H*.62;
+  ctx.fillStyle='#08080f'; ctx.fillRect(0,wallTop,W,wallBot-wallTop);
+
+  /* Schimmel vlekken */
+  function mold(cx,cy,r,alpha){
+    ctx.fillStyle=`rgba(0,${40+Math.floor(Math.random()*30)},0,${alpha})`;
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
+  }
+  for(let i=0;i<30;i++) mold(Math.random()*W,(wallTop+Math.random()*(wallBot-wallTop)),20+Math.random()*60,.18+Math.random()*.22);
+
+  /* Grid lijnen */
+  ctx.strokeStyle='rgba(0,0,0,0.35)';ctx.lineWidth=.8;
+  for(let x=0;x<W;x+=Math.floor(W/18)){ctx.beginPath();ctx.moveTo(x,wallTop);ctx.lineTo(x,wallBot);ctx.stroke();}
+  for(let y=wallTop;y<wallBot;y+=Math.floor((wallBot-wallTop)/10)){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  /* Scheuren */
+  function crack(x1,y1,segs,len,spread){
+    ctx.strokeStyle='rgba(0,0,0,0.7)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x1,y1);
+    let cx=x1,cy=y1;
+    for(let i=0;i<segs;i++){cx+=(-spread+Math.random()*spread*2);cy+=len/segs;ctx.lineTo(cx,cy);}
+    ctx.stroke();
+  }
+  crack(W*.1,wallTop+10,12,120,18);crack(W*.4,wallTop+30,8,80,14);
+  crack(W*.65,wallTop+5,10,110,16);crack(W*.85,wallTop+25,6,60,10);
+
+  /* Lamp (zwakker) */
+  const lx=W/2, wireTop=ceilH, wireH=H*.1;
+  ctx.strokeStyle='#141414';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(lx,wireTop);ctx.lineTo(lx,wireTop+wireH);ctx.stroke();
+  ctx.fillStyle='#111114';
+  ctx.beginPath();ctx.moveTo(lx-H*.04,wireTop+wireH);ctx.lineTo(lx+H*.04,wireTop+wireH);
+  ctx.lineTo(lx+H*.065,wireTop+wireH+H*.07);ctx.lineTo(lx-H*.065,wireTop+wireH+H*.07);
+  ctx.closePath();ctx.fill();
+
+  /* Vent schaduw */
+  const ventW=Math.min(180,W*.18)+20, ventH=Math.min(130,W*.13)+20;
+  ctx.fillStyle='#060504';ctx.fillRect(W/2-ventW/2-8,H*.07-8,ventW+16,ventH+16);
+  ctx.strokeStyle='#1a0a00';ctx.lineWidth=2;ctx.strokeRect(W/2-ventW/2-8,H*.07-8,ventW+16,ventH+16);
+
+  /* Vloer */
+  const floorY=H*.62;
+  ctx.fillStyle='#0a0a10';ctx.fillRect(0,floorY,W,H-floorY);
+  ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=1;
+  const tileW=Math.floor(W/14);
+  for(let x=0;x<W;x+=tileW){ctx.beginPath();ctx.moveTo(x,floorY);ctx.lineTo(x,H);ctx.stroke();}
+  const tileH=Math.floor((H-floorY)/5);
+  for(let y=floorY;y<H;y+=tileH){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  /* Bureau */
+  const deskW=W*.32,deskH=H*.08,deskX=W/2-W*.32/2,deskY=H-H*.08;
+  ctx.fillStyle='#1a0f05';ctx.fillRect(deskX,deskY,deskW,deskH);
+  ctx.strokeStyle='#2a1408';ctx.lineWidth=2;ctx.strokeRect(deskX,deskY,deskW,deskH);
+
+  /* Monitor */
+  const mW=W*.1,mH=H*.09,mX=W/2-W*.1/2,mY=deskY-H*.09;
+  ctx.fillStyle='#080810';ctx.fillRect(mX,mY,mW,mH);
+  ctx.strokeStyle='#1a1a28';ctx.lineWidth=2;ctx.strokeRect(mX,mY,mW,mH);
+  ctx.fillStyle='#00cc44';ctx.font=`${Math.floor(mH*.16)}px 'Share Tech Mono',monospace`;
+  ctx.textAlign='center';ctx.fillText('SECURITY',W/2,mY+mH*.35);ctx.fillText('??? ONLINE',W/2,mY+mH*.55);
+  ctx.fillStyle='rgba(0,180,60,.3)';ctx.fillText('>>> ACTIVE',W/2,mY+mH*.78);
+  ctx.textAlign='left';
+}
+
+/* ══════════════════════════════════════════
+   NACHT 6 CAMERA STRIP (met Ventilatie)
+══════════════════════════════════════════ */
+function buildN6CamStrip(){
+  const strip=document.getElementById('camStrip');
+  strip.innerHTML='';
+  const allCams=[...CAMS, ...N6_CAMS_EXTRA];
+  allCams.forEach(c=>{
+    const el=document.createElement('div');
+    el.className='cam-thumb'+(c.id===0?' ct-on':'');
+    el.id='ct'+c.id;
+    if(c.id===VENT_CAM_ID){
+      el.innerHTML=`<img src="${N6.ventCam}" alt="" style="width:100%;height:100%;object-fit:cover;opacity:.55">
+        <div class="ct-label">${c.name} · ${c.room}</div>
+        <div class="ct-mdot" id="md${c.id}"></div>`;
+    } else {
+      el.innerHTML=`<canvas class="ct-canvas" id="ctc${c.id}"></canvas>
+        <div class="ct-label">${c.name} · ${c.room}</div>
+        <div class="ct-mdot" id="md${c.id}"></div>
+        <div class="ct-hobodot" id="hd${c.id}"></div>
+        <div class="ct-jeffreydot" id="jd${c.id}"></div>
+        <div class="ct-chapodot" id="cpd${c.id}"></div>
+        <div class="ct-tomdot${c.id===MUSIC_CAM_ID?' on':''}\" id="td${c.id}"></div>
+        <div class="ct-madurodot" id="cpmd${c.id}"></div>
+        <div class="ct-diddydot" id="dd${c.id}"></div>
+        <div class="ct-disabled-overlay" id="ctdis${c.id}"><span>OFFLINE</span></div>`;
+      const cv=document.getElementById('ctc'+c.id);
+      if(cv){cv.width=120;cv.height=80;drawCamRoom(cv,c.id,true);}
+    }
+    el.onclick=()=>n6SwitchCam(c.id);
+    strip.appendChild(el);
+  });
+  /* Set current cam label */
+  document.getElementById('camNameLbl').textContent=CAMS[0].name;
+  document.getElementById('camRoomLbl').textContent=CAMS[0].room;
+}
+
+function n6SwitchCam(id){
+  if(id===VENT_CAM_ID){
+    /* Show ventilatie feed */
+    play('cameraSwitch');
+    G.curCam=VENT_CAM_ID;
+    document.querySelectorAll('.cam-thumb').forEach(t=>t.classList.remove('ct-on'));
+    document.getElementById('ct'+VENT_CAM_ID)?.classList.add('ct-on');
+    document.getElementById('camNameLbl').textContent='VENT-CAM';
+    document.getElementById('camRoomLbl').textContent='VENTILATIE';
+    document.getElementById('musicBoxPanel').style.display='none';
+    renderN6VentFeed();
+    updateLureUI();updateAlarmUI();
+    return;
+  }
+  switchCam(id);
+}
+
+function renderN6VentFeed(){
+  if(G.curCam!==VENT_CAM_ID) return;
+  const cv=document.getElementById('camCanvas');
+  cv.width=cv.offsetWidth||800;cv.height=cv.offsetHeight||400;
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#060a06';ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='rgba(0,18,4,0.3)';ctx.fillRect(0,0,cv.width,cv.height);
+  /* NV scanlines */
+  ctx.fillStyle='rgba(0,0,0,0.06)';
+  for(let y=0;y<cv.height;y+=3) ctx.fillRect(0,y,cv.width,1);
+
+  /* Neef */
+  const neefImg=document.getElementById('neefCamImg');
+  if(N6State&&N6State.neefOnVentCam){
+    neefImg.src='Images/NeefJumpscare.png'; /* fallback — should be a camera sprite */
+    neefImg.style.display='block';
+  } else {
+    neefImg.style.display='none';
+  }
+
+  const sgImg=document.getElementById('sg6CamImg');
+  sgImg.style.display='none';
+  document.getElementById('monsterCamImg').style.display='none';
+  document.getElementById('hoboCamImg').style.display='none';
+  document.getElementById('jeffreyCamImg').style.display='none';
+  document.getElementById('chapoCamImg').style.display='none';
+  document.getElementById('tomCamImg').style.display='none';
+  document.getElementById('diddyCamImg').style.display='none';
+  document.getElementById('maduroCamImg').style.display='none';
+  document.getElementById('camMain').classList.remove('cam-active-static');
+}
+
+/* ══════════════════════════════════════════
+   NACHT 6 TIJD TICK
+══════════════════════════════════════════ */
+function n6TickTime(){
+  if(N6State.dead||N6State.won) return;
+  const progress=Math.min(1,(Date.now()-N6State.nightStart)/NIGHT_MS);
+  const totalMins=progress*360;
+  const newHour=Math.floor(totalMins/60);
+  N6State.hour=newHour;
+  G.hour=newHour;
+
+  const hudTime=document.getElementById('hudTime');
+  if(N6State.sixAMDone){
+    /* Glitching clock showing ?????? */
+    hudTime.classList.add('clock-glitching');
+    hudTime.textContent='??????';
+  } else if(progress>=1){
+    N6State.sixAMDone=true;
+    triggerN6SixAM();
+  } else {
+    const h=newHour===0?12:newHour, m=String(Math.floor(totalMins%60)).padStart(2,'0');
+    hudTime.textContent=`${h}:${m} AM`;
+  }
+}
+
+/* ══════════════════════════════════════════
+   NACHT 6 GAME TICK
+══════════════════════════════════════════ */
+function n6GameTick(){
+  if(N6State.dead||N6State.won) return;
+  /* Delegate to existing gameTick for O2, music box, Jeffrey, Chapo, Maduro, Shadow, glitch */
+  gameTick();
+}
+
+/* ══════════════════════════════════════════
+   NACHT 6 VIJAND SCHEMA (per uur)
+══════════════════════════════════════════ */
+function scheduleN6Enemies(){
+  const schedule=[
+    {hour:1, fn:()=>startN6Jeffrey()},
+    {hour:2, fn:()=>{ startN6Maduro(); startN6Schaduw(); }},
+    {hour:3, fn:()=>startN6Diddy()},
+    {hour:4, fn:()=>startN6Chapo()},
+    {hour:5, fn:()=>startN6Neef()},
+  ];
+  schedule.forEach(entry=>{
+    const msUntilHour = (entry.hour/6)*NIGHT_MS - (Date.now()-N6State.nightStart);
+    const t=setTimeout(()=>{
+      if(!N6State.dead&&!N6State.won) entry.fn();
+    }, Math.max(0,msUntilHour));
+    N6State.enemyTimers.push(t);
+  });
+}
+
+/* ── N6 vijand activators ── */
+function startN6Gijs(){
+  G.cfg.gijsActive=true;
+  G.mPos=POS.C0;
+  setTimeout(scheduleMoveTimer,5000);
+}
+function startN6Hobo(){
+  G.cfg.hoboActive=true;
+  G.hoboPos=HOBO_ALLOWED_CAMS[0];
+  scheduleHoboMove();
+}
+function startN6Tom(){
+  G.cfg.tomActive=true;
+  if(SFX.muziek){SFX.muziek.volume=0.15;SFX.muziek.playbackRate=1;SFX.muziek.play().catch(()=>{});}
+}
+function startN6Mark(){
+  G.cfg.markRutteActive=true;
+  G.cfg.markInterval=9000;
+  scheduleMarkCheck();
+}
+function startN6Jeffrey(){
+  G.cfg.jeffreyActive=true;
+  G.jeffreyActive=true;
+  G.jeffreyStep=0;G.jeffreyPos=JEFFREY_PATH[0];G.jeffreyTimer=JEFFREY_SWITCH_S;
+  refreshMonsterDots();
+}
+function startN6Maduro(){
+  G.cfg.maduroChance=0.05;
+  scheduleMaduroSpawn();
+}
+function startN6Schaduw(){
+  G.cfg.shadowChance=0.005;
+}
+function startN6Diddy(){
+  G.cfg.diddyActive=true;
+  G.diddyActive=true;
+  G.diddyPos=POS.C0;
+  setTimeout(scheduleDiddyMove,4000);
+  document.getElementById('dotDiddy').style.display='';
+  document.getElementById('diddyLabel').style.display='';
+}
+function startN6Chapo(){
+  G.cfg.chapoActive=true;
+  G.chapoActive=true;
+  G.chapoTimer=CHAPO_ATTACK_S;G.chapoSprite=0;
+  document.getElementById('dotChapo').style.display='';
+  document.getElementById('chapoLabel').style.display='';
+  refreshMonsterDots();
+}
+
+/* ══════════════════════════════════════════
+   NEEF AI
+══════════════════════════════════════════ */
+function startN6Neef(){
+  if(N6State.neef) return;
+  N6State.neef=true;
+  neefAppear();
+}
+
+function neefAppear(){
+  if(N6State.dead||N6State.won||!N6State.neef) return;
+  N6State.neefOnVentCam=true;
+  if(G.curCam===VENT_CAM_ID) renderN6VentFeed();
+  /* Schedule disappearance after random 20-50 seconds */
+  const waitMs=(20000+Math.random()*30000);
+  N6State.neefCooldownTimer=setTimeout(()=>{
+    neefLeaveVentCam();
+  }, waitMs);
+}
+
+function neefLeaveVentCam(){
+  if(N6State.dead||N6State.won) return;
+  N6State.neefOnVentCam=false;
+  if(G.curCam===VENT_CAM_ID) renderN6VentFeed();
+  /* Player has 15 seconds to close vent */
+  N6State.neefCountdown=setTimeout(()=>{
+    if(!N6State.dead&&!N6State.won&&!G.ventClosed){
+      triggerNeefJS();
+    }
+  },15000);
+}
+
+/* Called when vent is closed while Neef is attacking */
+function neefVentClosed(){
+  if(!N6State.neef) return;
+  if(N6State.neefCountdown){clearTimeout(N6State.neefCountdown);N6State.neefCountdown=null;}
+  /* 5 seconds later Neef reappears */
+  N6State.neefCooldownTimer=setTimeout(()=>{
+    if(!N6State.dead&&!N6State.won){
+      neefAppear();
+    }
+  },5000);
+}
+
+function triggerNeefJS(){
+  if(N6State.dead) return;
+  N6State.dead=true;G.dead=true;
+  killN6Timers();killTimers();stopAll();stopAll6();
+  doFlash(()=>{
+    document.getElementById('jsImg').src=N6.neefJS;
+    document.getElementById('jsScreen').style.display='flex';
+    play('jumpscare');
+    setTimeout(()=>{
+      document.getElementById('jsScreen').style.display='none';
+      document.getElementById('gameScreen').style.display='none';
+      document.getElementById('deathMsg').innerHTML='Neef is uit de ventilatie gekomen.<br><em>"Je had de schacht moeten sluiten."</em>';
+      showKillerOnDeathScreen(N6.neefJS);
+      play('gameOver');
+      document.getElementById('deathScreen').style.display='flex';
+    },3300);
+  });
+}
+
+/* ══════════════════════════════════════════
+   SNEAKY GOLEM
+══════════════════════════════════════════ */
+function activateSneakyGolem(){
+  if(N6State.sneakyGolem) return;
+  N6State.sneakyGolem=true;
+  play6('sneakyGolem');
+  /* Use Gijs path but independently */
+  N6State.sgPos=POS.C0;
+  scheduleSGMove();
+}
+
+function scheduleSGMove(){
+  if(N6State.sgMoveTimer) clearTimeout(N6State.sgMoveTimer);
+  if(N6State.dead||N6State.won) return;
+  /* Significantly faster than Gijs */
+  const delay=2000+Math.random()*2000;
+  N6State.sgMoveTimer=setTimeout(()=>{advanceSG();scheduleSGMove();},delay);
+}
+
+function advanceSG(){
+  if(N6State.dead||N6State.won) return;
+  if(N6State.sgPos===POS.LD||N6State.sgPos===POS.RD) return;
+  let np=N6State.sgPos;
+  if(np===POS.C0) np=POS.C1;
+  else if(np===POS.C1) np=POS.C2;
+  else if(np===POS.C2) np=Math.random()<.5?POS.C3:POS.C4;
+  else if(np===POS.C3) np=POS.LD;
+  else if(np===POS.C4) np=POS.RD;
+  N6State.sgPos=np;
+  if(np===POS.LD||np===POS.RD) handleSGAtDoor(np);
+}
+
+function handleSGAtDoor(pos){
+  play6('rockfall');
+  const closed=pos===POS.LD?G.lfClosed:G.rtClosed;
+  if(!closed){
+    const t=setTimeout(()=>{
+      if(!N6State.dead&&!N6State.won&&N6State.sgPos===pos){
+        triggerSGJS();
+      }
+    },GRACE_MS);
+    N6State.enemyTimers.push(t);
+  } else {
+    /* Retreat */
+    const rt=setTimeout(()=>{
+      if(!N6State.dead&&!N6State.won){
+        N6State.sgPos=[POS.C0,POS.C1,POS.C2][Math.floor(Math.random()*3)];
+      }
+    }, DOOR_RETREAT_MIN+Math.random()*(DOOR_RETREAT_MAX-DOOR_RETREAT_MIN));
+    N6State.enemyTimers.push(rt);
+  }
+}
+
+function triggerSGJS(){
+  if(N6State.dead) return;
+  N6State.dead=true;G.dead=true;
+  killN6Timers();killTimers();stopAll();stopAll6();
+  doFlash(()=>{
+    document.getElementById('jsImg').src=N6.sgCam;
+    document.getElementById('jsScreen').style.display='flex';
+    play('jumpscare');
+    setTimeout(()=>{
+      document.getElementById('jsScreen').style.display='none';
+      document.getElementById('gameScreen').style.display='none';
+      document.getElementById('deathMsg').innerHTML='Sneaky Golem heeft je bereikt.<br><em>"..."</em>';
+      showKillerOnDeathScreen(N6.sgCam);
+      play('gameOver');
+      document.getElementById('deathScreen').style.display='flex';
+    },3300);
+  });
+}
+
+/* ══════════════════════════════════════════
+   6 AM EVENT
+══════════════════════════════════════════ */
+function triggerN6SixAM(){
+  if(N6State.sixAMDone&&N6State.endingActive) return;
+  N6State.sixAMDone=true;
+  N6State.endingActive=true;
+  /* Activate Sneaky Golem */
+  activateSneakyGolem();
+  /* After 1 minute trigger ending sequence */
+  N6State.endingTimer=setTimeout(()=>{
+    if(!N6State.dead) beginN6EndingSequence();
+  },60000);
+}
+
+/* ══════════════════════════════════════════
+   ENDING SEQUENCE
+══════════════════════════════════════════ */
+function beginN6EndingSequence(){
+  N6State.won=true;G.won=true;
+  killN6Timers();killTimers();stopAll();stopAll6();
+
+  /* Lock all enemies */
+  G.cfg.gijsActive=false;G.cfg.hoboActive=false;G.cfg.tomActive=false;
+  G.cfg.markRutteActive=false;G.cfg.jeffreyActive=false;
+  G.cfg.chapoActive=false;G.cfg.diddyActive=false;
+  N6State.neef=false;N6State.sneakyGolem=false;
+
+  /* Hide game screen, show ending screen with GijsCamera2 */
+  document.getElementById('gameScreen').style.display='none';
+  const endScr=document.getElementById('night6EndScreen');
+  endScr.style.display='flex';
+
+  /* Typewriter text */
+  const el=document.getElementById('night6TypeText');
+  const endText='Waarom ben je terug gekomen... Dit had je niet moeten doen... Er is maar een manier hoe dit eindigt voor jou.';
+  typeText(el, endText, 45, ()=>{
+    /* After typing done: show GijsJumpscare2 then final screen */
+    setTimeout(()=>{
+      endScr.style.display='none';
+      doFlash(()=>{
+        document.getElementById('jsImg').src=N6.gijsJS2;
+        document.getElementById('jsScreen').style.display='flex';
+        play('jumpscare');
+        setTimeout(()=>{
+          document.getElementById('jsScreen').style.display='none';
+          showN6FinalScreen();
+        },3300);
+      });
+    },1500);
+  });
+}
+
+function showN6FinalScreen(){
+  play6('theEnd');
+  const scr=document.getElementById('night6FinalScreen');
+  const el=document.getElementById('night6FinalText');
+  el.textContent='De politie is gisteren gebeld in Zutphen nadat ze vreemde geluiden hoorden uit Meester Gijs zijn kelder. Toen ze binnen kwamen zagen ze Meester Gijs met een mes in de handen en honderden lijken. Meester Gijs is opgepakt en wordt nu naar Alcatraz gedeporteerd door het leger.';
+  scr.style.display='flex';
+}
+
+/* ══════════════════════════════════════════
+   N6 VENT TOGGLE HOOK
+══════════════════════════════════════════ */
+/* Patch toggleVent to handle Neef */
+const _origToggleVent = toggleVent;
+window.toggleVent = function(){
+  _origToggleVent();
+  /* If Neef countdown is active and vent just got closed */
+  if(N6State&&N6State.neef&&!N6State.neefOnVentCam&&G.ventClosed&&N6State.neefCountdown){
+    neefVentClosed();
+  }
+};
+
+/* ══════════════════════════════════════════
+   N6 CAM TOGGLE HOOK
+══════════════════════════════════════════ */
+/* Override toggleCam so ventilatie cam renders properly */
+const _origToggleCam = toggleCam;
+window.toggleCam = function(){
+  if(!N6State||!N6State.running){ _origToggleCam(); return; }
+  if(G.dead||G.won) return;
+  G.camOpen=!G.camOpen;
+  document.getElementById('camOverlay').style.display=G.camOpen?'flex':'none';
+  document.getElementById('camToggleBtn').classList.toggle('active',G.camOpen);
+  if(!G.camOpen){
+    stopWindUp();
+    document.getElementById('musicBoxPanel').style.display='none';
+    if(SFX.muziek) SFX.muziek.volume=0.15;
+    if(G.maduroPos>=0) maduroDespawn();
+    G.maduroWatchMs=0;
+  }
+  if(G.camOpen){
+    if(G.curCam===VENT_CAM_ID) renderN6VentFeed();
+    else switchCam(G.curCam);
+  }
+  if(G.camOpen) shadowGijsDismiss();
+  updateLureUI();updateAlarmUI();
+};
+
+/* ══════════════════════════════════════════
+   OPRUIMEN N6 TIMERS
+══════════════════════════════════════════ */
+function killN6Timers(){
+  if(!N6State) return;
+  N6State.enemyTimers.forEach(t=>{try{clearTimeout(t);clearInterval(t);}catch(e){}});
+  N6State.enemyTimers=[];
+  [N6State.neefCountdown,N6State.neefCooldownTimer,N6State.sgMoveTimer,
+   N6State.endingTimer,N6State.ambTimer].forEach(t=>{
+    if(t)try{clearTimeout(t);clearInterval(t);}catch(e){}
+  });
+  N6State.neefCountdown=null;N6State.neefCooldownTimer=null;
+  N6State.sgMoveTimer=null;N6State.endingTimer=null;
+}
+
+/* ══════════════════════════════════════════
+   PATCH restartGame om N6 State te resetten
+══════════════════════════════════════════ */
+const _origRestartGame = restartGame;
+window.restartGame = function(){
+  if(N6State){
+    killN6Timers();
+    stopAll6();
+    if(N6State.sgMoveTimer) clearTimeout(N6State.sgMoveTimer);
+    N6State=null;
+    selectedNight=0;
+    /* Hide N6 screens */
+    ['night6MenuScreen','night6IntroScreen','night6EndScreen','night6FinalScreen'].forEach(id=>{
+      const el=document.getElementById(id);if(el) el.style.display='none';
+    });
+    /* Undo clock glitch */
+    const ht=document.getElementById('hudTime');
+    if(ht) ht.classList.remove('clock-glitching');
+  }
+  _origRestartGame();
+  /* Schedule the N6 secret button again after menu loads */
+  scheduleNight6Button();
+};
+
+/* ══════════════════════════════════════════
+   PATCH proceedToMenu om N6 knop te starten
+══════════════════════════════════════════ */
+const _origProceedToMenu = proceedToMenu;
+window.proceedToMenu = function(){
+  _origProceedToMenu();
+  scheduleNight6Button();
+};
