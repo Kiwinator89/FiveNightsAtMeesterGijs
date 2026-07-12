@@ -285,7 +285,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .tape-continue-btn{margin-top:22px;font-family:'Share Tech Mono',monospace;font-size:.75rem;letter-spacing:3px;padding:12px 26px;border:1px solid var(--border);background:var(--panel);color:var(--texthi);cursor:pointer;transition:.2s}
 .tape-continue-btn:hover{border-color:var(--red);color:#ff8899;box-shadow:0 0 16px #c0121a55}
 
-/* ══ NACHT VOLTOOID ══ */
+/* ══ GIJS TAPE SCHERM ══ */
+#gijsTapeScreen{display:none;position:fixed;inset:0;z-index:255;background:#020203;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+#gijsTapeScreen .tape-static{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0px,rgba(255,255,255,.03) 1px,transparent 1px,transparent 2px);animation:tapeStaticShift .2s steps(2) infinite}
+.gijstape-wrap{position:relative;z-index:2;max-width:520px;padding:36px 40px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px}
+.gijstape-img{width:min(220px,55vw);opacity:.85;filter:sepia(.4) hue-rotate(10deg) brightness(.7)}
+.gijstape-prompt{font-family:'VT323',monospace;font-size:clamp(1rem,2.2vw,1.3rem);color:#bbbbcc;line-height:1.6}
+.gijstape-btn-row{display:flex;gap:16px;justify-content:center;margin-top:8px}
+.gijstape-btn{font-family:'Share Tech Mono',monospace;font-size:.8rem;letter-spacing:2px;padding:11px 22px;border:1px solid var(--border);background:transparent;color:var(--texthi);cursor:pointer;transition:.2s}
+.gijstape-btn-ja:hover{border-color:#884400;color:#ffaa44;box-shadow:0 0 14px #88440055}
+.gijstape-btn-nee:hover{border-color:#334;color:#aab}
+
+/* ══ GIJS TAPE PLAY: hergebruikt tapeScreen maar met groene header ══ */
+.tape-hdr-gijs{color:#884400 !important;}
 #nightCompleteScreen{display:none;position:fixed;inset:0;z-index:250;background:#06060a;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 .nc-rays{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(200,20,20,.12),transparent 70%)}
 .nc-card{position:relative;z-index:2;max-width:600px;padding:36px 40px;border:1px solid var(--border);background:var(--panel);text-align:center}
@@ -1175,10 +1187,23 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
   <div class="tape-static"></div>
   <div class="tape-scan"></div>
   <div class="tape-wrap">
-    <div class="tape-hdr">◉ REC — NOODBERICHT</div>
+    <div class="tape-hdr" id="tapeHdr">◉ REC — NOODBERICHT</div>
     <div class="tape-text" id="tapeText"></div>
     <div class="tape-hint" id="tapeHint">klik om verder te gaan</div>
     <button class="tape-continue-btn" id="tapeContinueBtn" style="display:none" onclick="event.stopPropagation();tapeContinueClick()">Continue ▶</button>
+  </div>
+</div>
+
+<!-- ════ GIJS TAPE VRAAG SCHERM ════ -->
+<div id="gijsTapeScreen">
+  <div class="tape-static"></div>
+  <div class="gijstape-wrap">
+    <img class="gijstape-img" src="Images/GijsTape.png" alt="Gijs Tape">
+    <div class="gijstape-prompt">Onder je roestige bed heb je een cassetteband gevonden bedekt met schimmels.<br><br>Wil je hem beluisteren?</div>
+    <div class="gijstape-btn-row">
+      <button class="gijstape-btn gijstape-btn-ja" onclick="gijsTapeJa()">▶ Ja</button>
+      <button class="gijstape-btn gijstape-btn-nee" onclick="gijsTapeNee()">✕ Nee</button>
+    </div>
   </div>
 </div>
 
