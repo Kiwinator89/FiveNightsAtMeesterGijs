@@ -2307,7 +2307,8 @@ window.addEventListener('load',()=>{
 const N6 = {
   ambience:       'Audio/Night6Ambience.mp3',
   sneakyGolemSnd: 'Audio/SneakyGolem.mp3',
-  rockfall:       'Audio/Rockfall.mp3',
+  rockfall:       'Audio/RockFall.mp3',
+  newEnemy:       'Audio/NewEnemy.mp3',
   neefJS:         'Images/NeefJumpscare.png',
   gijsCam2:       'Images/GijsCamera2.png',
   gijsJS2:        'Images/GijsJumpscare2.png',
@@ -2326,6 +2327,7 @@ function initAudio6(){
     n6ambience: [N6.ambience, true,  .35],
     sneakyGolem:[N6.sneakyGolemSnd, false, 1.0],
     rockfall:   [N6.rockfall, false, .95],
+    newEnemy:   [N6.newEnemy, false, .85],
     theEnd:     [N6.theEnd, false, .9],
   };
   Object.entries(defs).forEach(([k,[src,loop,vol]])=>{
@@ -2768,6 +2770,25 @@ function scheduleN6Enemies(){
   });
 }
 
+/* ── N6 nieuwe vijand melding ── */
+function showNewEnemyMessage(){
+  play6('newEnemy');
+  let el = document.getElementById('n6NewEnemyMsg');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'n6NewEnemyMsg';
+    el.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);' +
+      'color:#ff3300;font-family:"Share Tech Mono",monospace;font-size:1.4rem;font-weight:bold;' +
+      'text-align:center;text-shadow:0 0 12px #ff0000,0 0 24px #800000;' +
+      'pointer-events:none;z-index:9999;opacity:0;transition:opacity 0.4s;';
+    el.textContent = 'De schimmels hebben een nieuwe meester gevonden...';
+    document.body.appendChild(el);
+  }
+  clearTimeout(el._hideTimer);
+  el.style.opacity='1';
+  el._hideTimer = setTimeout(()=>{ el.style.opacity='0'; }, 4000);
+}
+
 /* ── N6 vijand activators ── */
 function startN6Gijs(){
   G.cfg.gijsActive=true;
@@ -2792,14 +2813,17 @@ function startN6Jeffrey(){
   G.cfg.jeffreyActive=true;
   G.jeffreyActive=true;
   G.jeffreyStep=0;G.jeffreyPos=JEFFREY_PATH[0];G.jeffreyTimer=JEFFREY_SWITCH_S;
+  showNewEnemyMessage();
   refreshMonsterDots();
 }
 function startN6Maduro(){
   G.cfg.maduroChance=0.05;
+  showNewEnemyMessage();
   scheduleMaduroSpawn();
 }
 function startN6Schaduw(){
   G.cfg.shadowChance=0.005;
+  showNewEnemyMessage();
 }
 function startN6Diddy(){
   G.cfg.diddyActive=true;
@@ -2808,6 +2832,7 @@ function startN6Diddy(){
   setTimeout(scheduleDiddyMove,4000);
   document.getElementById('dotDiddy').style.display='';
   document.getElementById('diddyLabel').style.display='';
+  showNewEnemyMessage();
 }
 function startN6Chapo(){
   G.cfg.chapoActive=true;
@@ -2815,6 +2840,7 @@ function startN6Chapo(){
   G.chapoTimer=CHAPO_ATTACK_S;G.chapoSprite=0;
   document.getElementById('dotChapo').style.display='';
   document.getElementById('chapoLabel').style.display='';
+  showNewEnemyMessage();
   refreshMonsterDots();
 }
 
