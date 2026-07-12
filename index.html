@@ -1395,7 +1395,33 @@ Accepteer je het?</div>
 <!-- ════ GEHEIME AFBEELDING ════ -->
 <div id="gijsSecretScreen"><img src="Images/GijsSecret.png" alt=""></div>
 
-<!-- ════ NACHT 6 GEHEIME KNOP (verschijnt na 10s in menu) ════ -->\n<!-- knop wordt dynamisch ingevoegd door JS in het start-scherm -->\n\n<!-- ════ NACHT 6 SECRET MENU ════ -->\n<div id="night6MenuScreen">\n  <div class="n6-static"></div>\n  <button class="n6-big-btn" onclick="startNight6()">Nacht 6</button>\n</div>\n\n<!-- ════ NACHT 6 INTRO TEKST ════ -->\n<div id="night6IntroScreen" style="display:none">\n  <div id="night6IntroText"></div>\n</div>\n\n<!-- ════ NACHT 6 EIND SCHERM (GijsCamera2 + typewriter) ════ -->\n<div id="night6EndScreen" style="display:none">\n  <img id="night6EndImg" src="Images/GijsCamera2.png" alt="">\n  <div id="night6TypeTextWrap"><span id="night6TypeText"></span></div>\n</div>\n\n<!-- ════ NACHT 6 FINAAL SCHERM ════ -->\n<div id="night6FinalScreen" style="display:none;flex-direction:column;align-items:center;justify-content:center">\n  <div id="night6FinalText"></div>\n  <button id="night6FinalMenuBtn" onclick="restartGame()">↩ HOOFDMENU</button>\n</div>\n\n<!-- ════ GAME SCRIPT ════ -->
+<!-- ════ NACHT 6 GEHEIME KNOP (verschijnt na 30s in menu) ════ -->
+<!-- knop wordt dynamisch ingevoegd door JS in het start-scherm -->
+
+<!-- ════ NACHT 6 SECRET MENU ════ -->
+<div id="night6MenuScreen">
+  <div class="n6-static"></div>
+  <button class="n6-big-btn" onclick="startNight6()">Nacht 6</button>
+</div>
+
+<!-- ════ NACHT 6 INTRO TEKST ════ -->
+<div id="night6IntroScreen" style="display:none">
+  <div id="night6IntroText"></div>
+</div>
+
+<!-- ════ NACHT 6 EIND SCHERM (GijsCamera2 + typewriter) ════ -->
+<div id="night6EndScreen" style="display:none">
+  <img id="night6EndImg" src="Images/GijsCamera2.png" alt="">
+  <div id="night6TypeTextWrap"><span id="night6TypeText"></span></div>
+</div>
+
+<!-- ════ NACHT 6 FINAAL SCHERM ════ -->
+<div id="night6FinalScreen" style="display:none;flex-direction:column;align-items:center;justify-content:center">
+  <div id="night6FinalText"></div>
+  <button id="night6FinalMenuBtn" onclick="restartGame()">↩ HOOFDMENU</button>
+</div>
+
+<!-- ════ GAME SCRIPT ════ -->
 <script src="game.js"></script>
 
 </body>
