@@ -1781,6 +1781,8 @@ function triggerWin(){
   }
 }
 
+const LAST_MESSAGE_TEXT = `Ik weet niet of iemand dit bericht ooit zal krijgen. Mijn tijd is voorbij. Meester Gijs is op hol geslagen en mijn zuurstof is bijna op. Ik wil een laatste ding wensen voor mijn dood. Zorg dat hij er niet mee weg komt. Als je dit bericht krijgt ben je waarschijnlijk al ontsnapt. Ga nog één nacht terug en breng bewijs. Zorg dat die man nooit meer het daglicht gaat zien. Ookal kan het je leven kosten.`;
+
 function showFinalEnding(){
   document.getElementById('ncTitle').textContent='ONTSNAPT';
   document.getElementById('ncNextBtn').style.display='none';
@@ -1789,6 +1791,53 @@ function showFinalEnding(){
   document.getElementById('gameScreen').style.display='none';
   document.getElementById('nightCompleteScreen').style.display='flex';
   typeText(txt, FINAL_END_TEXT, 24);
+
+  /* Na 10 seconden: toon "Het laatste bericht" knop */
+  let lastMsgBtn = document.getElementById('lastMessageBtn');
+  if(!lastMsgBtn){
+    lastMsgBtn = document.createElement('button');
+    lastMsgBtn.id = 'lastMessageBtn';
+    lastMsgBtn.textContent = '📼  Het laatste bericht';
+    lastMsgBtn.style.cssText =
+      'display:none;margin-top:22px;padding:10px 22px;background:#1a0a00;' +
+      'color:#cc6600;border:1px solid #cc6600;font-family:"Share Tech Mono",monospace;' +
+      'font-size:0.95rem;cursor:pointer;letter-spacing:0.05em;' +
+      'box-shadow:0 0 8px #cc440044;transition:opacity 0.6s;opacity:0;';
+    lastMsgBtn.onmouseenter=()=>lastMsgBtn.style.background='#2a1200';
+    lastMsgBtn.onmouseleave=()=>lastMsgBtn.style.background='#1a0a00';
+    lastMsgBtn.onclick = playLastMessage;
+    document.getElementById('nightCompleteScreen').appendChild(lastMsgBtn);
+  }
+  lastMsgBtn.style.display='inline-block';
+  lastMsgBtn.style.opacity='0';
+  /* Fade in na 10s */
+  if(lastMsgBtn._showTimer) clearTimeout(lastMsgBtn._showTimer);
+  lastMsgBtn._showTimer = setTimeout(()=>{
+    lastMsgBtn.style.opacity='1';
+  }, 10000);
+}
+
+function playLastMessage(){
+  const btn = document.getElementById('lastMessageBtn');
+  if(btn){ btn.style.display='none'; if(btn._showTimer) clearTimeout(btn._showTimer); }
+
+  /* Stop win-muziek, start tape ambience */
+  stopAll();
+  tapeAmbienceAudio.currentTime=0;
+  tapeAmbienceAudio.play().catch(()=>{});
+
+  /* Hergebruik het bestaande cassette-systeem */
+  tapeSentences = splitSentences(LAST_MESSAGE_TEXT);
+  tapeIdx = 0;
+
+  /* Verberg nightCompleteScreen, toon tapeScreen */
+  document.getElementById('nightCompleteScreen').style.display='none';
+  document.getElementById('tapeHint').style.display='none';
+  document.getElementById('tapeScreen').style.display='flex';
+
+  /* Override tapeContinueClick einde: ga na laatste zin naar menu */
+  window._lastMsgMode = true;
+  tapeShowSentence();
 }
 
 /* ══════════════════════════════════════════
@@ -1915,6 +1964,11 @@ function tapeContinueClick(){
       tapeIdx++;
       if(tapeIdx<tapeSentences.length){
         tapeShowSentence();
+      } else if(window._lastMsgMode){
+        window._lastMsgMode=false;
+        document.getElementById('tapeScreen').style.display='none';
+        stopTapeAmbience();
+        restartGame();
       } else {
         document.getElementById('tapeScreen').style.display='none';
         stopTapeAmbience();
@@ -2306,6 +2360,7 @@ window.addEventListener('load',()=>{
 /* ── Assets ── */
 const N6 = {
   ambience:       'Audio/Night6Ambience.mp3',
+  nachtZes:       'Audio/NachtZes.mp3',
   sneakyGolemSnd: 'Audio/SneakyGolem.mp3',
   rockfall:       'Audio/RockFall.mp3',
   newEnemy:       'Audio/NewEnemy.mp3',
@@ -2325,6 +2380,7 @@ function initAudio6(){
   Object.values(SFX6).forEach(a=>{ try{ a.pause(); a.src=''; }catch(e){} });
   const defs = {
     n6ambience: [N6.ambience, true,  .35],
+    nachtZes:   [N6.nachtZes, true,  .45],
     sneakyGolem:[N6.sneakyGolemSnd, false, 1.0],
     rockfall:   [N6.rockfall, false, .95],
     newEnemy:   [N6.newEnemy, false, .85],
@@ -2415,6 +2471,7 @@ function startNight6(){
      intro-fade-sequentie — anders blokkeert de browser het autoplay-verzoek
      stilletjes en speelt Night6Ambience.mp3 niet af. */
   initAudio6();
+  play6('nachtZes');
   play6('n6ambience');
   playNight6Intro();
 }
@@ -2902,6 +2959,7 @@ function triggerNeefJS(){
       document.getElementById('deathMsg').innerHTML='Neef is uit de ventilatie gekomen.<br><em>"Je had de schacht moeten sluiten."</em>';
       showKillerOnDeathScreen(N6.neefJS);
       play('gameOver');
+      document.getElementById('retryN6Btn').style.display='inline-block';
       document.getElementById('deathScreen').style.display='flex';
     },3300);
   });
@@ -2913,6 +2971,7 @@ function triggerNeefJS(){
 function activateSneakyGolem(){
   if(N6State.sneakyGolem) return;
   N6State.sneakyGolem=true;
+  stop6('nachtZes');
   play6('sneakyGolem');
   /* Use Gijs path but independently */
   N6State.sgPos=POS.C0;
@@ -2975,6 +3034,7 @@ function triggerSGJS(){
       document.getElementById('deathMsg').innerHTML='Sneaky Golem heeft je bereikt.<br><em>"..."</em>';
       showKillerOnDeathScreen(N6.sgCam);
       play('gameOver');
+      document.getElementById('retryN6Btn').style.display='inline-block';
       document.getElementById('deathScreen').style.display='flex';
     },3300);
   });
@@ -3100,6 +3160,7 @@ function killN6Timers(){
 ══════════════════════════════════════════ */
 const _origRestartGame = restartGame;
 window.restartGame = function(){
+  document.getElementById('retryN6Btn').style.display='none';
   if(N6State){
     killN6Timers();
     stopAll6();
@@ -3127,3 +3188,14 @@ window.proceedToMenu = function(){
   _origProceedToMenu();
   scheduleNight6Button();
 };
+
+/* ══════════════════════════════════════════
+   NACHT 6 OPNIEUW PROBEREN
+══════════════════════════════════════════ */
+function retryNight6(){
+  document.getElementById('retryN6Btn').style.display='none';
+  document.getElementById('deathScreen').style.display='none';
+  stopAll();
+  if(N6State){ killN6Timers(); stopAll6(); N6State=null; }
+  startNight6();
+}
