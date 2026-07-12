@@ -802,6 +802,83 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .cn-bulk-reset{color:#330000;border-color:#220000}
 .cn-bulk-reset:hover{background:#0a0000;border-color:#880000;color:#aa2222;box-shadow:0 0 8px rgba(150,0,0,.3)}
 
+/* ══ NACHT 6 GEHEIME KNOP ══ */
+#night6Btn{
+  display:none;opacity:0;
+  position:relative;z-index:3;
+  margin-top:14px;
+  background:rgba(2,0,5,.97);
+  border:1px solid #1a0033;border-top:2px solid #330055;
+  color:#220033;padding:10px 44px;
+  font-family:'VT323',monospace;font-size:clamp(1rem,2vw,1.4rem);
+  letter-spacing:8px;text-transform:uppercase;cursor:pointer;
+  transition:all .3s;
+  box-shadow:0 0 18px rgba(80,0,120,.15);
+}
+#night6Btn.visible{display:block;animation:n6FadeIn 2s ease-out forwards}
+#night6Btn:hover{color:#9900cc;border-color:#6600aa;border-top-color:#aa00ff;box-shadow:0 0 30px rgba(120,0,180,.45);text-shadow:0 0 12px rgba(150,0,200,.6);letter-spacing:10px}
+@keyframes n6FadeIn{from{opacity:0}to{opacity:1}}
+#night6MenuScreen{
+  display:none;position:fixed;inset:0;z-index:350;
+  background:#000;flex-direction:column;align-items:center;justify-content:center;
+}
+#night6MenuScreen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(40,0,60,.4),#000 80%);pointer-events:none}
+.n6-big-btn{
+  position:relative;z-index:2;
+  background:rgba(4,0,8,.98);
+  border:2px solid #330044;border-top:3px solid #660077;
+  color:#440055;padding:28px 80px;
+  font-family:'Creepster',cursive;font-size:clamp(2rem,5vw,3.5rem);
+  letter-spacing:10px;cursor:pointer;
+  transition:all .3s;
+  box-shadow:0 0 40px rgba(80,0,120,.2),inset 0 0 30px rgba(40,0,60,.3);
+}
+.n6-big-btn:hover{color:#cc00ff;border-color:#aa00dd;border-top-color:#cc00ff;box-shadow:0 0 60px rgba(150,0,200,.5),inset 0 0 40px rgba(80,0,100,.4);text-shadow:0 0 20px rgba(180,0,255,.6);letter-spacing:12px}
+.n6-static{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.015) 0px,rgba(255,255,255,.015) 1px,transparent 1px,transparent 4px);pointer-events:none;animation:n6StaticShift .3s steps(2) infinite}
+@keyframes n6StaticShift{0%{background-position:0 0}100%{background-position:0 8px}}
+#night6IntroScreen{
+  display:none;position:fixed;inset:0;z-index:360;
+  background:#000;align-items:center;justify-content:center;
+}
+#night6IntroText{
+  font-family:'VT323',monospace;font-size:clamp(1.2rem,2.5vw,1.8rem);
+  color:#8800bb;letter-spacing:3px;text-align:center;
+  text-shadow:0 0 20px rgba(120,0,180,.6);
+  opacity:0;transition:opacity 2s;max-width:700px;padding:20px;
+}
+#night6EndScreen{
+  display:none;position:fixed;inset:0;z-index:400;
+  background:#000;flex-direction:column;align-items:center;justify-content:center;
+}
+#night6EndImg{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:1}
+#night6TypeTextWrap{
+  position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+  z-index:3;width:min(720px,90vw);
+  font-family:'VT323',monospace;font-size:clamp(1rem,2vw,1.45rem);
+  color:#ddddee;line-height:1.7;text-align:center;
+  text-shadow:0 2px 10px #000;
+  background:rgba(0,0,0,.65);padding:20px 30px;
+}
+#night6FinalScreen{
+  display:none;position:fixed;inset:0;z-index:410;
+  background:#000;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px;
+}
+#night6FinalText{
+  max-width:660px;text-align:center;
+  font-family:'VT323',monospace;font-size:clamp(1rem,2vw,1.4rem);
+  color:#aaaacc;line-height:1.8;margin-bottom:34px;
+}
+#night6FinalMenuBtn{
+  background:transparent;border:1px solid #330044;color:#550066;
+  padding:12px 40px;font-family:'Share Tech Mono',monospace;
+  font-size:.75rem;letter-spacing:4px;cursor:pointer;transition:all .2s;
+}
+#night6FinalMenuBtn:hover{border-color:#aa00cc;color:#cc00ff;box-shadow:0 0 20px rgba(150,0,200,.4)}
+@keyframes clockGlitch{0%,100%{color:var(--amber);text-shadow:0 0 20px rgba(232,146,10,.8)}20%{color:#ff00ff;text-shadow:0 0 20px #ff00ff;transform:skewX(-3deg)}40%{color:#00ffff;text-shadow:0 0 16px #00ffff;transform:skewX(2deg)}60%{color:#ff0066;text-shadow:0 0 18px #ff0066;transform:scaleX(1.05)}80%{color:#ffff00;text-shadow:0 0 14px #ffff00;transform:skewX(-1deg)}}
+.clock-glitching{animation:clockGlitch .18s steps(1) infinite!important}
+.neef-on-cam{position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:3;max-height:95%;max-width:60%;object-fit:contain;filter:brightness(.5) contrast(1.6) saturate(.4) hue-rotate(260deg);animation:mBreath 2.2s ease-in-out infinite}
+.sg6-on-cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:3;filter:brightness(.6) contrast(1.5) saturate(.5);animation:mBreath 1.5s ease-in-out infinite}
 /* ══ CUSTOM NACHT STARTKNOP ══ */
 .cn-start-btn{
   display:block;width:100%;margin-top:18px;
@@ -1068,6 +1145,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 
       <button class="start-btn" id="startBtn" disabled>SELECTEER EEN NACHT</button>
       <div class="start-hint">koptelefoon aanbevolen · gebruik camera's en deuren om te overleven · F11 voor volledig scherm</div>
+      <button id="night6Btn" onclick="openNight6Menu()">Nacht 6</button>
     </div>
   </div>
 </div>
@@ -1206,6 +1284,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
       <img class="tom-on-cam"      id="tomCamImg"      src="" alt="" style="display:none">
       <img class="diddy-on-cam"    id="diddyCamImg"    src="" alt="" style="display:none">
       <img class="maduro-on-cam"   id="maduroCamImg"   src="Images/MaduroCamera.png" alt="">
+      <img class="neef-on-cam"    id="neefCamImg"     src="" alt="" style="display:none">
+      <img class="sg6-on-cam"     id="sg6CamImg"      src="" alt="" style="display:none">
       <div class="maduro-disabled-overlay" id="maduroDisabledOverlay">
         <div class="maduro-err-noise"></div>
         <div class="maduro-err-title">CAM OFFLINE</div>
@@ -1315,7 +1395,7 @@ Accepteer je het?</div>
 <!-- ════ GEHEIME AFBEELDING ════ -->
 <div id="gijsSecretScreen"><img src="Images/GijsSecret.png" alt=""></div>
 
-<!-- ════ GAME SCRIPT ════ -->
+<!-- ════ NACHT 6 GEHEIME KNOP (verschijnt na 10s in menu) ════ -->\n<!-- knop wordt dynamisch ingevoegd door JS in het start-scherm -->\n\n<!-- ════ NACHT 6 SECRET MENU ════ -->\n<div id="night6MenuScreen">\n  <div class="n6-static"></div>\n  <button class="n6-big-btn" onclick="startNight6()">Nacht 6</button>\n</div>\n\n<!-- ════ NACHT 6 INTRO TEKST ════ -->\n<div id="night6IntroScreen" style="display:none">\n  <div id="night6IntroText"></div>\n</div>\n\n<!-- ════ NACHT 6 EIND SCHERM (GijsCamera2 + typewriter) ════ -->\n<div id="night6EndScreen" style="display:none">\n  <img id="night6EndImg" src="Images/GijsCamera2.png" alt="">\n  <div id="night6TypeTextWrap"><span id="night6TypeText"></span></div>\n</div>\n\n<!-- ════ NACHT 6 FINAAL SCHERM ════ -->\n<div id="night6FinalScreen" style="display:none;flex-direction:column;align-items:center;justify-content:center">\n  <div id="night6FinalText"></div>\n  <button id="night6FinalMenuBtn" onclick="restartGame()">↩ HOOFDMENU</button>\n</div>\n\n<!-- ════ GAME SCRIPT ════ -->
 <script src="game.js"></script>
 
 </body>
