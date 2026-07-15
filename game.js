@@ -2401,7 +2401,8 @@ const N6 = {
   ambience:       'Audio/Night6Ambience.mp3',
   nachtZes:       'Audio/NachtZes.mp3',
   sneakyGolemSnd: 'Audio/SneakyGolem.mp3',
-  rockfall:       'Audio/RockFall.mp3',
+  rock:           'Audio/Rock.mp3',
+  metal:          'Audio/Metal.mp3',
   newEnemy:       'Audio/NewEnemy.mp3',
   neefJS:         'Images/NeefJumpscare.png',
   gijsCam2:       'Images/GijsCamera2.png',
@@ -2421,7 +2422,8 @@ function initAudio6(){
     n6ambience: [N6.ambience, true,  .35],
     nachtZes:   [N6.nachtZes, true,  .45],
     sneakyGolem:[N6.sneakyGolemSnd, false, 1.0],
-    rockfall:   [N6.rockfall, false, .95],
+    rock:       [N6.rock,     false, .95],
+    metal:      [N6.metal,    false, .90],
     newEnemy:   [N6.newEnemy, false, .85],
     theEnd:     [N6.theEnd, false, .9],
   };
@@ -2455,8 +2457,9 @@ function mkN6State(){
     jeffrey:false, maduro:false, schaduw:false, diddy:false, chapo:false, neef:false, sneakyGolem:false,
     /* Neef AI */
     neefOnVentCam:false, neefCountdown:null, neefCooldownTimer:null, neefAttacked:false,
-    /* SneakyGolem AI — same path as Gijs but uses N6State separately */
-    sgPos:-1, sgMoveTimer:null,
+    neefMetalPlayed:false,
+    /* SneakyGolem AI */
+    sgPos:-1, sgMoveTimer:null, sgAtDoor:false, sgDoorTimer:null, sgCamDisableTimer:null,
     /* 6AM ending */
     sixAMDone:false, endingTimer:null, endingActive:false,
     /* own timers */
@@ -2952,6 +2955,7 @@ function startN6Neef(){
 function neefAppear(){
   if(N6State.dead||N6State.won||!N6State.neef) return;
   N6State.neefOnVentCam=true;
+  N6State.neefMetalPlayed=false; /* Reset zodat Metal.mp3 opnieuw kan bij volgend verlaten */
   if(G.curCam===VENT_CAM_ID) renderN6VentFeed();
   /* Schedule disappearance after random 20-50 seconds */
   const waitMs=(20000+Math.random()*30000);
@@ -2964,6 +2968,11 @@ function neefLeaveVentCam(){
   if(N6State.dead||N6State.won) return;
   N6State.neefOnVentCam=false;
   if(G.curCam===VENT_CAM_ID) renderN6VentFeed();
+  /* Metal.mp3 één keer afspelen bij verlaten ventilatie */
+  if(!N6State.neefMetalPlayed){
+    N6State.neefMetalPlayed=true;
+    play6('metal');
+  }
   /* Player has 15 seconds to close vent */
   N6State.neefCountdown=setTimeout(()=>{
     if(!N6State.dead&&!N6State.won&&!G.ventClosed){
@@ -3005,59 +3014,109 @@ function triggerNeefJS(){
 }
 
 /* ══════════════════════════════════════════
-   SNEAKY GOLEM
+   SNEAKY GOLEM — NIEUWE AI
+   Start op CAM 1 (POS.C0). Beweegt elke 12s
+   één stap richting linkergang (POS.C3 → POS.LD).
+   Bij elke stap: Rock.mp3 + camera offline 3s.
+   Zodra hij POS.LD bereikt: 12s voor speler om
+   linker deur te sluiten, daarna jumpscare.
 ══════════════════════════════════════════ */
+
+/* Pad: C0 → C1 → C2 → C3 (LinkerGang) → LD */
+const SG_PATH = [POS.C0, POS.C1, POS.C2, POS.C3, POS.LD];
+const SG_MOVE_MS = 12000;
+const SG_OFFLINE_MS = 3000;
+const SG_DOOR_DEADLINE_MS = 12000;
+
 function activateSneakyGolem(){
   if(N6State.sneakyGolem) return;
   N6State.sneakyGolem=true;
   stop6('nachtZes');
   play6('sneakyGolem');
-  /* Use Gijs path but independently */
-  N6State.sgPos=POS.C0;
-  scheduleSGMove();
+  N6State.sgPos=POS.C0;  /* Start altijd op CAM 1 */
+  N6State.sgAtDoor=false;
+  scheduleSGStep();
 }
 
-function scheduleSGMove(){
+function scheduleSGStep(){
   if(N6State.sgMoveTimer) clearTimeout(N6State.sgMoveTimer);
-  if(N6State.dead||N6State.won) return;
-  /* Significantly faster than Gijs */
-  const delay=2000+Math.random()*2000;
-  N6State.sgMoveTimer=setTimeout(()=>{advanceSG();scheduleSGMove();},delay);
+  if(N6State.dead||N6State.won||N6State.sgAtDoor) return;
+  N6State.sgMoveTimer=setTimeout(()=>{ advanceSG(); }, SG_MOVE_MS);
+  N6State.enemyTimers.push(N6State.sgMoveTimer);
 }
 
 function advanceSG(){
   if(N6State.dead||N6State.won) return;
-  if(N6State.sgPos===POS.LD||N6State.sgPos===POS.RD) return;
-  let np=N6State.sgPos;
-  if(np===POS.C0) np=POS.C1;
-  else if(np===POS.C1) np=POS.C2;
-  else if(np===POS.C2) np=Math.random()<.5?POS.C3:POS.C4;
-  else if(np===POS.C3) np=POS.LD;
-  else if(np===POS.C4) np=POS.RD;
-  N6State.sgPos=np;
-  if(np===POS.LD||np===POS.RD) handleSGAtDoor(np);
-}
+  const curIdx=SG_PATH.indexOf(N6State.sgPos);
+  if(curIdx<0||curIdx>=SG_PATH.length-1) return; /* Al op LD of onbekend */
 
-function handleSGAtDoor(pos){
-  play6('rockfall');
-  const closed=pos===POS.LD?G.lfClosed:G.rtClosed;
-  if(!closed){
-    const t=setTimeout(()=>{
-      if(!N6State.dead&&!N6State.won&&N6State.sgPos===pos){
+  const nextPos=SG_PATH[curIdx+1];
+  N6State.sgPos=nextPos;
+
+  /* Rock.mp3 afspelen bij elke stap */
+  play6('rock');
+
+  if(nextPos===POS.LD){
+    /* Linkergang bereikt — stop verdere beweging, start deur-deadline */
+    N6State.sgAtDoor=true;
+    sgDisableCamera(POS.C3); /* Camera van linkergang offline */
+    N6State.sgDoorTimer=setTimeout(()=>{
+      if(!N6State.dead&&!N6State.won&&!G.lfClosed){
         triggerSGJS();
       }
-    },GRACE_MS);
-    N6State.enemyTimers.push(t);
+    }, SG_DOOR_DEADLINE_MS);
+    N6State.enemyTimers.push(N6State.sgDoorTimer);
   } else {
-    /* Retreat */
-    const rt=setTimeout(()=>{
-      if(!N6State.dead&&!N6State.won){
-        N6State.sgPos=[POS.C0,POS.C1,POS.C2][Math.floor(Math.random()*3)];
-      }
-    }, DOOR_RETREAT_MIN+Math.random()*(DOOR_RETREAT_MAX-DOOR_RETREAT_MIN));
-    N6State.enemyTimers.push(rt);
+    /* Tijdelijk de camera van de nieuwe positie offline zetten */
+    sgDisableCamera(nextPos);
+    /* Volgende stap inplannen na de offline-periode */
+    scheduleSGStep();
   }
 }
+
+/* Zet camera van positie offline voor SG_OFFLINE_MS, toon foutmelding */
+function sgDisableCamera(camPos){
+  /* camPos is een POS.Cx index — vertaal naar cam id (0-based gelijk) */
+  const camId=camPos; /* POS.C0=0 .. POS.C3=3 */
+  const disOverlay=document.getElementById('ctdis'+camId);
+  const camMain=document.getElementById('camMain');
+
+  /* Toon offline overlay in camera strip */
+  if(disOverlay){
+    disOverlay.querySelector('span').textContent='FOUTMELDING: CAMERA BUITEN WERKING';
+    disOverlay.style.display='flex';
+  }
+  /* Als speler op deze cam zit: toon foutmelding op hoofdscherm */
+  if(G.curCam===camId&&G.camOpen){
+    const errMsg=document.getElementById('n6CamErrMsg')||(()=>{
+      const d=document.createElement('div');
+      d.id='n6CamErrMsg';
+      d.style.cssText='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);'+
+        'color:#ff2200;font-family:"Share Tech Mono",monospace;font-size:1.1rem;font-weight:bold;'+
+        'text-align:center;text-shadow:0 0 10px #ff0000;pointer-events:none;z-index:500;';
+      document.getElementById('camMain').appendChild(d);
+      return d;
+    })();
+    errMsg.textContent='FOUTMELDING: CAMERA BUITEN WERKING';
+    errMsg.style.display='block';
+    if(camMain) camMain.classList.add('cam-offline');
+  }
+
+  if(N6State.sgCamDisableTimer) clearTimeout(N6State.sgCamDisableTimer);
+  N6State.sgCamDisableTimer=setTimeout(()=>{
+    /* Camera weer online */
+    if(disOverlay){
+      disOverlay.querySelector('span').textContent='OFFLINE';
+      disOverlay.style.display='none';
+    }
+    const errMsg=document.getElementById('n6CamErrMsg');
+    if(errMsg) errMsg.style.display='none';
+    if(camMain) camMain.classList.remove('cam-offline');
+  }, SG_OFFLINE_MS);
+  N6State.enemyTimers.push(N6State.sgCamDisableTimer);
+}
+
+function handleSGAtDoor(pos){ /* Legacy stub — niet meer gebruikt */ }
 
 function triggerSGJS(){
   if(N6State.dead) return;
@@ -3187,11 +3246,13 @@ function killN6Timers(){
   N6State.enemyTimers.forEach(t=>{try{clearTimeout(t);clearInterval(t);}catch(e){}});
   N6State.enemyTimers=[];
   [N6State.neefCountdown,N6State.neefCooldownTimer,N6State.sgMoveTimer,
+   N6State.sgDoorTimer,N6State.sgCamDisableTimer,
    N6State.endingTimer,N6State.ambTimer].forEach(t=>{
     if(t)try{clearTimeout(t);clearInterval(t);}catch(e){}
   });
   N6State.neefCountdown=null;N6State.neefCooldownTimer=null;
-  N6State.sgMoveTimer=null;N6State.endingTimer=null;
+  N6State.sgMoveTimer=null;N6State.sgDoorTimer=null;N6State.sgCamDisableTimer=null;
+  N6State.endingTimer=null;
 }
 
 /* ══════════════════════════════════════════
@@ -3234,7 +3295,46 @@ window.proceedToMenu = function(){
 function retryNight6(){
   document.getElementById('retryN6Btn').style.display='none';
   document.getElementById('deathScreen').style.display='none';
+
+  /* Stop alle audio */
   stopAll();
-  if(N6State){ killN6Timers(); stopAll6(); N6State=null; }
+  stopAll6();
+
+  /* Kill N6-specifieke timers */
+  if(N6State){ killN6Timers(); N6State=null; }
+
+  /* Kill G-timers (tick, time, lure, alarm, hobo, move, glitch etc.) */
+  if(G){
+    [G.tickTimer,G.timeTimer,G.mMoveTimer,G.mDoorTimer,G.mRetreatTimer,
+     G.hoboMoveTimer,G.lureCDTimer,G.alarmCDTimer,G.maduroSpawnTimer,
+     G.chapoKillTimer,G.diddyMoveTimer,G.markAppearTimer,G.markKillTimer,
+     G.markLeaveTimer,G.shadowKillTimer,G.shadowCheckTimer,
+     G.glitchLoopTimer,G.attackFlashTimer,G.fireTimer,G.fireAnim
+    ].forEach(t=>{ if(t) try{clearTimeout(t);clearInterval(t);}catch(e){} });
+    if(G.markCheckInterval) try{clearInterval(G.markCheckInterval);}catch(e){}
+    Object.values(G.maduroReconnectTimers||{}).forEach(t=>{try{clearTimeout(t);}catch(e){}});
+  }
+
+  /* Reset klok glitch */
+  const ht=document.getElementById('hudTime');
+  if(ht) ht.classList.remove('clock-glitching');
+
+  /* Reset camera offline overlays */
+  document.querySelectorAll('.ct-disabled-overlay').forEach(el=>{
+    el.querySelector('span').textContent='OFFLINE';
+    el.style.display='none';
+  });
+  const errMsg=document.getElementById('n6CamErrMsg');
+  if(errMsg) errMsg.style.display='none';
+  const camMain=document.getElementById('camMain');
+  if(camMain) camMain.classList.remove('cam-offline');
+
+  /* Reset glitch tear band */
+  const tear=document.getElementById('glitchTearBand');
+  if(tear) tear.style.display='none';
+
+  /* G null zetten zodat beginNight6Gameplay een schone lei heeft */
+  G=null;
+
   startNight6();
 }
