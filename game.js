@@ -78,11 +78,11 @@ const NIGHT_TAPES = {
 };
 
 const NIGHT_END_TEXTS = {
-  1:`Het luik ging open. Nacht 1 overleefd — maar de kelder is nog lang niet klaar met je.`,
-  2:`De muziek speelde tot het einde. Nacht 2 overleefd, al blijft er iets ronddwalen in de ventilatie.`,
-  3:`Jeffrey verdween terug in het duister. Nacht 3 overleefd — maar hij vergeet nooit een gezicht.`,
-  4:`Chapo trok zich terug. Nacht 4 overleefd, ondanks dat de deuren machteloos waren.`,
-  5:`De zon komt op. Eindelijk ben je ontsnapt aan Meester Gijs — en aan alles wat met hem meekwam.`,
+  1:`Het luik ging open. Nacht 1 zit er op, maar Gijs is nog lang niet klaar met je.`,
+  2:`De muziek speelde tot het einde. Nacht 2 overleefd. Meester Gijs is woedend.`,
+  3:`Epstein verdween terug in het duister. Nacht 3 overleefd, maar denk niet dat dit het einde is.`,
+  4:`Chapo trok zich terug. Nacht 4 overleefd. De kartel zou dit niet vergeten..`,
+  5:`De zon komt op. Eindelijk ben je ontsnapt aan Meester Gijs en al zijn vrienden.`,
 };
 
 /* ══════════════════════════════════════════
@@ -90,14 +90,14 @@ const NIGHT_END_TEXTS = {
 ══════════════════════════════════════════ */
 const NIGHT_MS           = 6 * 60 * 1000;
 const TICK_MS            = 400;
-const O2_DRAIN_BASE      = 0.015;
-const O2_DOOR_PER_TICK   = 0.07;
+const O2_DRAIN_BASE      = 0.018;
+const O2_DOOR_PER_TICK   = 0.12;
 const O2_CAM_PER_TICK    = 0.03;
 const O2_VENT_PER_TICK   = 0.09;
 const LURE_CD_S          = 30;
 const GRACE_MS           = 4200;
-const DOOR_RETREAT_MIN   = 10000;
-const DOOR_RETREAT_MAX   = 15000;
+const DOOR_RETREAT_MIN   = 5000;
+const DOOR_RETREAT_MAX   = 20000;
 const MOVE_IVAL_BASE     = [32000,24000,16000,11000,7500,5000];
 const HOBO_MIN_BASE      = 5000;
 const HOBO_MAX_BASE      = 20000;
