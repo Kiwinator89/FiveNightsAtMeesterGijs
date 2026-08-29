@@ -74,7 +74,7 @@ const NIGHT_TAPES = {
   2:`Dit is de tweede dag dat ik vastzit in de kelder. Ik hoor gekke geluiden in de ventilatie. Als je wat ziet sluit het luik zo snel mogelijk, je wilt er niet achter komen wat er gebeurt als je het niet doet! Er speelt nu muziek uit de muziekkamer. Wat er ook gebeurt zorg dat de muziek niet stopt! Je wilt niet weten wat er gebeurt als de tumors ontwaken...`,
   3:`Ik weet niet hoe. Ik weet niet waarom. Maar hij is er ook bij. De enige echte Jeffrey. Hij was nooit overleden, hij hield zich gewoon schuil in de kelder. Hij vindt het niet leuk om aangestaard te worden. Blijf hem aankijken! De deuren kunnen hem niet stoppen.`,
   4:`Chapo zit hier ook. Elke avond wordt steeds lastiger. Houd de linker gang goed in de gaten. Gebruik het alarm om hem af te schrikken.`,
-  5:`Meester Gijs heeft genoeg gehad. Ik heb hem nog nooit zo agressief gezien. Iedereen wilt mij doden. Diddy is nu ook ontwaakt. Blijkbaar was zijn celstraf al voorbij. Hij breekt door de deuren heen. Doe er alles aan om hem af te leiden. Lok hem weg met geluid en speel het alarm af bij noodgevallen. Ik weet niet of ik ooit nog de zonsondergang ga zien...`,
+  5:`Meester Gijs heeft genoeg gehad. Ik heb hem nog nooit zo agressief gezien. Iedereen wilt mij doden. Diddy is nu ook ontwaakt. Blijkbaar was zijn celstraf al voorbij. Hij breekt door de deuren heen. Doe er alles aan om hem af te leiden. Lok hem weg met geluid en speel het alarm af bij noodgevallen. Ik weet niet of ik ooit nog de zonsopgang ga zien...`,
 };
 
 const NIGHT_END_TEXTS = {
