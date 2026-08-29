@@ -519,6 +519,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 
 /* ══ CAMERA OVERLAY ══ */
 #camOverlay{position:absolute;inset:0;z-index:30;background:rgba(2,3,2,.96);display:none;flex-direction:column;padding:12px;gap:10px}
+#camOverlay .cam-body{display:flex;flex:1;gap:10px;min-height:0;overflow:hidden}
 .cam-hdr{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #0c140c;padding-bottom:10px}
 .cam-hdr-title{color:#1a6a2a;font-size:clamp(.6rem,1.1vw,.75rem);letter-spacing:5px;text-transform:uppercase}
 .cam-hdr-right{display:flex;align-items:center;gap:10px}
@@ -537,7 +538,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .alarm-cd-lbl.hot{color:#ff5500;animation:alarmBtnGlow .8s infinite}
 
 /* ══ CAM MAIN FEED ══ */
-.cam-main{flex:1;position:relative;background:#020602;border:1px solid #0a140a;overflow:hidden;min-height:0}
+.cam-main{flex:1;position:relative;background:#020602;border:1px solid #0a140a;overflow:hidden;min-height:0;min-width:0}
 .cam-scanlines{position:absolute;inset:0;background:var(--scan);pointer-events:none;z-index:5;opacity:.7}
 .cam-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,.7) 100%);pointer-events:none;z-index:5}
 .cam-noise{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -627,42 +628,35 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .mb-windup-btn.winding::after{transform:translateX(100%);transition:transform .6s}
 #tomDangerOverlay{position:absolute;inset:0;pointer-events:none;z-index:7;opacity:0;transition:opacity .8s;background:radial-gradient(ellipse at center,transparent 30%,rgba(180,0,0,.35) 100%);}
 
-/* ══ CAM MAP (FNAF-stijl plattegrond) ══ */
+/* ══ CAM MAP (FNAF-stijl plattegrond — rechterpaneel) ══ */
 .cam-strip{
   position:relative;
-  height:min(130px,18vh);
-  background:#010901;
-  border-top:1px solid #0a1a0a;
+  width:clamp(160px,18vw,230px);
   flex-shrink:0;
+  background:#010901;
+  border-left:1px solid #0a1a0a;
+  overflow:hidden;
 }
-/* Blueprint achtergrondlijnen */
+/* Blueprint rasterlijn achtergrond */
 .cam-strip::before{
   content:'';position:absolute;inset:0;pointer-events:none;
   background:
-    repeating-linear-gradient(0deg,transparent,transparent 19px,rgba(0,60,0,.12) 19px,rgba(0,60,0,.12) 20px),
-    repeating-linear-gradient(90deg,transparent,transparent 19px,rgba(0,60,0,.12) 19px,rgba(0,60,0,.12) 20px);
+    repeating-linear-gradient(0deg,transparent,transparent 19px,rgba(0,60,0,.1) 19px,rgba(0,60,0,.1) 20px),
+    repeating-linear-gradient(90deg,transparent,transparent 19px,rgba(0,60,0,.1) 19px,rgba(0,60,0,.1) 20px);
 }
-/* Connector lijnen tussen kamers (decoratief SVG) */
+/* Gebouwomtrek als decoratief kader */
 .cam-strip::after{
-  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
-  background:
-    /* Verticale lijn CAM7 → CAM4/CAM5 */
-    linear-gradient(to bottom,rgba(0,120,0,.18) 0,rgba(0,120,0,.18) 1px) 36% 0/1px 55% no-repeat,
-    /* Horizontale lijn CAM4 ↔ CAM5 */
-    linear-gradient(to right,rgba(0,120,0,.18) 0,rgba(0,120,0,.18) 1px) 18% 54%/46% 1px no-repeat,
-    /* Verticale lijn naar CAM3 */
-    linear-gradient(to bottom,rgba(0,120,0,.18) 0,rgba(0,120,0,.18) 1px) 36% 54%/1px 46% no-repeat,
-    /* Horizontale CAM4 → CAM3 */
-    linear-gradient(to right,rgba(0,120,0,.18) 0,rgba(0,120,0,.18) 1px) 18% 100%/30% 1px no-repeat,
-    /* Horizontale CAM3 → CAM5 */
-    linear-gradient(to right,rgba(0,120,0,.18) 0,rgba(0,120,0,.18) 1px) 36% 100%/28% 1px no-repeat,
-    /* CAM6 apart rechtsboven */
-    linear-gradient(to bottom,rgba(0,100,0,.12) 0,rgba(0,100,0,.12) 1px) 86% 0/1px 55% no-repeat;
+  content:'PLATTEGROND';
+  position:absolute;top:6px;left:0;right:0;
+  text-align:center;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.38rem;color:rgba(0,160,60,.3);
+  letter-spacing:3px;pointer-events:none;z-index:0;
 }
 .cam-thumb{
   position:absolute;
-  width:clamp(52px,7.5vw,78px);
-  height:clamp(34px,5.5vh,52px);
+  width:clamp(48px,5.5vw,68px);
+  height:clamp(32px,4.2vh,46px);
   background:#010a01;
   border:1px solid #0a1a0a;
   cursor:pointer;overflow:hidden;
@@ -675,43 +669,57 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
 .ct-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
 .ct-label{
   position:absolute;bottom:0;left:0;right:0;
-  background:rgba(0,0,0,.65);
+  background:rgba(0,0,0,.7);
   text-align:center;
-  font-size:clamp(.32rem,.5vw,.44rem);
+  font-size:clamp(.28rem,.42vw,.4rem);
   color:rgba(51,187,85,.65);
-  letter-spacing:1px;z-index:2;
+  letter-spacing:.5px;z-index:2;
   padding:1px 0;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-/* FNAF camera posities — 7 kamers verspreid als plattegrond
-   CAM 7 (Voordeur)    = bovenaan midden
-   CAM 4 (Linker Gang) = midden links
-   CAM 5 (Rechter Gang)= midden rechts
-   CAM 3 (Kantoor)     = midden midden
-   CAM 1 (Woonkamer)   = onder links
-   CAM 2 (Keuken)      = onder midden-rechts
-   CAM 6 (Muziekkamer) = apart rechtsboven (geïsoleerd)
+/*
+  FNAF plattegrond — verticaal rechterpaneel
+  Posities uitgedrukt als % van het paneel (breedte × hoogte):
+
+       [CAM 7 — Voordeur]        ← bovenaan, midden
+
+  [CAM 4]          [CAM 5]       ← midden rij, links & rechts
+  LinkerGang       RechterGang
+
+       [CAM 3 — Kantoor]         ← midden
+
+  [CAM 1]    [CAM 2]             ← onderste rij
+  Woonkamer  Keuken
+
+                        [CAM 6]  ← apart rechtsonder (Muziekkamer)
 */
-#ct0{ /* CAM 1 Woonkamer — linksonder */
-  left:2%; bottom:8%;
+#ct6{ /* CAM 7 Voordeur — bovenaan midden */
+  left:50%; transform:translateX(-50%);
+  top:8%;
 }
-#ct1{ /* CAM 2 Keuken — midden-rechts onder */
-  left:26%; bottom:8%;
+#ct3{ /* CAM 4 Linker Gang — midden links */
+  left:4%;
+  top:30%;
+}
+#ct4{ /* CAM 5 Rechter Gang — midden rechts */
+  right:4%;
+  top:30%;
 }
 #ct2{ /* CAM 3 Kantoor — midden */
-  left:calc(50% - 3.75vw); bottom:8%;
+  left:50%; transform:translateX(-50%);
+  top:50%;
 }
-#ct3{ /* CAM 4 Linker Gang — midden-links */
-  left:2%; top:12%;
+#ct0{ /* CAM 1 Woonkamer — linksonder */
+  left:4%;
+  bottom:18%;
 }
-#ct4{ /* CAM 5 Rechter Gang — midden-rechts */
-  left:26%; top:12%;
+#ct1{ /* CAM 2 Keuken — midden-rechts onder */
+  right:4%;
+  bottom:18%;
 }
-#ct5{ /* CAM 6 Muziekkamer — rechts geïsoleerd */
-  right:2%; top:12%;
-}
-#ct6{ /* CAM 7 Voordeur — bovenaan midden */
-  left:calc(50% - 3.75vw); top:12%;
+#ct5{ /* CAM 6 Muziekkamer — rechtsonder geïsoleerd */
+  left:50%; transform:translateX(-50%);
+  bottom:3%;
 }
 .cam-lure-in-feed{position:absolute;bottom:12px;right:12px;z-index:7}
 .cam-lure-in-feed .lure-btn{margin-bottom:0;font-size:clamp(.45rem,.8vw,.6rem)}
@@ -1392,6 +1400,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
         <button class="cam-close-btn" onclick="toggleCam()">✕ SLUITEN</button>
       </div>
     </div>
+    <div class="cam-body">
     <div class="cam-main" id="camMain">
       <canvas class="cam-canvas" id="camCanvas"></canvas>
       <img class="monster-on-cam"  id="monsterCamImg"  src="" alt="" style="display:none">
@@ -1443,24 +1452,25 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
       </div>
     </div>
     <div class="cam-strip" id="camStrip">
-      <!-- Verbindingslijnen tussen kamers (FNAF plattegrond stijl) -->
-      <svg class="cam-map-lines" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1" preserveAspectRatio="none">
-        <!-- CAM7(Voordeur) boven-midden → CAM4(LinkerGang) midden-links -->
-        <line x1="50%" y1="35%" x2="14%" y2="35%" stroke="rgba(0,160,60,.22)" stroke-width="1" stroke-dasharray="4,3"/>
-        <!-- CAM7 → CAM5(RechterGang) midden-rechts -->
-        <line x1="50%" y1="35%" x2="40%" y2="35%" stroke="rgba(0,160,60,.22)" stroke-width="1" stroke-dasharray="4,3"/>
-        <!-- CAM4 omlaag naar CAM1(Woonkamer) -->
-        <line x1="14%" y1="60%" x2="14%" y2="68%" stroke="rgba(0,160,60,.22)" stroke-width="1" stroke-dasharray="4,3"/>
-        <!-- CAM5 omlaag naar CAM2(Keuken) -->
-        <line x1="40%" y1="60%" x2="40%" y2="68%" stroke="rgba(0,160,60,.22)" stroke-width="1" stroke-dasharray="4,3"/>
-        <!-- CAM4 → CAM3(Kantoor) diagonaal -->
-        <line x1="14%" y1="60%" x2="50%" y2="68%" stroke="rgba(0,160,60,.18)" stroke-width="1" stroke-dasharray="3,4"/>
-        <!-- CAM6(Muziekkamer) geïsoleerd rechts — stippellijn naar rand -->
-        <line x1="86%" y1="35%" x2="92%" y2="35%" stroke="rgba(0,100,60,.15)" stroke-width="1" stroke-dasharray="2,5"/>
-        <!-- CAM7 verticaal naar beneden -->
-        <line x1="50%" y1="12%" x2="50%" y2="35%" stroke="rgba(0,160,60,.22)" stroke-width="1" stroke-dasharray="4,3"/>
+      <!-- SVG verbindingslijnen — verticale plattegrond rechts -->
+      <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1" preserveAspectRatio="none">
+        <!-- CAM7(Voordeur) omlaag naar CAM4 links -->
+        <line x1="50%" y1="16%" x2="18%" y2="38%" stroke="rgba(0,160,60,.25)" stroke-width="1" stroke-dasharray="4,3"/>
+        <!-- CAM7 omlaag naar CAM5 rechts -->
+        <line x1="50%" y1="16%" x2="82%" y2="38%" stroke="rgba(0,160,60,.25)" stroke-width="1" stroke-dasharray="4,3"/>
+        <!-- CAM4 → CAM3 omlaag -->
+        <line x1="18%" y1="46%" x2="50%" y2="58%" stroke="rgba(0,160,60,.22)" stroke-width="1" stroke-dasharray="4,3"/>
+        <!-- CAM5 → CAM3 omlaag -->
+        <line x1="82%" y1="46%" x2="50%" y2="58%" stroke="rgba(0,160,60,.22)" stroke-width="1" stroke-dasharray="4,3"/>
+        <!-- CAM3 → CAM1 omlaag links -->
+        <line x1="50%" y1="66%" x2="18%" y2="74%" stroke="rgba(0,160,60,.22)" stroke-width="1" stroke-dasharray="4,3"/>
+        <!-- CAM3 → CAM2 omlaag rechts -->
+        <line x1="50%" y1="66%" x2="82%" y2="74%" stroke="rgba(0,160,60,.22)" stroke-width="1" stroke-dasharray="4,3"/>
+        <!-- CAM6 geïsoleerd — korte stippellijn -->
+        <line x1="50%" y1="86%" x2="50%" y2="90%" stroke="rgba(0,100,60,.15)" stroke-width="1" stroke-dasharray="2,5"/>
       </svg>
     </div>
+    </div><!-- /.cam-body -->
   </div>
 
   <canvas id="fireCanvas"></canvas>
