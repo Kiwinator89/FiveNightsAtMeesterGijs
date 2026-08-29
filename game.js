@@ -43,12 +43,14 @@ const FILES = {
   shadowGijsOffice: 'Images/ShadowGijsOffice.png',
   shadowGijsJS:     'Images/ShadowGijsJumpscare.png',
   shadowGijsAudio:  'Audio/ShadowGijs.mp3',
-  camBg0:       'Images/StookKamer.png',
-  camBg1:       'Images/VoorraadKamer.png',
-  camBg2:       'Images/KlasLokaal.png',
-  camBg3:       'Images/LinkerGang.png',
-  camBg4:       'Images/RechterGang.png',
-  camBg5:       'Images/MuziekKamer.png',
+  camBg0:       'Images/Cam1Background.png',
+  camBg1:       'Images/Cam2Background.png',
+  camBg2:       'Images/Cam3Background.png',
+  camBg3:       'Images/Cam4Background.png',
+  camBg4:       'Images/Cam5Background.png',
+  camBg5:       'Images/Cam6Background.png',
+  camBg6:       'Images/Cam7Background.png',
+  aigijsCam:    'Images/AIgijsCamera.png',
   tape:         'Images/Tape.png',
   continueSnd:  'Audio/Continue.mp3',
   tapeAmbience: 'Audio/TapeAmbience.mp3',
@@ -103,15 +105,20 @@ const MB_DRAIN_BASE      = 0.8;
 const MB_DRAIN_SCALE     = 0.3;
 const MB_WIND_RATE       = 8;
 const MUSIC_CAM_ID       = 5;
+const CHAPO_CAM_ID_NEW   = 3;   // CAM 4 = Linker Gang (cam array id 3)
+const AIGIJS_CAM_ID      = 6;   // CAM 7 = Voordeur
+const AIGIJS_SPAWN_INTERVAL_MS = 20000;
+const AIGIJS_SPAWN_CHANCE      = 0.20;
+const AIGIJS_COOLDOWN_MS       = 20000;
 const CHAPO_KILL_DELAY_MS= 6000;
 const ALARM_CD_S         = 20;
 const MADURO_APPEAR_INTERVAL = 2000;
 const MADURO_WATCH_LIMIT_MS  = 500;
 const MADURO_DISABLE_MS      = 8000;
 const JEFFREY_START_POS  = 0;
-const JEFFREY_PATH       = [0,1,2,3,4];
+const JEFFREY_PATH       = [0,1,2,3,4];  // Woonkamer→Keuken→Kantoor→LinkerGang→RechterGang
 const JEFFREY_SWITCH_S   = 55;
-const CHAPO_CAM_ID       = 3;
+const CHAPO_CAM_ID       = 3;            // Linker Gang (cam id 3)
 const CHAPO_ATTACK_S     = 60;
 const DIDDY_MOVE_IVAL_BASE=[26000,20000,18000,13000,9000,7500];
 
@@ -162,18 +169,22 @@ function diffToMarkInterval(level){
    CAMERA-CONFIGURATIE
 ══════════════════════════════════════════ */
 const CAMS = [
-  {id:0,name:'CAM 1',room:'STOOKKAMER'},
-  {id:1,name:'CAM 2',room:'OPSLAGRUIMTE'},
-  {id:2,name:'CAM 3',room:'KLASLOKAAL'},
+  {id:0,name:'CAM 1',room:'WOONKAMER'},
+  {id:1,name:'CAM 2',room:'KEUKEN'},
+  {id:2,name:'CAM 3',room:'KANTOOR'},
   {id:3,name:'CAM 4',room:'LINKER GANG'},
   {id:4,name:'CAM 5',room:'RECHTER GANG'},
   {id:5,name:'CAM 6',room:'MUZIEKKAMER'},
+  {id:6,name:'CAM 7',room:'VOORDEUR'},
 ];
 
-const POS = {C0:0,C1:1,C2:2,C3:3,C4:4,LD:5,RD:6};
+// CAM layout:  CAM7(6) is top entry, CAM4(3)/CAM5(4) are left/right below it,
+//              CAM3(2) is center, CAM1(0)/CAM2(1) are bottom, CAM6(5) is isolated music room.
+// Route: C6 → C3/C4 → C2 → C0/C1 → LD/RD
+const POS = {C0:0,C1:1,C2:2,C3:3,C4:4,C5:5,C6:6,LD:7,RD:8};
 const GIJS_ALLOWED_CAMS  = [POS.C0,POS.C1,POS.C2,POS.C3,POS.C4];
-const HOBO_ALLOWED_CAMS  = [POS.C0,POS.C1,POS.C2,POS.C3,POS.C4];
-const MADURO_ALLOWED_CAMS= [0,1,2,3,4,5];
+const HOBO_ALLOWED_CAMS  = [POS.C0,POS.C1,POS.C2,POS.C3,POS.C4,POS.C6];
+const MADURO_ALLOWED_CAMS= [0,1,2,3,4,5,6];
 
 /* ══════════════════════════════════════════
    MENU MUZIEK
@@ -226,7 +237,7 @@ function typeText(el, text, speed, onDone){
    CUSTOM NACHT — STANDAARDWAARDEN & UI
 ══════════════════════════════════════════ */
 const CUSTOM_DEFAULTS = {
-  gijs:0, hobo:0, tom:0, mark:0, maduro:0, jeffrey:0, chapo:0, diddy:0, shadow:0
+  gijs:0, hobo:0, tom:0, mark:0, maduro:0, jeffrey:0, chapo:0, diddy:0, shadow:0, aigijs:0
 };
 let customLevels = {...CUSTOM_DEFAULTS};
 
@@ -239,7 +250,7 @@ function buildCustomNightConfig(){
     label:`Custom Nacht · ${pct}% Gevaar`,
     lore:`Je hebt de AI zelf ingesteld. Elke vijand op een eigen niveau. <strong>Veel succes.</strong>`,
     quote:`"You asked for this."`,
-    warn:`⚠ Custom moeilijkheidsgraad. Niveaus: Gijs ${lvls.gijs} · Hobo ${lvls.hobo} · Tom ${lvls.tom} · Mark ${lvls.mark} · Maduro ${lvls.maduro} · Jeffrey ${lvls.jeffrey} · Chapo ${lvls.chapo} · Diddy ${lvls.diddy} · Shadow ${lvls.shadow}`,
+    warn:`⚠ Custom moeilijkheidsgraad. Niveaus: Gijs ${lvls.gijs} · Hobo ${lvls.hobo} · Tom ${lvls.tom} · Mark ${lvls.mark} · Maduro ${lvls.maduro} · Jeffrey ${lvls.jeffrey} · Chapo ${lvls.chapo} · Diddy ${lvls.diddy} · Shadow ${lvls.shadow} · AIgijs ${lvls.aigijs}`,
     gijsActive:  lvls.gijs > 0,
     hoboActive:  lvls.hobo > 0,
     tomActive:   lvls.tom > 0,
@@ -256,6 +267,8 @@ function buildCustomNightConfig(){
     chapoAttack:   diffToChapoAttack(lvls.chapo),
     diddyMoveIval: diffToMoveIvals(DIDDY_MOVE_IVAL_BASE, lvls.diddy),
     markInterval:  diffToMarkInterval(lvls.mark),
+    aigijsActive: lvls.aigijs > 0,
+    aigijsLevel:  lvls.aigijs,
     isCustom: true,
     customLevels: {...lvls},
   };
@@ -316,6 +329,7 @@ const NIGHT_CONFIGS = {
     maduroChance:0.05, shadowChance:0.006,
     moveIval:[20000,14000,9500,6500,4500,3000],
     hoboMinMs:3500, hoboMaxMs:13000,
+    aigijsLevel:10,
   },
 };
 
@@ -410,6 +424,31 @@ const continueAudio = new Audio(FILES.continueSnd);
 continueAudio.volume = 0.7;
 let glitchActive=false,glitchTimer=null;
 let fiveAMPlayed=false;
+let _aigijsLureBlocked=false;   // set true while AIgijs is active on CAM7
+
+// CCTV sway state — subtle mechanical camera movement
+const CCTV_SWAY = {
+  x:0, y:0,        // current offset
+  tx:0, ty:0,      // target offset
+  lastUpdate:0,
+  updateInterval:2200,  // ms between target changes (slow mechanical)
+  maxX:5, maxY:3,  // max px offset
+};
+function updateCCTVSway(now){
+  if(now - CCTV_SWAY.lastUpdate > CCTV_SWAY.updateInterval + Math.random()*800){
+    CCTV_SWAY.tx = (Math.random()-0.5)*2*CCTV_SWAY.maxX;
+    CCTV_SWAY.ty = (Math.random()-0.5)*2*CCTV_SWAY.maxY;
+    CCTV_SWAY.updateInterval = 1800 + Math.random()*1600;
+    CCTV_SWAY.lastUpdate = now;
+  }
+  // Lerp toward target (smooth mechanical movement)
+  CCTV_SWAY.x += (CCTV_SWAY.tx - CCTV_SWAY.x) * 0.025;
+  CCTV_SWAY.y += (CCTV_SWAY.ty - CCTV_SWAY.y) * 0.025;
+  // Tiny random micro-jitter
+  const jx = (Math.random()-0.5)*0.4;
+  const jy = (Math.random()-0.5)*0.3;
+  return {x: CCTV_SWAY.x + jx, y: CCTV_SWAY.y + jy};
+}
 
 function mkState(overrideCfg){
   const n = selectedNight;
@@ -430,7 +469,7 @@ function mkState(overrideCfg){
     o2:100,o2Dead:false,
     lfClosed:false,rtClosed:false,
     ventClosed:false,
-    mPos:cfg.gijsActive?POS.C0:-1,mPath:null,mDoorTimer:null,mMoveTimer:null,mRetreatTimer:null,
+    mPos:cfg.gijsActive?POS.C0:-1,mPath:null,mAltRoute:false,mDoorTimer:null,mMoveTimer:null,mRetreatTimer:null,
     hoboPos:cfg.hoboActive?HOBO_ALLOWED_CAMS[Math.floor(Math.random()*HOBO_ALLOWED_CAMS.length)]:-1,hoboMoveTimer:null,
     musicBox:100,isWindingUp:false,
     maduroPos:-1,maduroWatchMs:0,maduroDisabledCams:{},maduroSpawnTimer:null,maduroReconnectTimers:{},
@@ -438,7 +477,7 @@ function mkState(overrideCfg){
     jeffreyActive:cfg.jeffreyActive,
     chapoTimer:cfg.chapoAttack,chapoSprite:0,chapoAlarm:false,
     chapoActive:cfg.chapoActive,chapoKillTimer:null,
-    diddyPos:POS.C0,diddyMoveTimer:null,diddyActive:cfg.diddyActive,diddyPath:null,
+    diddyPos:POS.C0,diddyMoveTimer:null,diddyActive:cfg.diddyActive,diddyPath:null,diddyAltRoute:false,
     alarmReady:false,alarmCD:ALARM_CD_S,alarmCDTimer:null,
     camOpen:false,curCam:0,
     lureReady:false,lureCD:LURE_CD_S,lureCDTimer:null,
@@ -448,6 +487,7 @@ function mkState(overrideCfg){
     tickTimer:null,timeTimer:null,fireTimer:null,glitchLoopTimer:null,attackFlashTimer:null,
     shadowActive:false,shadowKillTimer:null,shadowCheckTimer:null,
     fiveAMDone:false,
+    aigijsActive:false,aigijsSpawnTimer:null,aigijsCooldownTimer:null,
   };
 }
 
@@ -644,7 +684,7 @@ function drawOffice(){
    CAMERA KAMER TEKENEN
 ══════════════════════════════════════════ */
 const CAM_BG_IMGS={};
-const CAM_BG_KEYS=['camBg0','camBg1','camBg2','camBg3','camBg4','camBg5'];
+const CAM_BG_KEYS=['camBg0','camBg1','camBg2','camBg3','camBg4','camBg5','camBg6'];
 
 function getCamBgImg(roomId,cb){
   const key=CAM_BG_KEYS[roomId];
@@ -673,7 +713,15 @@ function drawCamRoom(canvas,roomId,small=false){
       let sw,sh,sx=0,sy=0;
       if(iR>cR){sh=img.naturalHeight;sw=sh*cR;sx=(img.naturalWidth-sw)/2;}
       else{sw=img.naturalWidth;sh=sw/cR;sy=(img.naturalHeight-sh)/2;}
-      ctx.drawImage(img,sx,sy,sw,sh,0,0,W,H);
+      // CCTV sway — only on main feed (not small thumbnails)
+      if(!small){
+        const sway=updateCCTVSway(Date.now());
+        const ox=Math.round(sway.x), oy=Math.round(sway.y);
+        // Draw slightly oversized to hide edge artifacts from sway
+        ctx.drawImage(img,sx,sy,sw,sh,ox-2,oy-2,W+4,H+4);
+      } else {
+        ctx.drawImage(img,sx,sy,sw,sh,0,0,W,H);
+      }
     } else {
       ctx.fillStyle='#080a06';ctx.fillRect(0,0,W,H);
     }
@@ -711,6 +759,7 @@ function buildCamStrip(){
       <div class="ct-tomdot${c.id===MUSIC_CAM_ID?' on':''}" id="td${c.id}"></div>
       <div class="ct-madurodot" id="cpmd${c.id}"></div>
       <div class="ct-diddydot" id="dd${c.id}"></div>
+      <div id="agd${c.id}" style="display:none;position:absolute;bottom:5px;right:5px;width:8px;height:8px;border-radius:50%;background:#ff00aa;box-shadow:0 0 8px #ff00aa;z-index:3;animation:mdBlink .4s infinite"></div>
       <div class="ct-disabled-overlay" id="ctdis${c.id}"><span>OFFLINE</span><span style="font-size:.5em;color:#330000;letter-spacing:2px">MADURO</span></div>`;
     el.onclick=()=>switchCam(c.id);
     strip.appendChild(el);
@@ -728,7 +777,17 @@ function switchCam(id){
     if(el){el.style.animation='none';setTimeout(()=>el.style.animation='',50);}
     return;
   }
-  if(id!==G.curCam) play('cameraSwitch');
+  if(id!==G.curCam){
+    play('cameraSwitch');
+    // Brief switch interference on the canvas
+    const cc=document.getElementById('camCanvas');
+    if(cc){
+      const types=['glitch-rgb','glitch-stutter','glitch-zap'];
+      const t=types[Math.floor(Math.random()*types.length)];
+      cc.classList.add(t);
+      setTimeout(()=>cc.classList.remove(t), 80+Math.random()*80);
+    }
+  }
   if(G.maduroPos===G.curCam && id!==G.curCam) maduroDespawn();
   if(G.curCam===MUSIC_CAM_ID&&id!==MUSIC_CAM_ID){if(SFX.muziek) SFX.muziek.volume=0.15;}
   G.curCam=id;
@@ -780,6 +839,19 @@ function renderCamFeed(){
   const diddyImg=document.getElementById('diddyCamImg');
   diddyImg.style.display=diddyHere?'block':'none';
   if(diddyHere) diddyImg.src=FILES.diddyCam;
+
+  // AIgijs on CAM7 only
+  let aigijsImgEl = document.getElementById('aigijsCamImg');
+  if(!aigijsImgEl){
+    aigijsImgEl = document.createElement('img');
+    aigijsImgEl.id='aigijsCamImg';
+    aigijsImgEl.alt='';
+    aigijsImgEl.style.cssText='position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:6;max-height:95%;max-width:65%;object-fit:contain;filter:brightness(0.65) contrast(1.5) saturate(0.4) hue-rotate(200deg);animation:mBreath 1.8s ease-in-out infinite;display:none;';
+    document.getElementById('camMain').appendChild(aigijsImgEl);
+  }
+  const aigijsHere = G.aigijsActive && id===AIGIJS_CAM_ID;
+  aigijsImgEl.style.display = aigijsHere ? 'block' : 'none';
+  if(aigijsHere) aigijsImgEl.src = FILES.aigijsCam;
   const maduroImg=document.getElementById('maduroCamImg');
   maduroImg.style.display=maduroHere?'block':'none';
   const overlay=document.getElementById('tomDangerOverlay');
@@ -834,6 +906,8 @@ function refreshMonsterDots(){
     if(dd) dd.classList.toggle('on',G.diddyActive&&G.diddyPos===c.id&&c.id!==MUSIC_CAM_ID);
     const ctdis=document.getElementById('ctdis'+c.id);
     if(ctdis) ctdis.classList.toggle('active',isCamDisabled(c.id));
+    const agd=document.getElementById('agd'+c.id);
+    if(agd) agd.style.display=(G.aigijsActive&&c.id===AIGIJS_CAM_ID)?'block':'none';
     const thumb=document.getElementById('ct'+c.id);
     if(thumb){
       if(isCamDisabled(c.id)) thumb.classList.add('cam-maduro-warn');
@@ -885,6 +959,14 @@ function updateAlarmUI(){
   const btn=document.getElementById('alarmCamBtn');
   const lbl=document.getElementById('alarmCdLbl');
   if(!btn||!lbl) return;
+  // AIgijs on CAM7 overrides normal alarm display
+  if(G.curCam===AIGIJS_CAM_ID && G.aigijsActive){
+    btn.disabled=false;
+    btn.className='alarm-cam-btn target';
+    btn.textContent='🚨 ALARM — AIgijs!';
+    lbl.textContent='VUUR!'; lbl.className='alarm-cd-lbl hot';
+    return;
+  }
   const hasTarget=alarmTargetOnCam();
   if(G.alarmReady){
     btn.disabled=false;
@@ -901,7 +983,7 @@ function updateAlarmUI(){
   }
 }
 
-function useCameraAlarm(){
+function _origUseCameraAlarm(){
   if(!G.alarmReady||G.dead||G.won) return;
   play('cameraAlarm');
   if(G.chapoActive&&G.curCam===CHAPO_CAM_ID&&!G.chapoAlarm) resetChapo();
@@ -916,6 +998,7 @@ function useCameraAlarm(){
   },1000);
   updateAlarmUI();refreshMonsterDots();
 }
+/* useCameraAlarm defined below in AIgijs section */
 
 function resetChapo(){
   if(G.chapoKillTimer){clearTimeout(G.chapoKillTimer);G.chapoKillTimer=null;}
@@ -927,7 +1010,9 @@ function resetChapo(){
 
 function resetDiddy(){
   if(G.diddyMoveTimer){clearTimeout(G.diddyMoveTimer);}
-  G.diddyPos=POS.C0;G.diddyPath=null;
+  const respawnOptions=[POS.C0,POS.C1,POS.C2];
+  G.diddyPos=respawnOptions[Math.floor(Math.random()*respawnOptions.length)];
+  G.diddyPath=null;G.diddyAltRoute=false;
   refreshMonsterDots();if(G.camOpen) renderCamFeed();
   scheduleDiddyMove();
 }
@@ -1115,14 +1200,20 @@ function advanceDiddy(){
   if(G.dead||G.won||!G.diddyActive) return;
   if(G.diddyPos===POS.LD||G.diddyPos===POS.RD){triggerDiddyJS();return;}
   let np=G.diddyPos;
-  if(G.diddyPos===POS.C0) np=POS.C1;
-  else if(G.diddyPos===POS.C1) np=POS.C2;
-  else if(G.diddyPos===POS.C2){
+  // Layout: CAM1(C0)→CAM2(C1, 10% detour via CAM6/C5)→CAM3(C2)→CAM4(C3)/CAM5(C4)→LD/RD
+  if(G.diddyPos===POS.C0){                        // CAM1 → CAM2
+    np=POS.C1;
+  } else if(G.diddyPos===POS.C1){                 // CAM2 → CAM3 (10% detour via CAM6)
+    if(!G.diddyAltRoute && Math.random()<0.10){ G.diddyAltRoute=true; np=POS.C5; }
+    else { G.diddyAltRoute=false; np=POS.C2; }
+  } else if(G.diddyPos===POS.C5){                 // CAM6 (detour) → CAM3
+    G.diddyAltRoute=false; np=POS.C2;
+  } else if(G.diddyPos===POS.C2){                 // CAM3 → CAM4 or CAM5
     if(!G.diddyPath) G.diddyPath=Math.random()<.5?'left':'right';
-    np=G.diddyPath==='left'?POS.C3:POS.C4;G.diddyPath=null;
+    np=G.diddyPath==='left'?POS.C3:POS.C4; G.diddyPath=null;
   }
-  else if(G.diddyPos===POS.C3) np=POS.LD;
-  else if(G.diddyPos===POS.C4) np=POS.RD;
+  else if(G.diddyPos===POS.C3) np=POS.LD;         // CAM4 → Left Door
+  else if(G.diddyPos===POS.C4) np=POS.RD;         // CAM5 → Right Door
   G.diddyPos=np;
   refreshMonsterDots();if(G.camOpen) renderCamFeed();
   updateAlarmUI();
@@ -1271,11 +1362,19 @@ function advanceMonster(){
   if(G.mPos===POS.LD||G.mPos===POS.RD) return;
   if(Math.random()<0.2) play('laugh');
   let np=G.mPos;
-  if(G.mPos===POS.C0) np=POS.C1;
-  else if(G.mPos===POS.C1) np=POS.C2;
-  else if(G.mPos===POS.C2){if(!G.mPath) G.mPath=Math.random()<.5?'left':'right';np=G.mPath==='left'?POS.C3:POS.C4;G.mPath=null;}
-  else if(G.mPos===POS.C3) np=POS.LD;
-  else if(G.mPos===POS.C4) np=POS.RD;
+  // Layout: CAM1(C0)→CAM2(C1, 10% detour via CAM6/C5)→CAM3(C2)→CAM4(C3)/CAM5(C4)→LD/RD
+  if(G.mPos===POS.C0){                            // CAM1 → CAM2
+    np=POS.C1;
+  } else if(G.mPos===POS.C1){                     // CAM2 → CAM3 (10% detour via CAM6)
+    if(!G.mAltRoute && Math.random()<0.10){ G.mAltRoute=true; np=POS.C5; }
+    else { G.mAltRoute=false; np=POS.C2; }
+  } else if(G.mPos===POS.C5){                     // CAM6 Muziekkamer (detour) → CAM3
+    G.mAltRoute=false; np=POS.C2;
+  } else if(G.mPos===POS.C2){                     // CAM3 → CAM4 or CAM5
+    if(!G.mPath) G.mPath=Math.random()<.5?'left':'right';
+    np=G.mPath==='left'?POS.C3:POS.C4; G.mPath=null;
+  } else if(G.mPos===POS.C3) np=POS.LD;           // CAM4 → Left Door
+  else if(G.mPos===POS.C4) np=POS.RD;             // CAM5 → Right Door
   G.mPos=np;
   refreshMonsterDots();refreshDoorLights();
   if(G.camOpen) renderCamFeed();
@@ -1297,6 +1396,7 @@ function retreatGijs(){
   if(G.mDoorTimer){clearTimeout(G.mDoorTimer);G.mDoorTimer=null;}
   const backs=[POS.C0,POS.C1,POS.C2];
   G.mPos=backs[Math.floor(Math.random()*backs.length)];
+  G.mAltRoute=false;G.mPath=null;
   play('footsteps');refreshMonsterDots();refreshDoorLights();
   if(G.camOpen) renderCamFeed();
   updateLureUI();
@@ -1340,10 +1440,14 @@ function moveHobo(){
 ══════════════════════════════════════════ */
 function inLureRange(){
   if(!G.camOpen) return false;
+  // Adjacency for new layout: CAM7(C6)↔CAM4(C3),CAM5(C4) | CAM4/5↔CAM3(C2) | CAM3↔CAM1(C0),CAM2(C1) | CAM1→LD | CAM2→RD | CAM6(C5) music room adj to C2
   const adj={
-    [POS.C0]:[POS.C1],[POS.C1]:[POS.C0,POS.C2],
-    [POS.C2]:[POS.C1,POS.C3,POS.C4],[POS.C3]:[POS.C2,POS.LD],
-    [POS.C4]:[POS.C2,POS.RD],[POS.LD]:[POS.C3],[POS.RD]:[POS.C4]
+    [POS.C6]:[POS.C3,POS.C4],
+    [POS.C3]:[POS.C6,POS.C2,POS.LD],[POS.C4]:[POS.C6,POS.C2,POS.RD],
+    [POS.C2]:[POS.C3,POS.C4,POS.C0,POS.C1,POS.C5],
+    [POS.C0]:[POS.C2,POS.LD],[POS.C1]:[POS.C2,POS.RD],
+    [POS.C5]:[POS.C2],
+    [POS.LD]:[POS.C0,POS.C3],[POS.RD]:[POS.C1,POS.C4]
   };
   const gijsInRange=G.cfg.gijsActive&&G.curCam!==MUSIC_CAM_ID&&(G.mPos===G.curCam||(adj[G.mPos]||[]).includes(G.curCam));
   const hoboInRange=G.cfg.hoboActive&&G.curCam!==MUSIC_CAM_ID&&G.hoboPos===G.curCam;
@@ -1352,38 +1456,15 @@ function inLureRange(){
 }
 function hoboOnCurrentCam(){return G.camOpen&&G.hoboPos===G.curCam&&G.curCam!==MUSIC_CAM_ID;}
 
-function updateLureUI(){
-  const hudBtn=document.getElementById('lureBtnHud');
-  const camBtn=document.getElementById('lureBtnCam');
-  const cd=document.getElementById('lureCd');
-  if(G.lureDisabled){
-    hudBtn.disabled=true;hudBtn.className='lure-btn';hudBtn.textContent='🔇 UITGESCHAKELD';
-    camBtn.disabled=true;camBtn.className='lure-btn';camBtn.textContent='🔇 UITGESCHAKELD';
-    cd.textContent='Geluidssysteem uitgezet — raampje geopend';cd.className='lure-cd';
-    return;
-  }
-  const ready=G.lureReady,range=inLureRange();
-  if(ready){
-    hudBtn.disabled=!range;hudBtn.className='lure-btn'+(range?' ready':'');
-    camBtn.disabled=!range;camBtn.className='lure-btn'+(range?' ready':'');
-    hudBtn.textContent=range?'🔊 LOKKEN — KLAAR!':'🔊 LOKKEN';
-    camBtn.textContent=range?'🔊 LOKKEN — KLAAR!':'🔊 LOKKEN (buiten bereik)';
-    cd.textContent=range?'⚠ Monster in bereik!':'Monster niet in bereik';
-    cd.className='lure-cd'+(range?' hot':'');
-  } else {
-    const s=Math.ceil(G.lureCD);
-    hudBtn.disabled=true;hudBtn.className='lure-btn';hudBtn.textContent=`🔊 LOKKEN — ${s}s`;
-    camBtn.disabled=true;camBtn.className='lure-btn';camBtn.textContent=`🔊 LOKKEN — ${s}s`;
-    cd.textContent=`Cooldown: ${s}s`;cd.className='lure-cd';
-  }
-}
+/* updateLureUI defined below in AIgijs section (aigijs-aware version) */
 
 function useLure(){
-  if(G.lureDisabled||!G.lureReady||!inLureRange()||G.dead||G.won) return;
+  if(G.lureDisabled||_aigijsLureBlocked||!G.lureReady||!inLureRange()||G.dead||G.won) return;
   if(hoboOnCurrentCam()&&G.cfg.hoboActive){triggerHoboJS();return;}
   play('lure');
   if(G.diddyActive&&G.diddyPos===G.curCam&&G.curCam!==MUSIC_CAM_ID){
-    const pb={[POS.LD]:POS.C3,[POS.RD]:POS.C4,[POS.C3]:POS.C2,[POS.C4]:POS.C2,[POS.C2]:POS.C1,[POS.C1]:POS.C0,[POS.C0]:POS.C0};
+    // Pushback: reverse of movement direction through new layout
+    const pb={[POS.LD]:POS.C0,[POS.RD]:POS.C1,[POS.C0]:POS.C2,[POS.C1]:POS.C2,[POS.C2]:POS.C3,[POS.C3]:POS.C6,[POS.C4]:POS.C6,[POS.C6]:POS.C6};
     const np=pb[G.diddyPos];
     if(np!==undefined){
       if(G.diddyMoveTimer){clearTimeout(G.diddyMoveTimer);G.diddyMoveTimer=null;}
@@ -1392,7 +1473,7 @@ function useLure(){
       scheduleDiddyMove();
     }
   }
-  const pb={[POS.LD]:POS.C3,[POS.RD]:POS.C4,[POS.C3]:POS.C2,[POS.C4]:POS.C2,[POS.C2]:POS.C1,[POS.C1]:POS.C0,[POS.C0]:POS.C0};
+  const pb={[POS.LD]:POS.C0,[POS.RD]:POS.C1,[POS.C0]:POS.C2,[POS.C1]:POS.C2,[POS.C2]:POS.C3,[POS.C3]:POS.C6,[POS.C4]:POS.C6,[POS.C5]:POS.C2,[POS.C6]:POS.C6};
   const np=pb[G.mPos];
   if(np!==undefined){
     G.mPos=np;
@@ -1442,6 +1523,162 @@ function triggerShadowGijsJS(){
   img.style.display='none';G.shadowActive=false;
   doJumpscare(FILES.shadowGijsJS,'Shadow Gijs heeft je gevangen.<br><em>"Je had weg moeten kijken..."</em>','shadowGijsAudio', FILES.shadowGijsOffice);
   if(SFX.jumpscare){const s=SFX.jumpscare;s.currentTime=0;s.volume=2.0;s.play().catch(()=>{});}
+}
+
+/* ══════════════════════════════════════════
+   AIGIJS AI — Night 5+ / Custom Night
+   Spawns on CAM7 only. 20s interval, 20% chance.
+   Max 1 active. Alarm button on CAM7 removes it.
+   While active: lure is disabled.
+══════════════════════════════════════════ */
+function aigijsIsActive(){ return G.aigijsActive; }
+
+function diffToAigijsInterval(level){
+  // level 0 = never, 1 = very slow, 20 = max aggressive
+  if(level===0) return Infinity;
+  // scale: level 1 → ~60s interval, level 20 → ~10s interval
+  return Math.max(10000, Math.round(AIGIJS_SPAWN_INTERVAL_MS * (3.5 - (level-1)*(3.0/19))));
+}
+function diffToAigijsChance(level){
+  if(level===0) return 0;
+  // level 1 → 5%, level 20 → 80%
+  return Math.min(0.80, 0.05 + (level-1)*(0.75/19));
+}
+
+function scheduleAigijsCheck(){
+  if(G.aigijsSpawnTimer) clearInterval(G.aigijsSpawnTimer);
+  const night = G.night;
+  const cfg   = G.cfg;
+  // Activate only from Night 5, or Custom Night with aigijsLevel > 0
+  const nightOk = (night>=5) || (cfg.isCustom && cfg.aigijsLevel>0);
+  if(!nightOk) return;
+
+  const level   = cfg.aigijsLevel !== undefined ? cfg.aigijsLevel : (night>=5 ? 10 : 0);
+  const interval= diffToAigijsInterval(level);
+  const chance  = diffToAigijsChance(level);
+  if(interval===Infinity || chance===0) return;
+
+  G.aigijsSpawnTimer = setInterval(()=>{
+    if(G.dead||G.won) return;
+    if(G.aigijsActive) return;  // max 1 active
+    if(Math.random() < chance) spawnAigijs();
+  }, interval);
+}
+
+function spawnAigijs(){
+  if(G.aigijsActive||G.dead||G.won) return;
+  G.aigijsActive = true;
+
+  // Disable lure while AIgijs is active
+  setLureDisabledByAigijs(true);
+
+  // Show alarm on CAM7
+  updateAigijsUI();
+  refreshMonsterDots();
+  if(G.camOpen && G.curCam===AIGIJS_CAM_ID) renderCamFeed();
+}
+
+function removeAigijs(){
+  if(!G.aigijsActive) return;
+  G.aigijsActive = false;
+
+  // Restore lure
+  setLureDisabledByAigijs(false);
+
+  // Start cooldown before next spawn check
+  if(G.aigijsSpawnTimer) clearInterval(G.aigijsSpawnTimer);
+  G.aigijsSpawnTimer = null;
+  if(G.aigijsCooldownTimer) clearTimeout(G.aigijsCooldownTimer);
+  G.aigijsCooldownTimer = setTimeout(()=>{
+    if(!G.dead&&!G.won) scheduleAigijsCheck();
+  }, AIGIJS_COOLDOWN_MS);
+
+  updateAigijsUI();
+  refreshMonsterDots();
+  if(G.camOpen && G.curCam===AIGIJS_CAM_ID) renderCamFeed();
+}
+
+// AIgijs lure-disable tracking (separate from offer-based disable)
+function setLureDisabledByAigijs(blocked){
+  _aigijsLureBlocked = blocked;
+  // G.lureDisabled is the offer-based flag; we OR them
+  updateLureUI();
+}
+
+// updateLureUI — aigijs-aware
+function updateLureUI(){
+  const effectivelyDisabled = G.lureDisabled || _aigijsLureBlocked;
+  const hudBtn=document.getElementById('lureBtnHud');
+  const camBtn=document.getElementById('lureBtnCam');
+  const cd=document.getElementById('lureCd');
+  if(effectivelyDisabled){
+    hudBtn.disabled=true;hudBtn.className='lure-btn';
+    camBtn.disabled=true;camBtn.className='lure-btn';
+    if(_aigijsLureBlocked){
+      hudBtn.textContent='🔇 GEBLOKKEERD — AIgijs';
+      camBtn.textContent='🔇 GEBLOKKEERD — AIgijs';
+      cd.textContent='Geluidssysteem geblokkeerd door AIgijs';
+    } else {
+      hudBtn.textContent='🔇 UITGESCHAKELD';
+      camBtn.textContent='🔇 UITGESCHAKELD';
+      cd.textContent='Geluidssysteem uitgezet — raampje geopend';
+    }
+    cd.className='lure-cd';
+    return;
+  }
+  const ready=G.lureReady,range=inLureRange();
+  if(ready){
+    hudBtn.disabled=!range;hudBtn.className='lure-btn'+(range?' ready':'');
+    camBtn.disabled=!range;camBtn.className='lure-btn'+(range?' ready':'');
+    hudBtn.textContent=range?'🔊 LOKKEN — KLAAR!':'🔊 LOKKEN';
+    camBtn.textContent=range?'🔊 LOKKEN — KLAAR!':'🔊 LOKKEN (buiten bereik)';
+    cd.textContent=range?'⚠ Monster in bereik!':'Monster niet in bereik';
+    cd.className='lure-cd'+(range?' hot':'');
+  } else {
+    const s=Math.ceil(G.lureCD);
+    hudBtn.disabled=true;hudBtn.className='lure-btn';hudBtn.textContent=`🔊 LOKKEN — ${s}s`;
+    camBtn.disabled=true;camBtn.className='lure-btn';camBtn.textContent=`🔊 LOKKEN — ${s}s`;
+    cd.textContent=`Cooldown: ${s}s`;cd.className='lure-cd';
+  }
+}
+
+function updateAigijsUI(){
+  if(!G.camOpen) return;
+  const btn = document.getElementById('alarmCamBtn');
+  const lbl = document.getElementById('alarmCdLbl');
+  if(!btn||!lbl) return;
+  const onCam7 = (G.curCam===AIGIJS_CAM_ID);
+  if(onCam7 && G.aigijsActive){
+    // Show ALARM as active/target for AIgijs
+    btn.disabled=false;
+    btn.className='alarm-cam-btn target';
+    btn.textContent='🚨 ALARM — AIgijs!';
+    lbl.textContent='VUUR!'; lbl.className='alarm-cd-lbl hot';
+  } else {
+    // Fall back to normal alarm UI
+    updateAlarmUI();
+  }
+}
+
+/* useCameraAlarm — AIgijs-aware (calls _origUseCameraAlarm for normal behavior) */
+function useCameraAlarm(){
+  if(G.dead||G.won) return;
+  // AIgijs on CAM7 — clicking alarm removes AIgijs
+  if(G.curCam===AIGIJS_CAM_ID && G.aigijsActive){
+    play('cameraAlarm');
+    removeAigijs();
+    // Reset normal alarm CD
+    G.alarmReady=false; G.alarmCD=Math.max(0,ALARM_CD_S-(G.alarmCdReduction||0));
+    clearInterval(G.alarmCDTimer);
+    G.alarmCDTimer=setInterval(()=>{
+      G.alarmCD--;
+      if(G.alarmCD<=0){G.alarmReady=true;G.alarmCD=0;clearInterval(G.alarmCDTimer);}
+      updateAlarmUI();
+    },1000);
+    updateAlarmUI();
+    return;
+  }
+  _origUseCameraAlarm();
 }
 
 /* ══════════════════════════════════════════
@@ -1848,8 +2085,10 @@ function killTimers(){
    G.fireTimer,G.lureCDTimer,G.hoboMoveTimer,G.chapoKillTimer,
    G.markAppearTimer,G.markKillTimer,G.markLeaveTimer,G.markCheckInterval,
    G.maduroSpawnTimer,G.attackFlashTimer,G.diddyMoveTimer,G.alarmCDTimer,
-   G.shadowKillTimer,G.shadowCheckTimer,G.randomAudioTimer
+   G.shadowKillTimer,G.shadowCheckTimer,G.randomAudioTimer,
+   G.aigijsSpawnTimer,G.aigijsCooldownTimer
   ].forEach(t=>{if(t)try{clearInterval(t);clearTimeout(t);}catch(e){}});
+  _aigijsLureBlocked=false;
   if(G.randomAudioInst){try{G.randomAudioInst.pause();}catch(e){}G.randomAudioInst=null;}
   if(glitchTimer){clearTimeout(glitchTimer);glitchTimer=null;}
   glitchActive=false;G.fireOn=false;
@@ -2271,6 +2510,9 @@ function startGame(){
   scheduleMaduroSpawn();
   if(cfg.jeffreyActive){G.jeffreyStep=0;G.jeffreyPos=JEFFREY_PATH[0];G.jeffreyTimer=cfg.jeffreySwitch||JEFFREY_SWITCH_S;}
   if(cfg.diddyActive) setTimeout(scheduleDiddyMove, 8000);
+  // AIgijs — active from Night 5 or custom with aigijsLevel > 0
+  _aigijsLureBlocked=false;
+  scheduleAigijsCheck();
   refreshMonsterDots();
 }
 
@@ -2278,6 +2520,7 @@ function restartGame(){
   stopAll();
   if(SFX.gameOver){SFX.gameOver.pause();SFX.gameOver.currentTime=0;}
   stopKillerGlitch();
+  _aigijsLureBlocked=false;
   pendingOffer={};currentOffer=null;
   const offerScr=document.getElementById('gijsOfferScreen');
   if(offerScr) offerScr.style.display='none';
@@ -2891,7 +3134,7 @@ function showNewEnemyMessage(){
 /* ── N6 vijand activators ── */
 function startN6Gijs(){
   G.cfg.gijsActive=true;
-  G.mPos=POS.C0;
+  G.mPos=POS.C6;
   setTimeout(scheduleMoveTimer,5000);
 }
 function startN6Hobo(){
@@ -2927,7 +3170,7 @@ function startN6Schaduw(){
 function startN6Diddy(){
   G.cfg.diddyActive=true;
   G.diddyActive=true;
-  G.diddyPos=POS.C0;
+  G.diddyPos=POS.C6;
   setTimeout(scheduleDiddyMove,4000);
   document.getElementById('dotDiddy').style.display='';
   document.getElementById('diddyLabel').style.display='';
@@ -3309,8 +3552,10 @@ function retryNight6(){
      G.hoboMoveTimer,G.lureCDTimer,G.alarmCDTimer,G.maduroSpawnTimer,
      G.chapoKillTimer,G.diddyMoveTimer,G.markAppearTimer,G.markKillTimer,
      G.markLeaveTimer,G.shadowKillTimer,G.shadowCheckTimer,
-     G.glitchLoopTimer,G.attackFlashTimer,G.fireTimer,G.fireAnim
+     G.glitchLoopTimer,G.attackFlashTimer,G.fireTimer,G.fireAnim,
+     G.aigijsSpawnTimer,G.aigijsCooldownTimer
     ].forEach(t=>{ if(t) try{clearTimeout(t);clearInterval(t);}catch(e){} });
+    _aigijsLureBlocked=false;
     if(G.markCheckInterval) try{clearInterval(G.markCheckInterval);}catch(e){}
     Object.values(G.maduroReconnectTimers||{}).forEach(t=>{try{clearTimeout(t);}catch(e){}});
   }
