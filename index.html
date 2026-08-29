@@ -1133,6 +1133,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Sh
             <div class="cn-val-row"><span class="cn-num" id="cv_shadow">0</span><span class="cn-lbl" id="cdl_shadow">INACTIEF</span></div>
           </div>
 
+          <!-- AIgijs -->
+          <div class="cn-row">
+            <img class="cn-portrait" src="Images/AIgijsCamera.png" alt="">
+            <div class="cn-label">AIgijs <span style="font-size:.4em;color:#660066;letter-spacing:1px">[CAM 7]</span></div>
+            <div class="cn-ctrl">
+              <button class="cn-btn" onclick="setCustomLevel('aigijs',customLevels.aigijs-1)">−</button>
+              <div class="cn-bar-wrap"><div class="cn-bar-fill" id="cb_aigijs"></div></div>
+              <input class="cn-input" id="ci_aigijs" type="number" min="0" max="20" value="0" oninput="setCustomLevel('aigijs',this.value)">
+              <button class="cn-btn" onclick="setCustomLevel('aigijs',customLevels.aigijs+1)">+</button>
+            </div>
+            <div class="cn-val-row"><span class="cn-num" id="cv_aigijs">0</span><span class="cn-lbl" id="cdl_aigijs">INACTIEF</span></div>
+          </div>
+
         </div>
 
         <!-- Bulk aanpassing knoppen -->
